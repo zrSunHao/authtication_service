@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32210.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hao.Authentication.Web", "Hao.Authentication.Web\Hao.Authentication.Web.csproj", "{EBD941C1-75C1-494A-813A-D7A75330219C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hao.Authentication.Persistence", "Hao.Authentication.Persistence\Hao.Authentication.Persistence.csproj", "{8118EF5F-C8F9-4F21-A294-11E764E84289}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hao.Authentication.Domain", "Hao.Authentication.Domain\Hao.Authentication.Domain.csproj", "{6CC10A25-0542-4A88-A663-8BAFB3C00703}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hao.Authentication.Manager", "Hao.Authentication.Manager\Hao.Authentication.Manager.csproj", "{20A0E888-6FFB-4B4E-9EED-EEC5EC3BABB6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hao.Authentication.Utils", "Hao.Authentication.Utils\Hao.Authentication.Utils.csproj", "{7A6DC464-B92B-464E-AEF4-F0828C25D9D7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EBD941C1-75C1-494A-813A-D7A75330219C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBD941C1-75C1-494A-813A-D7A75330219C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBD941C1-75C1-494A-813A-D7A75330219C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBD941C1-75C1-494A-813A-D7A75330219C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8118EF5F-C8F9-4F21-A294-11E764E84289}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8118EF5F-C8F9-4F21-A294-11E764E84289}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8118EF5F-C8F9-4F21-A294-11E764E84289}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8118EF5F-C8F9-4F21-A294-11E764E84289}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CC10A25-0542-4A88-A663-8BAFB3C00703}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CC10A25-0542-4A88-A663-8BAFB3C00703}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CC10A25-0542-4A88-A663-8BAFB3C00703}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CC10A25-0542-4A88-A663-8BAFB3C00703}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20A0E888-6FFB-4B4E-9EED-EEC5EC3BABB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20A0E888-6FFB-4B4E-9EED-EEC5EC3BABB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20A0E888-6FFB-4B4E-9EED-EEC5EC3BABB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20A0E888-6FFB-4B4E-9EED-EEC5EC3BABB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A6DC464-B92B-464E-AEF4-F0828C25D9D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A6DC464-B92B-464E-AEF4-F0828C25D9D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A6DC464-B92B-464E-AEF4-F0828C25D9D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A6DC464-B92B-464E-AEF4-F0828C25D9D7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D353D325-F855-4519-AC40-721F3EDBAF16}
+	EndGlobalSection
+EndGlobal
