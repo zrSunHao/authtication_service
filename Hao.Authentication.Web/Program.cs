@@ -1,6 +1,14 @@
+using Hao.Authentication.Persistence.Database;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 #region Add services to the container.
+
+builder.Services.AddDbContext<PlatFormDbContext>(
+                config => config.UseSqlServer(builder.Configuration.GetConnectionString("Default"),
+                optionBuilder => optionBuilder.MigrationsAssembly(typeof(PlatFormDbContext).Assembly.GetName().Name))
+                );
 
 builder.Services.AddControllers();
 

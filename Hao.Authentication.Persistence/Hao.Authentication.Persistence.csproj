@@ -7,9 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Entities\" />
-    <Folder Include="Database\" />
-    <Folder Include="Configures\" />
     <Folder Include="Consts\" />
   </ItemGroup>
 
