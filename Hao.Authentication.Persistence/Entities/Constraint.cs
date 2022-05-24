@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hao.Authentication.Common.Enums;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -17,12 +18,10 @@ namespace Hao.Authentication.Persistence.Entities
         public string TargetId { get; set; }
 
         [Required]
-        [MaxLength(32)]
-        public string Category { get; set; }
+        public ConstraintCategory Category { get; set; }
 
         [Required]
-        [MaxLength(32)]
-        public string Method { get; set; }
+        public ConstraintMethod Method { get; set; }
 
         [Required]
         [MaxLength(256)]

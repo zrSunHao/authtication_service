@@ -12,4 +12,8 @@
     <Folder Include="Consts\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Hao.Authentication.Common\Hao.Authentication.Common.csproj" />
+  </ItemGroup>
+
 </Project>

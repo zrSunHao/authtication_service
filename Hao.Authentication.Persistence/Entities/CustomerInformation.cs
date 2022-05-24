@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hao.Authentication.Common.Enums;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -21,12 +22,11 @@ namespace Hao.Authentication.Persistence.Entities
         [MaxLength(32)]
         public string FullName { get; set; }
 
-        public bool? Gender { get; set; }
+        public CustomerGender Gender { get; set; }
 
         public DateTime? Birthday { get; set; }
 
-        [MaxLength(64)]
-        public string Education { get; set; }
+        public CustomerEducation Education { get; set; }
 
         [MaxLength(64)]
         public string Profession { get; set; }

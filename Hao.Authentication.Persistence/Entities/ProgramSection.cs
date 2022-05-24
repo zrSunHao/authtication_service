@@ -1,4 +1,5 @@
-﻿using Hao.Authentication.Persistence.Database;
+﻿using Hao.Authentication.Common.Enums;
+using Hao.Authentication.Persistence.Database;
 
 namespace Hao.Authentication.Persistence.Entities
 {
@@ -10,7 +11,7 @@ namespace Hao.Authentication.Persistence.Entities
 
         public string ProgramId { get; set; }
 
-        public string Type { get; set; }
+        public SectionCategory Category { get; set; }
 
         public string Remark { get; set; }
     }

@@ -12,7 +12,7 @@ namespace Hao.Authentication.Persistence.Configuration
 
             builder.Property(x => x.Code).HasMaxLength(32).IsRequired();
 
-            builder.Property(x => x.Type).HasMaxLength(32).IsRequired();
+            builder.Property(x => x.Category).IsRequired();
 
             builder.Property(x => x.ProgramId).HasMaxLength(32).IsRequired();
 
