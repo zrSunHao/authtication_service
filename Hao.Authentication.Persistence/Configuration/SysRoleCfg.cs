@@ -12,11 +12,15 @@ namespace Hao.Authentication.Persistence.Configuration
 
             builder.Property(x => x.Code).HasMaxLength(32).IsRequired();
 
+            builder.Property(x => x.SysId).HasMaxLength(32).IsRequired();
+
             builder.Property(x => x.Rank).IsRequired();
 
             builder.Property(x => x.Intro).HasMaxLength(256);
 
             builder.Property(x => x.Remark).HasMaxLength(256);
+
+            builder.HasIndex(x => x.SysId);
         }
     }
 }

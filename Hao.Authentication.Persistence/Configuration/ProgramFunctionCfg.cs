@@ -12,6 +12,8 @@ namespace Hao.Authentication.Persistence.Configuration
 
             builder.Property(x => x.Code).HasMaxLength(32).IsRequired();
 
+            builder.Property(x => x.ProgramId).HasMaxLength(32).IsRequired();
+
             builder.Property(x => x.SectionId).HasMaxLength(32).IsRequired();
 
             builder.Property(x => x.Remark).HasMaxLength(256);

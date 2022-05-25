@@ -10,6 +10,8 @@ namespace Hao.Authentication.Persistence.Entities
 
         public string SectionId { get; set; }
 
+        public string ProgramId { get; set; }
+
         public string Remark { get; set; }
     }
 }

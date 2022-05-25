@@ -21,5 +21,7 @@ namespace Hao.Authentication.Persistence.Entities
         [MaxLength(32)]
         [Required]
         public string ProgramId { get; set; }
+
+        public DateTime CreatedAt { get; set; }
     }
 }

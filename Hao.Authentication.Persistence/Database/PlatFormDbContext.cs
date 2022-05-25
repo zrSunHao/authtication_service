@@ -1,4 +1,5 @@
 ﻿using Hao.Authentication.Persistence.Entities;
+using Hao.Authentication.Persistence.Views;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hao.Authentication.Persistence.Database
@@ -28,12 +29,22 @@ namespace Hao.Authentication.Persistence.Database
         public DbSet<FileResource> FileResource { get; set; }
 
 
+        public DbSet<SysCtmView> CtmView { get; set; }
+        public DbSet<CtmRoleView> CtmRoleView { get; set; }
+        public DbSet<CttView> CtmCttView { get; set; }
+        
+
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-
             modelBuilder.ApplyConfigurationsFromAssembly(this.GetType().Assembly);
+
+            modelBuilder.Entity<SysCtmView>().ToTable(typeof(SysCtmView).Name, t => t.ExcludeFromMigrations());
+            modelBuilder.Entity<CtmRoleView>().ToTable(typeof(CtmRoleView).Name, t => t.ExcludeFromMigrations());
+            modelBuilder.Entity<CttView>().ToTable(typeof(CttView).Name, t => t.ExcludeFromMigrations());
+
         }
 
         /// <summary>
@@ -53,18 +64,28 @@ namespace Hao.Authentication.Persistence.Database
         /// </summary>
         private void EntityStateCheck()
         {
-            var list = ChangeTracker.Entries()
+            var addedList = ChangeTracker.Entries()
+                .Where(e => (e.State == EntityState.Added) && e.Entity is BaseEntity)
+                .ToList();
+            if (addedList.Any())
+            {
+                addedList.ForEach(e => { ((BaseEntity)e.Entity).CreatedAt = DateTime.Now; });
+            }
+
+            var modifiedList = ChangeTracker.Entries()
                 .Where(e => (e.State == EntityState.Modified) && e.Entity is BaseEntity)
                 .ToList();
-
-            list.ForEach(e =>
+            if (modifiedList.Any())
             {
-                ((BaseEntity)e.Entity).LastModifiedAt = DateTime.Now;
-                if (((BaseEntity)e.Entity).Deleted && !((BaseEntity)e.Entity).DeletedAt.HasValue)
+                modifiedList.ForEach(e =>
                 {
-                    ((BaseEntity)e.Entity).DeletedAt = DateTime.Now;
-                }
-            });
+                    ((BaseEntity)e.Entity).LastModifiedAt = DateTime.Now;
+                    if (((BaseEntity)e.Entity).Deleted && !((BaseEntity)e.Entity).DeletedAt.HasValue)
+                    {
+                        ((BaseEntity)e.Entity).DeletedAt = DateTime.Now;
+                    }
+                });
+            }
         }
     }
 }

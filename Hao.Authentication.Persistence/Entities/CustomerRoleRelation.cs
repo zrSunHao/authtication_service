@@ -24,5 +24,9 @@ namespace Hao.Authentication.Persistence.Entities
 
         [MaxLength(256)]
         public string Remark { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+
+        public DateTime? LastModifiedAt { get; set; }
     }
 }

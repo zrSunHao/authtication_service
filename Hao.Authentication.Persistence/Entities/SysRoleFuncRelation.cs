@@ -6,7 +6,7 @@ namespace Hao.Authentication.Persistence.Entities
 {
     [Table(nameof(SysRoleFuncRelation))]
     [Index(nameof(RoleId), IsUnique = false)]
-    [Index(nameof(FuncId), IsUnique = false)]
+    [Index(nameof(TargetId), IsUnique = false)]
     public class SysRoleFuncRelation
     {
         [Key]
@@ -20,6 +20,16 @@ namespace Hao.Authentication.Persistence.Entities
 
         [MaxLength(32)]
         [Required]
-        public string FuncId { get; set; }
+        public string ProgramId { get; set; }
+
+        [MaxLength(32)]
+        [Required]
+        public string TargetId { get; set; }
+
+        [Required]
+        public bool IsFunction { get; set; }
+
+        [Required]
+        public DateTime CreatedAt { get; set; }
     }
 }

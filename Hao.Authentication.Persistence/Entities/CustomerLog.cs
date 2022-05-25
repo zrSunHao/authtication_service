@@ -17,7 +17,7 @@ namespace Hao.Authentication.Persistence.Entities
         public string CustomerId { get; set; }
 
         [Required]
-        [MaxLength(32)]
+        [MaxLength(64)]
         public string Operate { get; set; }
 
         [MaxLength(32)]
@@ -36,7 +36,7 @@ namespace Hao.Authentication.Persistence.Entities
         [Required]
         public DateTime CreatedAt { get; set; }
 
-        [MaxLength(256)]
+        [MaxLength(512)]
         public string Remark { get; set; }
     }
 }

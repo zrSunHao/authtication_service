@@ -35,5 +35,7 @@ namespace Hao.Authentication.Persistence.Entities
 
         [Required]
         public bool Cancelled { get; set; } = false;
+
+        public DateTime CreatedAt { get; set; }
     }
 }

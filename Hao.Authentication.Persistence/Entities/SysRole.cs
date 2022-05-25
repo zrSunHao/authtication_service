@@ -9,6 +9,8 @@ namespace Hao.Authentication.Persistence.Entities
 
         public string Code { get; set; }
 
+        public string SysId { get; set; }
+
         public SysRoleRank Rank { get; set; }
 
         public string Intro { get; set; }

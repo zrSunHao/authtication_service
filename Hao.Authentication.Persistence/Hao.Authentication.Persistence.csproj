@@ -15,8 +15,4 @@
     <ProjectReference Include="..\Hao.Authentication.Common\Hao.Authentication.Common.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Views\" />
-  </ItemGroup>
-
 </Project>
