@@ -21,7 +21,5 @@
         public string FunctName { get; set; }
 
         public string FunctCode { get; set; }
-
-        public DateTime CreatedAt { get; set; }
     }
 }

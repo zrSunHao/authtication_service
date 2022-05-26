@@ -14,9 +14,9 @@ namespace Hao.Authentication.Persistence.Views
 
         public string SysName { get; set; }
 
-        public string FunctionId { get; set; }
+        public string FunctId { get; set; }
 
-        public string FunctionName { get; set; }
+        public string FunctName { get; set; }
 
         public ConstraintCategory Category { get; set; }
 

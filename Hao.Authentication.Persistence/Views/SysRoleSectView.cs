@@ -14,7 +14,7 @@ namespace Hao.Authentication.Persistence.Views
 
         public string SysCode { get; set; }
 
-        public string ProgramId { get; set; }
+        public string PgmId { get; set; }
 
         public string SectId { get; set; }
 
@@ -23,7 +23,5 @@ namespace Hao.Authentication.Persistence.Views
         public string SectCode { get; set; }
 
         public SectionCategory Category { get; set; }
-
-        public DateTime CreatedAt { get; set; }
     }
 }

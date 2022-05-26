@@ -11,7 +11,7 @@
         public string SysId { get; set; }
 
         public string SysName { get; set; }
-
+         
         public DateTime? CreatedAt { get; set; }
     }
 }

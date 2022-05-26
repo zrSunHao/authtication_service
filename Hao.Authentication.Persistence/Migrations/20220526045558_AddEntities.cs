@@ -109,7 +109,9 @@ namespace Hao.Authentication.Persistence.Migrations
                 name: "FileResource",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Code = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     Name = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
                     OwnId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     Category = table.Column<string>(type: "nvarchar(16)", maxLength: 16, nullable: false),

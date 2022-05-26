@@ -6,21 +6,30 @@ namespace Hao.Authentication.Persistence.Entities
 {
     [Table(nameof(FileResource))]
     [Index(nameof(OwnId), IsUnique = false)]
+    [Index(nameof(Code), IsUnique = true)]
     public class FileResource
     {
-        [Key]
-        [MaxLength(32)]
-        public string Id { get; set; }
+        [ScaffoldColumn(false)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; set; }
 
+        [Required]
+        [MaxLength(32)]
+        public string Code { get; set; }
+
+        [Required]
         [MaxLength(64)]
         public string Name { get; set; }
 
+        [Required]
         [MaxLength(32)]
         public string OwnId { get; set; }
 
+        [Required]
         [MaxLength(16)]
         public string Category { get; set; }
 
+        [Required]
         [MaxLength(64)]
         public string FileName { get; set; }
 
@@ -33,6 +42,7 @@ namespace Hao.Authentication.Persistence.Entities
         [Required]
         public long Length { get; set; }
 
+        [Required]
         public DateTime CreatedAt { get; set; }
 
     }
