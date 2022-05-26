@@ -19,7 +19,7 @@ namespace Hao.Authentication.Domain.Models
         public DateTime? CreatedAt { get; set; }
     }
 
-    public class SectElet
+    public class SectM
     {
         public string Id { get; set; }
 
@@ -32,7 +32,7 @@ namespace Hao.Authentication.Domain.Models
         public string Remark { get; set; }
     }
 
-    public class FunctElet
+    public class FunctM
     {
         public string Id { get; set; }
 
@@ -50,6 +50,9 @@ namespace Hao.Authentication.Domain.Models
 
         public string Eemark { get; set; }
     }
+
+
+
 
     public class PgmFilter
     {
