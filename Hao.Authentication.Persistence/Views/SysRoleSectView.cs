@@ -2,7 +2,7 @@
 
 namespace Hao.Authentication.Persistence.Views
 {
-    internal class SysRoleSectView
+    public class SysRoleSectView
     {
         public string Id { get; set; }
 

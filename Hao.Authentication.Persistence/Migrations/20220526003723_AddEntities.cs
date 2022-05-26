@@ -20,7 +20,8 @@ namespace Hao.Authentication.Persistence.Migrations
                     Origin = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     Remark = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     ExpiredAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Cancelled = table.Column<bool>(type: "bit", nullable: false)
+                    Cancelled = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -36,7 +37,7 @@ namespace Hao.Authentication.Persistence.Migrations
                     Nickname = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Password = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     PasswordSalt = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    Remark = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    Remark = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Deleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
@@ -74,13 +75,13 @@ namespace Hao.Authentication.Persistence.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CustomerId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
-                    Operate = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
+                    Operate = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
                     SystemId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     ProgramId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     RoleId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     RemoteAddress = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Remark = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false)
+                    Remark = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -95,7 +96,9 @@ namespace Hao.Authentication.Persistence.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CustomerId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     RoleId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
-                    Remark = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false)
+                    Remark = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -113,7 +116,8 @@ namespace Hao.Authentication.Persistence.Migrations
                     FileName = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
                     Type = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
                     Suffix = table.Column<string>(type: "nvarchar(16)", maxLength: 16, nullable: false),
-                    Length = table.Column<long>(type: "bigint", nullable: false)
+                    Length = table.Column<long>(type: "bigint", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -147,6 +151,7 @@ namespace Hao.Authentication.Persistence.Migrations
                     Name = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     Code = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     SectionId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
+                    ProgramId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     Remark = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -204,7 +209,8 @@ namespace Hao.Authentication.Persistence.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SysId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
-                    ProgramId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false)
+                    ProgramId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -218,6 +224,7 @@ namespace Hao.Authentication.Persistence.Migrations
                     Id = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     Name = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     Code = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
+                    SysId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     Rank = table.Column<int>(type: "int", nullable: false),
                     Intro = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     Remark = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
@@ -238,7 +245,10 @@ namespace Hao.Authentication.Persistence.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RoleId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
-                    FuncId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false)
+                    ProgramId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
+                    TargetId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
+                    IsFunction = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -298,14 +308,19 @@ namespace Hao.Authentication.Persistence.Migrations
                 column: "SysId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SysRoleFuncRelation_FuncId",
-                table: "SysRoleFuncRelation",
-                column: "FuncId");
+                name: "IX_SysRole_SysId",
+                table: "SysRole",
+                column: "SysId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SysRoleFuncRelation_RoleId",
                 table: "SysRoleFuncRelation",
                 column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SysRoleFuncRelation_TargetId",
+                table: "SysRoleFuncRelation",
+                column: "TargetId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
