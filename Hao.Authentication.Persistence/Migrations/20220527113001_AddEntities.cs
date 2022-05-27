@@ -21,7 +21,8 @@ namespace Hao.Authentication.Persistence.Migrations
                     Remark = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     ExpiredAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Cancelled = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -39,9 +40,12 @@ namespace Hao.Authentication.Persistence.Migrations
                     PasswordSalt = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     Remark = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true),
                     LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifiedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true),
                     Deleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -76,7 +80,7 @@ namespace Hao.Authentication.Persistence.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CustomerId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     Operate = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
-                    SystemId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
+                    SystemId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true),
                     ProgramId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     RoleId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     RemoteAddress = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
@@ -98,7 +102,7 @@ namespace Hao.Authentication.Persistence.Migrations
                     RoleId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     Remark = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    CreatedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -116,10 +120,11 @@ namespace Hao.Authentication.Persistence.Migrations
                     OwnId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     Category = table.Column<string>(type: "nvarchar(16)", maxLength: 16, nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
-                    Suffix = table.Column<string>(type: "nvarchar(16)", maxLength: 16, nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: true),
+                    Suffix = table.Column<string>(type: "nvarchar(16)", maxLength: 16, nullable: true),
                     Length = table.Column<long>(type: "bigint", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -136,9 +141,12 @@ namespace Hao.Authentication.Persistence.Migrations
                     Category = table.Column<int>(type: "int", nullable: false),
                     Remark = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true),
                     LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifiedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true),
                     Deleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -156,9 +164,12 @@ namespace Hao.Authentication.Persistence.Migrations
                     ProgramId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     Remark = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true),
                     LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifiedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true),
                     Deleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -176,9 +187,12 @@ namespace Hao.Authentication.Persistence.Migrations
                     Category = table.Column<int>(type: "int", nullable: false),
                     Remark = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true),
                     LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifiedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true),
                     Deleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -195,9 +209,12 @@ namespace Hao.Authentication.Persistence.Migrations
                     Intro = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     Remark = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true),
                     LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifiedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true),
                     Deleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -212,7 +229,8 @@ namespace Hao.Authentication.Persistence.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SysId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     ProgramId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -231,9 +249,12 @@ namespace Hao.Authentication.Persistence.Migrations
                     Intro = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     Remark = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true),
                     LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifiedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true),
                     Deleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -250,7 +271,8 @@ namespace Hao.Authentication.Persistence.Migrations
                     ProgramId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     TargetId = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     IsFunction = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -283,6 +305,12 @@ namespace Hao.Authentication.Persistence.Migrations
                 name: "IX_CustomerRoleRelation_RoleId",
                 table: "CustomerRoleRelation",
                 column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FileResource_Code",
+                table: "FileResource",
+                column: "Code",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_FileResource_OwnId",

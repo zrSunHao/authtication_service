@@ -31,5 +31,8 @@ namespace Hao.Authentication.Persistence.Entities
 
         [Required]
         public DateTime CreatedAt { get; set; }
+
+        [MaxLength(32)]
+        public string? CreatedById { get; set; }
     }
 }

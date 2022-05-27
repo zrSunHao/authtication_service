@@ -1,3 +1,4 @@
+using Hao.Authentication.Manager;
 using Hao.Authentication.Persistence.Database;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +11,9 @@ builder.Services.AddDbContext<PlatFormDbContext>(
                 optionBuilder => optionBuilder.MigrationsAssembly(typeof(PlatFormDbContext).Assembly.GetName().Name))
                 );
 
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.DomainConfigureServices();
 builder.Services.AddControllers();
 
 // Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

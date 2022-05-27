@@ -12,8 +12,6 @@ namespace Hao.Authentication.Domain.Models
 
         public string Code { get; set; }
 
-        public string Intro { get; set; }
-
         public string Remark { get; set; }
 
         public DateTime? CreatedAt { get; set; }

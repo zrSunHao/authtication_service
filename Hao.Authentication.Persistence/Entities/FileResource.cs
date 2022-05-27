@@ -38,16 +38,19 @@ namespace Hao.Authentication.Persistence.Entities
         public string FileName { get; set; }
 
         [MaxLength(64)]
-        public string Type { get; set; }
+        public string? Type { get; set; }
 
         [MaxLength(16)]
-        public string Suffix { get; set; }
+        public string? Suffix { get; set; }
 
         [Required]
         public long Length { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }
+
+        [MaxLength(32)]
+        public string? CreatedById { get; set; }
 
     }
 }

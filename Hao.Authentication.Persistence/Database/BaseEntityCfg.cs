@@ -14,6 +14,9 @@ namespace Hao.Authentication.Persistence.Database
             this.EntityConfigure(builder);
 
             builder.Property(x => x.Id).HasMaxLength(32);
+            builder.Property(x => x.CreatedById).HasMaxLength(32);
+            builder.Property(x => x.LastModifiedById).HasMaxLength(32);
+            builder.Property(x => x.DeletedById).HasMaxLength(32);
             builder.Property(x => x.Deleted).HasDefaultValue(false);
         }
 

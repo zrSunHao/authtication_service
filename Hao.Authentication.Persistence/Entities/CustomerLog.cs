@@ -21,14 +21,14 @@ namespace Hao.Authentication.Persistence.Entities
         public string Operate { get; set; }
 
         [MaxLength(32)]
-        public string SystemId { get; set; }
+        public string? SystemId { get; set; }
 
         [MaxLength(32)]
         public string ProgramId { get; set; }
 
         [Required]
         [MaxLength(32)]
-        public string RoleId { get; set; }
+        public string? RoleId { get; set; }
 
         [MaxLength(64)]
         public string RemoteAddress { get; set; }

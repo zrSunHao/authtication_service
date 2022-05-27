@@ -40,5 +40,8 @@ namespace Hao.Authentication.Persistence.Entities
         public bool Cancelled { get; set; } = false;
 
         public DateTime CreatedAt { get; set; }
+
+        [MaxLength(32)]
+        public string? CreatedById { get; set; }
     }
 }
