@@ -1,13 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hao.Authentication.Persistence.Attributes;
+using Hao.Authentication.Persistence.Consts;
+using Hao.Authentication.Persistence.Database;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hao.Authentication.Persistence.Entities
 {
+    [TablePrefix(PrefixConsts.FileResource)]
     [Table(nameof(FileResource))]
     [Index(nameof(OwnId), IsUnique = false)]
     [Index(nameof(Code), IsUnique = true)]
-    public class FileResource
+    public class FileResource : BaseInfo
     {
         [ScaffoldColumn(false)]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

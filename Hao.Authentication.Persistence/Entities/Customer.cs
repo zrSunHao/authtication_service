@@ -1,7 +1,10 @@
-﻿using Hao.Authentication.Persistence.Database;
+﻿using Hao.Authentication.Persistence.Attributes;
+using Hao.Authentication.Persistence.Consts;
+using Hao.Authentication.Persistence.Database;
 
 namespace Hao.Authentication.Persistence.Entities
 {
+    [TablePrefix(PrefixConsts.Customer)]
     public class Customer : BaseEntity
     {
         public string Name { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace Hao.Authentication.Persistence.Database
 {
-    public class BaseEntity
+    public class BaseEntity: BaseInfo
     {
         /// <summary>
         /// 主键标识

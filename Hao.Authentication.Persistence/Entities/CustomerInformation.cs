@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hao.Authentication.Persistence.Entities
 {
-
     [Table(nameof(CustomerInformation))]
     [Index(nameof(CustomerId), IsUnique = true)]
     public class CustomerInformation
