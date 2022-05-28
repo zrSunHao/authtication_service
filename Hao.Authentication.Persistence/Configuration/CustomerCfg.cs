@@ -15,6 +15,8 @@ namespace Hao.Authentication.Persistence.Configuration
             builder.Property(x => x.PasswordSalt).IsRequired();
 
             builder.Property(x => x.Remark).HasMaxLength(512);
+
+            builder.HasIndex(x => x.Name).IsUnique();
         }
     }
 }

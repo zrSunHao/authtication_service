@@ -1,6 +1,7 @@
 ﻿using Hao.Authentication.Common.Enums;
 using Hao.Authentication.Persistence.Attributes;
 using Hao.Authentication.Persistence.Consts;
+using Hao.Authentication.Persistence.Database;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -10,7 +11,7 @@ namespace Hao.Authentication.Persistence.Entities
     [TablePrefix(PrefixConsts.Constraint)]
     [Table(nameof(Constraint))]
     [Index(nameof(TargetId), IsUnique = true)]
-    public class Constraint
+    public class Constraint : BaseInfo
     {
         [Key]
         [MaxLength(32)]

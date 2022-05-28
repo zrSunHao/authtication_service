@@ -1,18 +1,17 @@
 ﻿namespace Hao.Authentication.Domain.Paging
 {
-
     public class BaseResponseResult
     {
         public int StatusCode { get; set; } = 200;
         public List<string> Messages { get; set; } = new List<string>();
-        public bool Success { get; set; }
+        public bool Success { get; set; } = true;
         public string AllMessages { get => string.Join('\n', Messages); }
 
         public void AddError(Exception e)
         {
             Success = false;
             StatusCode = 500;
-            Messages.Add(e.Message);
+            Messages.Add($"{e.Message} {e.InnerException?.Message}");
         }
 
         public void AddMessage(string msg)
@@ -51,5 +50,21 @@
         public T Key { get; set; }
 
         public string Value { get; set; }
+    }
+
+    public static class PagingProfile
+    {
+        public static IQueryable<T> AsPaging<T>(this IQueryable<T> query, int pageIndex, int pageSize)
+        {
+            if (query == null)
+                throw new ArgumentNullException(nameof(query));
+
+            if (pageIndex < 0) pageIndex = 1;
+
+
+            if (pageSize < 1) pageSize = 10;
+
+            return query.Skip((pageIndex - 1) * pageSize).Take(pageSize);
+        }
     }
 }

@@ -14,6 +14,8 @@ namespace Hao.Authentication.Persistence.Entities
 
         public ProgramCategory Category { get; set; }
 
+        public string Intro { get; set; }
+
         public string Remark { get; set; }
     }
 }

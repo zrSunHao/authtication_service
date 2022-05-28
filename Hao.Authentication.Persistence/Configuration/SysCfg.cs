@@ -15,6 +15,10 @@ namespace Hao.Authentication.Persistence.Configuration
             builder.Property(x => x.Intro).HasMaxLength(256);
 
             builder.Property(x => x.Remark).HasMaxLength(256);
+
+            builder.HasIndex(x => x.Name).IsUnique();
+
+            builder.HasIndex(x => x.Code).IsUnique();
         }
     }
 }
