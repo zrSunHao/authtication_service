@@ -29,10 +29,11 @@ namespace Hao.Authentication.Persistence.Database
         public DbSet<FileResource> FileResource { get; set; }
 
 
-        public DbSet<SysCtmView> CtmView { get; set; }
+        public DbSet<CtmView> CtmView { get; set; }
         public DbSet<CtmRoleView> CtmRoleView { get; set; }
-        public DbSet<CttView> CtmCttView { get; set; }
         public DbSet<CtmLastLoginView> CtmLastLoginView { get; set; }
+
+        public DbSet<CttView> CttView { get; set; }
 
         public DbSet<PgmFunctView> PgmFunctView { get; set; }
 
@@ -47,10 +48,13 @@ namespace Hao.Authentication.Persistence.Database
         {
             modelBuilder.ApplyConfigurationsFromAssembly(this.GetType().Assembly);
 
-            modelBuilder.Entity<SysCtmView>().ToTable(typeof(SysCtmView).Name, t => t.ExcludeFromMigrations());
+            modelBuilder.Entity<CtmView>().ToTable(typeof(CtmView).Name, t => t.ExcludeFromMigrations());
             modelBuilder.Entity<CtmRoleView>().ToTable(typeof(CtmRoleView).Name, t => t.ExcludeFromMigrations());
-            modelBuilder.Entity<CttView>().ToTable(typeof(CttView).Name, t => t.ExcludeFromMigrations());
             modelBuilder.Entity<CtmLastLoginView>().ToTable(typeof(CtmLastLoginView).Name, t => t.ExcludeFromMigrations());
+
+            modelBuilder.Entity<PgmFunctView>().ToTable(typeof(PgmFunctView).Name, t => t.ExcludeFromMigrations());
+
+            modelBuilder.Entity<CttView>().ToTable(typeof(CttView).Name, t => t.ExcludeFromMigrations());
 
             modelBuilder.Entity<SysCtmView>().ToTable(typeof(SysCtmView).Name, t => t.ExcludeFromMigrations());
             modelBuilder.Entity<SysRoleFunctView>().ToTable(typeof(SysRoleFunctView).Name, t => t.ExcludeFromMigrations());

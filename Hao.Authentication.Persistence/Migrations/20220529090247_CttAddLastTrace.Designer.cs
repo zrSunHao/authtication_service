@@ -4,6 +4,7 @@ using Hao.Authentication.Persistence.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hao.Authentication.Persistence.Migrations
 {
     [DbContext(typeof(PlatFormDbContext))]
-    partial class PlatFormDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220529090247_CttAddLastTrace")]
+    partial class CttAddLastTrace
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -33,7 +33,7 @@ namespace Hao.Authentication.Domain.Models
 
     public class CttFilter
     {
-        public string CustomerName { get; set; }
+        public string Name { get; set; }
 
         public ConstraintCategory? Category { get; set; }
 

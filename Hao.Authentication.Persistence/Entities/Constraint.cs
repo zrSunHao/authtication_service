@@ -44,5 +44,10 @@ namespace Hao.Authentication.Persistence.Entities
 
         [MaxLength(32)]
         public string? CreatedById { get; set; }
+
+        public DateTime? LastModifiedAt { get; set; }
+
+        [MaxLength(32)]
+        public string? LastModifiedById { get; set; }
     }
 }

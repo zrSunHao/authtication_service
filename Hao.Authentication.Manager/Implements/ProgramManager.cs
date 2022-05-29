@@ -105,8 +105,6 @@ namespace Hao.Authentication.Manager.Implements
         public async Task<ResponsePagingResult<ProgramM>> GetList(PagingParameter<PgmFilter> param)
         {
             var res = new ResponsePagingResult<ProgramM>();
-            Stopwatch watch1 = new Stopwatch();
-            watch1.Start();
             try
             {
                 var query = _dbContext.Program.Where(x => !x.Deleted);
@@ -149,8 +147,6 @@ namespace Hao.Authentication.Manager.Implements
                 res.AddError(e);
                 _logger.LogError(e, $"获取程序列表失败");
             }
-            watch1.Stop();
-            Console.WriteLine($"方法耗时{watch1.ElapsedMilliseconds}毫秒");
             return res;
         }
 

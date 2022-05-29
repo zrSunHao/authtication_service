@@ -1,10 +1,5 @@
 ﻿using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Domain.Paging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hao.Authentication.Domain.Interfaces
 {
