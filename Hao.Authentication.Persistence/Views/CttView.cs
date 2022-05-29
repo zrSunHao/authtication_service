@@ -22,9 +22,9 @@ namespace Hao.Authentication.Persistence.Views
 
         public ConstraintMethod Method { get; set; }
 
-        public string? Origin { get; set; }
+        public string Origin { get; set; }
 
-        public string? Remark { get; set; }
+        public string Remark { get; set; }
 
         public DateTime? ExpiredAt { get; set; }
 

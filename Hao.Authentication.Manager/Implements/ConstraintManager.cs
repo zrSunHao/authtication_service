@@ -62,8 +62,9 @@ namespace Hao.Authentication.Manager.Implements
                 if (filter != null)
                 {
                     if (!string.IsNullOrEmpty(filter.Name))
-                        query = query.Where(x => x.CtmName.Contains(filter.Name) 
-                        || x.SysName.Contains(filter.Name) || x.FunctName.Contains(filter.Name));
+                        query = query.Where(x => (x.CtmName != null && x.CtmName.Contains(filter.Name))
+                        || (x.SysName != null && x.SysName.Contains(filter.Name)) 
+                        || (x.FunctName != null && x.FunctName.Contains(filter.Name)));
                     if (!string.IsNullOrEmpty(filter.OriginOrRemark))
                         query = query.Where(x => x.Remark.Contains(filter.OriginOrRemark) 
                         || x.Origin.Contains(filter.OriginOrRemark));
