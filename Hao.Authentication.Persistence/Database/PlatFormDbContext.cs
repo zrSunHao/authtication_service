@@ -34,6 +34,8 @@ namespace Hao.Authentication.Persistence.Database
         public DbSet<CttView> CtmCttView { get; set; }
         public DbSet<CtmLastLoginView> CtmLastLoginView { get; set; }
 
+        public DbSet<PgmFunctView> PgmFunctView { get; set; }
+
         public DbSet<SysCtmView> SysCtmView { get; set; }
         public DbSet<SysRoleFunctView> SysRoleFunctView { get; set; }
         public DbSet<SysRoleSectView> SysRoleSectView { get; set; }

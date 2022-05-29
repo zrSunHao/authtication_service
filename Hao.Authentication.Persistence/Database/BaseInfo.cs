@@ -33,7 +33,7 @@ namespace Hao.Authentication.Persistence.Database
                 throw new ArgumentNullException("机器码为空");
             lock (_lock)
             {
-                string time = DateTime.UtcNow.ToString("yyMMdd_hhmmss");
+                string time = DateTime.Now.ToString("yyMMdd_hhmmss");
                 if (time != _time) { _time = time; _index = 1; }
                 else _index++;
                 if (string.IsNullOrEmpty(_tablePrefix))
@@ -45,7 +45,8 @@ namespace Hao.Authentication.Persistence.Database
                 }
             }
             string rand = _random.Next(100, 999).ToString();
-            return $"{_tablePrefix.PadRight(4,'*')}{_time}{machine.PadRight(4, '*')}{string.Format("{0:D5}",_index)}{rand}";
+            // 表前缀4位、时间14位、机器码4位、顺序码5位、随机码3位
+            return $"{_tablePrefix.PadRight(4,'*')}{_time}{machine.PadLeft(4, '*')}{string.Format("{0:D5}",_index)}{rand}";
         }
 
         private string GetTablePrefix()

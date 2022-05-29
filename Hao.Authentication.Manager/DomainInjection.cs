@@ -12,6 +12,8 @@ namespace Hao.Authentication.Manager
             services.AddAutoMapper(typeof(DomainInjection).Assembly);
 
             services.AddTransient<IProgramManager, ProgramManager>();
+            services.AddTransient<IConstraintManager, ConstraintManager>();
+
             return services;
         }
 

@@ -17,19 +17,19 @@ namespace Hao.Authentication.Web.Controllers
             _manager = manager;
         }
 
-        [HttpPost, Route("Add")]
+        [HttpPost("Add")]
         public async Task<ResponseResult<bool>> Add([FromBody]ProgramM model)
         {
             return await _manager.Add(model);
         }
 
-        [HttpPatch, Route("Update")]
+        [HttpPatch("Update")]
         public async Task<ResponseResult<bool>> Update(ProgramM model)
         {
             return await _manager.Update(model);
         }
 
-        [HttpDelete, Route("Delete")]
+        [HttpDelete("Delete")]
         public async Task<ResponseResult<bool>> Delete(string id)
         {
             return await _manager.Delete(id);
@@ -48,25 +48,25 @@ namespace Hao.Authentication.Web.Controllers
 
 
 
-        [HttpPost, Route("AddSect")]
+        [HttpPost("AddSect")]
         public async Task<ResponseResult<bool>> AddSect(SectM model)
         {
             return await _manager.AddSect(model);
         }
 
-        [HttpPatch, Route("UpdateSect")]
+        [HttpPatch("UpdateSect")]
         public async Task<ResponseResult<bool>> UpdateSect(SectM model)
         {
             return await _manager.UpdateSect(model);
         }
 
-        [HttpDelete, Route("DeleteSect")]
+        [HttpDelete("DeleteSect")]
         public async Task<ResponseResult<bool>> DeleteSect(string id)
         {
             return await _manager.DeleteSect(id);
         }
 
-        [HttpGet, Route("GetSectList")]
+        [HttpGet("GetSectList")]
         public async Task<ResponsePagingResult<SectM>> GetSectList(string pgmId)
         {
             return await _manager.GetSectList(pgmId);
@@ -74,25 +74,25 @@ namespace Hao.Authentication.Web.Controllers
 
 
 
-        [HttpPost, Route("AddFunct")]
+        [HttpPost("AddFunct")]
         public async Task<ResponseResult<bool>> AddFunct(FunctM model)
         {
             return await _manager.AddFunct(model);
         }
 
-        [HttpPatch, Route("UpdateFunct")]
+        [HttpPatch("UpdateFunct")]
         public async Task<ResponseResult<bool>> UpdateFunct(FunctM model)
         {
             return await _manager.UpdateFunct(model);
         }
 
-        [HttpDelete, Route("DeleteFunct")]
+        [HttpDelete("DeleteFunct")]
         public async Task<ResponseResult<bool>> DeleteFunct(string id)
         {
             return await _manager.DeleteFunct(id);
         }
 
-        [HttpGet, Route("GetFunctList")]
+        [HttpGet("GetFunctList")]
         public async Task<ResponsePagingResult<FunctM>> GetFunctList(string sectId)
         {
             return await _manager.GetFunctList(sectId);

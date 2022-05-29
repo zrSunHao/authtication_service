@@ -24,9 +24,9 @@ namespace Hao.Authentication.Manager.Implements
         private readonly ILogger _logger;
         public ProgramManager(PlatFormDbContext dbContext,
             IMapper mapper,
-            IConfiguration configuration, 
+            IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
-            ILogger<ProgramManager> logger) 
+            ILogger<ProgramManager> logger)
             : base(dbContext, mapper, configuration, httpContextAccessor)
         {
             _logger = logger;
@@ -57,7 +57,7 @@ namespace Hao.Authentication.Manager.Implements
             catch (Exception e)
             {
                 res.AddError(e);
-                _logger.LogError(e,$"添加程序【{model.Name} - {model.Code}】失败");
+                _logger.LogError(e, $"添加程序【{model.Name} - {model.Code}】失败");
             }
             return res;
         }
@@ -70,9 +70,9 @@ namespace Hao.Authentication.Manager.Implements
                 var entity = await _dbContext.Program
                     .FirstOrDefaultAsync(x => !x.Deleted && x.Id == model.Id);
                 if (entity == null) throw new MyCustomException($"未查询到Id为【{model.Id}】的程序信息！");
-                
+
                 // 如果名称或标识码改变则判断是否与其他程序冲突
-                if(entity.Name != model.Name)
+                if (entity.Name != model.Name)
                 {
                     var nameExist = await _dbContext.Program
                     .AnyAsync(x => !x.Deleted && x.Name == model.Name);
@@ -111,13 +111,13 @@ namespace Hao.Authentication.Manager.Implements
             {
                 var query = _dbContext.Program.Where(x => !x.Deleted);
                 var filter = param.Filter;
-                if(filter != null)
+                if (filter != null)
                 {
                     if (!string.IsNullOrEmpty(filter.NameOrCode))
                         query = query.Where(x => x.Name.Contains(filter.NameOrCode) || x.Code.Contains(filter.NameOrCode));
-                    if (!string.IsNullOrEmpty(filter.Remark))
-                        query = query.Where(x => x.Remark.Contains(filter.Remark));
-                    if(filter.Category.HasValue && filter.Category.Value != 0)
+                    if (!string.IsNullOrEmpty(filter.IntroOrRemark))
+                        query = query.Where(x => x.Remark.Contains(filter.IntroOrRemark) || x.Intro.Contains(filter.IntroOrRemark));
+                    if (filter.Category.HasValue && filter.Category.Value != 0)
                         query = query.Where(x => x.Category == filter.Category);
                     if (filter.StartAt.HasValue)
                         query = query.Where(x => x.CreatedAt >= filter.StartAt.Value);
@@ -125,10 +125,9 @@ namespace Hao.Authentication.Manager.Implements
                         query = query.Where(x => x.CreatedAt <= filter.EndAt.Value.AddDays(1).AddSeconds(-1));
                 }
 
-                if(param.Sort!=null && param.Sort.ToLower() == "desc")
+                query = query.OrderByDescending(x => x.CreatedAt);
+                if (param.Sort != null && param.Sort.ToLower() == "desc")
                 {
-                    if (param.SortColumn?.ToLower() == "CreatedAt".ToLower())
-                        query = query.OrderByDescending(x => x.CreatedAt);
                     if (param.SortColumn?.ToLower() == "Name".ToLower())
                         query = query.OrderByDescending(x => x.Name);
                 }
@@ -180,15 +179,17 @@ namespace Hao.Authentication.Manager.Implements
 
                 await _dbContext.ProgramSection
                     .Where(x => x.ProgramId == id && !x.Deleted)
-                    .ForEachAsync(x => { 
-                        x.Deleted = true; 
+                    .ForEachAsync(x =>
+                    {
+                        x.Deleted = true;
                         x.DeletedAt = DateTime.Now;
-                        x.DeletedById = CurrentUserId; 
+                        x.DeletedById = CurrentUserId;
                     });
 
                 await _dbContext.ProgramFunction
                     .Where(x => x.ProgramId == id && !x.Deleted)
-                    .ForEachAsync(x => {
+                    .ForEachAsync(x =>
+                    {
                         x.Deleted = true;
                         x.DeletedAt = DateTime.Now;
                         x.DeletedById = CurrentUserId;
@@ -213,7 +214,7 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponseResult<bool>();
             try
             {
-                var category =await GetSectionCategory(model.PgmId);
+                var category = await GetSectionCategory(model.PgmId);
                 var categoryName = category == SectionCategory.page ? "页面" : "模块";
 
                 // 判断该程序下是否存在同名、同标识码的页面/模块
@@ -287,8 +288,10 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponsePagingResult<SectM>();
             try
             {
-                var query = _dbContext.ProgramSection.Where(x => !x.Deleted);
-                var data = await query.ToListAsync();
+                var data = await _dbContext.ProgramSection
+                    .Where(x => !x.Deleted)
+                    .OrderBy(x => x.Code)
+                    .ToListAsync();
                 res.RowsCount = data.Count();
                 res.Data = _mapper.Map<List<SectM>>(data);
             }
@@ -314,7 +317,8 @@ namespace Hao.Authentication.Manager.Implements
 
                 await _dbContext.ProgramFunction
                     .Where(x => x.SectionId == id && !x.Deleted)
-                    .ForEachAsync(x => {
+                    .ForEachAsync(x =>
+                    {
                         x.Deleted = true;
                         x.DeletedAt = DateTime.Now;
                         x.DeletedById = CurrentUserId;
@@ -392,14 +396,14 @@ namespace Hao.Authentication.Manager.Implements
                 await _dbContext.Constraint
                         .Where(x => !x.Cancelled && x.TargetId == model.Id)
                         .ForEachAsync(x => { x.Cancelled = true; });
-                if (model.CttMethod != null)
+                if (model.CttMethod != null && model.CttMethod != 0)
                 {
                     var ctt = new Constraint
                     {
                         TargetId = model.Id,
                         Category = ConstraintCategory.program_function,
                         Method = model.CttMethod.Value,
-                        ExpiredAt = model.LimitedExpiredAt,
+                        ExpiredAt = model.CttMethod == ConstraintMethod._lock ? model.LimitedExpiredAt : null,
                         Origin = "管理员设置",
                         Remark = "无",
                         Cancelled = false,
@@ -425,22 +429,11 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponsePagingResult<FunctM>();
             try
             {
-                var data = await (from F in _dbContext.ProgramFunction
-                                  join Ctt in _dbContext.Constraint on F.Id equals Ctt.TargetId into CttF
-                                  from CF in CttF.DefaultIfEmpty()
-                                  where F.Deleted == false && F.SectionId == sectId && CF.Cancelled == false
-                                  select new FunctM
-                                  {
-                                      Id = F.Id,
-                                      PgmId = F.ProgramId,
-                                      SectId = F.SectionId,
-                                      Name = F.Name,
-                                      Code = F.Code,
-                                      CttMethod = CF.Method,
-                                      LimitedExpiredAt = CF.ExpiredAt,
-                                      Remark = F.Remark,
-                                  }).ToListAsync();
-                res.Data = data;
+                var data = await _dbContext.PgmFunctView
+                    .Where(x => x.SectId == sectId)
+                    .OrderBy(x => x.Code)
+                    .ToListAsync();
+                res.Data = _mapper.Map<List<FunctM>>(data);
                 res.RowsCount = data.Count;
             }
             catch (Exception e)
@@ -498,7 +491,7 @@ namespace Hao.Authentication.Manager.Implements
                     category = SectionCategory.module;
                     break;
             }
-            return category;    
+            return category;
         }
     }
 }

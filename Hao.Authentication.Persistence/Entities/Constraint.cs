@@ -10,7 +10,7 @@ namespace Hao.Authentication.Persistence.Entities
 {
     [TablePrefix(PrefixConsts.Constraint)]
     [Table(nameof(Constraint))]
-    [Index(nameof(TargetId), IsUnique = true)]
+    [Index(nameof(TargetId), IsUnique = false)]
     public class Constraint : BaseInfo
     {
         [Key]

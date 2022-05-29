@@ -1,11 +1,7 @@
 ﻿using AutoMapper;
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Persistence.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Hao.Authentication.Persistence.Views;
 
 namespace Hao.Authentication.Manager.DataMaps
 {
@@ -36,6 +32,8 @@ namespace Hao.Authentication.Manager.DataMaps
                 .ForMember(x => x.SectId, y => y.MapFrom(z => z.SectionId))
                 .ForMember(x => x.CttMethod, y => y.Ignore())
                 .ForMember(x => x.LimitedExpiredAt, y => y.Ignore());
+
+            CreateMap<PgmFunctView, FunctM> ();
         }
     }
 }

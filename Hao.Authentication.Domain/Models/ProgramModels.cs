@@ -49,6 +49,8 @@ namespace Hao.Authentication.Domain.Models
         public DateTime? LimitedExpiredAt { get; set; }
 
         public string Remark { get; set; }
+
+        public DateTime? CreatedAt { get; set; }
     }
 
 
@@ -60,7 +62,7 @@ namespace Hao.Authentication.Domain.Models
 
         public ProgramCategory? Category { get; set; }
 
-        public string Remark { get; set; }
+        public string IntroOrRemark { get; set; }
 
         public DateTime? StartAt { get; set; }
 
