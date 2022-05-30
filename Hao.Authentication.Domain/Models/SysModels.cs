@@ -46,7 +46,7 @@ namespace Hao.Authentication.Domain.Models
 
         public string Name { get; set; }
 
-        public string SystemId { get; set; }
+        public string SysId { get; set; }
 
         public ConstraintMethod LimitedMethod { get; set; }
 
@@ -105,6 +105,31 @@ namespace Hao.Authentication.Domain.Models
         public List<string> FuncIds { get; set; }
     }
 
+    public class SysCtmM
+    {
+        public string Id { get; set; }
+
+        public string? Avatar { get; set; }
+
+        public string Name { get; set; }
+
+        public string Nickname { get; set; }
+
+        public bool Limited { get; set; }
+
+        public string RoleId { get; set; }
+
+        public SysRoleRank RoleRank { get; set; }
+
+        public string RoleName { get; set; }
+
+        public DateTime? LastLoginAt { get; set; }
+
+        public string Remark { get; set; }
+
+        public DateTime? CreatedAt { get; set; }
+    }
+
 
 
     public class SysFilter
@@ -120,7 +145,7 @@ namespace Hao.Authentication.Domain.Models
         public DateTime? EndAt { get; set; }
     }
 
-    public class SysPgmFilter
+    public class SysOwnedPgmFilter
     {
         public string SysId { get; set; }
 
@@ -129,7 +154,7 @@ namespace Hao.Authentication.Domain.Models
         public ProgramCategory Category { get; set; }
     }
 
-    public class SysPgmGetFilter
+    public class SysNotOwnedPgmFilter
     {
         public string SysId { get; set; }
 

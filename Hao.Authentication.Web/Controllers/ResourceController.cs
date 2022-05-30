@@ -1,0 +1,103 @@
+﻿using Hao.Authentication.Domain.Interfaces;
+using Hao.Authentication.Domain.Models;
+using Hao.Authentication.Domain.Paging;
+using Hao.Authentication.Manager.Basic;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
+using System.Net.Http.Headers;
+
+namespace Hao.Authentication.Web.Controllers
+{
+    public class ResourceController : ControllerBase
+    {
+        private readonly IResourceManager _manager;
+        protected readonly IConfiguration _configuration;
+
+        public ResourceController(IResourceManager manager,
+            IConfiguration configuration)
+        {
+            _manager = manager;
+            _configuration = configuration;
+        }
+
+        [HttpPost("Save")]
+        public async Task<ResponseResult<string>> Save(string ownerId)
+        {
+            var res = new ResponseResult<string>();
+            try
+            {
+                if(string.IsNullOrEmpty(ownerId)) throw new MyCustomException("ownerId is null!");
+                var invalid = !Request.HasFormContentType || Request.Form.Files == null || !Request.Form.Files.Any();
+                if (invalid) throw new MyCustomException("No file found in the form!");
+                var file = Request?.Form?.Files?.FirstOrDefault();
+                if (file == null) throw new MyCustomException("No file found in the form!");
+
+                string rootPath = _configuration["FileStorageDirectory"];
+                var directory = new DirectoryInfo(rootPath);
+                if (!directory.Exists) { directory.Create(); }
+
+                var code = _manager.GetNewCode();
+                var suffix = Path.GetExtension(file.FileName);
+                var newName = file.FileName;
+                var newFileName = code + suffix;
+                var fp = @$"{rootPath}\{newFileName}";
+
+                using (var fs = new FileStream(fp, FileMode.Create, FileAccess.Write))
+                {
+                    await file.CopyToAsync(fs);
+                }
+
+                var dto = new ResourceM()
+                {
+                    Code = code,
+                    Name = file.FileName,
+                    OwnId = ownerId,
+                    FileName = newFileName,
+                    Type = file.ContentType,
+                    Suffix = suffix,
+                    Length = file.Length,
+                    Category = "--"
+                };
+
+                var result = await _manager.Save(dto);
+                if (result.Success) res.Data = newFileName;
+                else new MyCustomException(result.AllMessages);
+            }
+            catch (Exception e)
+            {
+                res.AddError(e);
+            }
+            return res;
+        }
+
+        [HttpGet("GetByCode")]
+        public async Task<ResponseResult<ResourceM>> GetByCode(string code)
+        {
+            return await _manager.GetByCode(code);
+        }
+
+        [HttpGet("GetFileByName")]
+        public IActionResult GetFileByName(string name)
+        {
+            try
+            {
+                string rootPath = _configuration["FileStorageDirectory"];
+                string path = @$"{rootPath}\{name}";
+                var file = new FileInfo(path);
+                if (!file.Exists) return NotFound();
+
+                var suffix = Path.GetExtension(name);
+                var provider = new FileExtensionContentTypeProvider();
+                var memi = provider.Mappings[suffix]; // 获取文件类型
+                string? type = new MediaTypeHeaderValue(memi).MediaType;
+                type = type == null ? "" : type;
+                FileStream fs = new FileStream(file.FullName, FileMode.Open, FileAccess.Read);
+                return File(fs, contentType: type, file.Name, enableRangeProcessing: true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+    }
+}

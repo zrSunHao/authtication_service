@@ -37,6 +37,7 @@ namespace Hao.Authentication.Persistence.Database
 
         public DbSet<PgmFunctView> PgmFunctView { get; set; }
 
+        public DbSet<SysView> SysView { get; set; }
         public DbSet<SysCtmView> SysCtmView { get; set; }
         public DbSet<SysRoleFunctView> SysRoleFunctView { get; set; }
         public DbSet<SysRoleSectView> SysRoleSectView { get; set; }
@@ -56,6 +57,7 @@ namespace Hao.Authentication.Persistence.Database
 
             modelBuilder.Entity<CttView>().ToTable(typeof(CttView).Name, t => t.ExcludeFromMigrations());
 
+            modelBuilder.Entity<SysView>().ToTable(typeof(SysView).Name, t => t.ExcludeFromMigrations());
             modelBuilder.Entity<SysCtmView>().ToTable(typeof(SysCtmView).Name, t => t.ExcludeFromMigrations());
             modelBuilder.Entity<SysRoleFunctView>().ToTable(typeof(SysRoleFunctView).Name, t => t.ExcludeFromMigrations());
             modelBuilder.Entity<SysRoleSectView>().ToTable(typeof(SysRoleSectView).Name, t => t.ExcludeFromMigrations());

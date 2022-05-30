@@ -14,7 +14,7 @@ namespace Hao.Authentication.Manager.Basic
     {
         protected readonly PlatFormDbContext _dbContext;
         protected readonly IMapper _mapper;
-       protected readonly IHttpContextAccessor _httpContextAccessor;
+        protected readonly IHttpContextAccessor _httpContextAccessor;
         protected readonly IServiceProvider _serviceProvider;
         protected readonly IConfiguration _configuration;
 
