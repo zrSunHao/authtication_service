@@ -46,15 +46,19 @@ namespace Hao.Authentication.Domain.Models
 
         public string Name { get; set; }
 
+        public string Code { get; set; }
+
         public string SysId { get; set; }
 
-        public ConstraintMethod LimitedMethod { get; set; }
+        public string Intro { get; set; }
+
+        public string Remark { get; set; }
+
+        public ConstraintMethod? CttMethod { get; set; }
 
         public DateTime? LimitedExpiredAt { get; set; }
 
         public DateTime? CreatedAt { get; set; }
-
-        public string Remark { get; set; }
     }
 
     public class SysRoleFunctM
@@ -151,7 +155,7 @@ namespace Hao.Authentication.Domain.Models
 
         public string NameOrCode { get; set; }
 
-        public ProgramCategory Category { get; set; }
+        public ProgramCategory? Category { get; set; }
     }
 
     public class SysNotOwnedPgmFilter
@@ -160,7 +164,7 @@ namespace Hao.Authentication.Domain.Models
 
         public string NameOrCode { get; set; }
 
-        public ProgramCategory Category { get; set; }
+        public ProgramCategory? Category { get; set; }
 
         public string IntroOrRemark { get; set; }
     }
@@ -171,9 +175,9 @@ namespace Hao.Authentication.Domain.Models
 
         public string NameOrCode { get; set; }
 
-        public ConstraintMethod LimitedMethod { get; set; }
+        public ConstraintMethod? CttMethod { get; set; }
 
-        public SysRoleRank Rank { get; set; }
+        public SysRoleRank? Rank { get; set; }
 
         public DateTime? StartAt { get; set; }
 
@@ -182,13 +186,11 @@ namespace Hao.Authentication.Domain.Models
 
     public class SysCtmFilter
     {
-        public string NameOrNickname { get; set; }
+        public string SysId { get; set; }
+
+        public string NameOrRole { get; set; }
 
         public bool? Limited { get; set; }
-
-        public string RoleName { get; set; }
-
-        public SysRoleRank? RoleRank { get; set; }
 
         public string Remark { get; set; }
 

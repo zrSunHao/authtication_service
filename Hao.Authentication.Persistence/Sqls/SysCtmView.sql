@@ -8,7 +8,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE VIEW [dbo].[SysCtmView] AS SELECT C.Id,FR.FileName AS Avatar,C.Name,C.Nickname,CTT.Limited, SR.Id AS RoleId,SR.Rank AS RoleRank,SR.Name AS RoleName, CL.CreatedAt AS LastLoginAt, C.Remark,C.CreatedAt
+CREATE VIEW [dbo].[SysCtmView] AS SELECT C.Id,FR.FileName AS Avatar, C.Name, C.Nickname, CTT.Limited, SR.SysId, SR.Id AS RoleId,SR.Rank AS RoleRank,SR.Name AS RoleName, CL.CreatedAt AS LastLoginAt, C.Remark,C.CreatedAt
 FROM CustomerRoleRelation AS CRR
 JOIN Customer AS C ON C.Id = CRR.CustomerId
 JOIN SysRole AS SR ON SR.Id = CRR.RoleId

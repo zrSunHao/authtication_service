@@ -40,7 +40,9 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponseResult<bool>();
             try
             {
-
+                var entity = _mapper.Map<ResourceM>(model);
+                await _dbContext.AddAsync(entity);
+                await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)
             {
@@ -55,7 +57,10 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponseResult<ResourceM>();
             try
             {
-
+                var entity = await _dbContext.FileResource
+                    .FirstOrDefaultAsync(x => x.Code == code);
+                if (entity == null) throw new MyCustomException("未查询到文件信息");
+                res.Data = _mapper.Map<ResourceM>(entity);
             }
             catch (Exception e)
             {

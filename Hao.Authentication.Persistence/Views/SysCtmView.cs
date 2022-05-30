@@ -14,11 +14,13 @@ namespace Hao.Authentication.Persistence.Views
 
         public bool Limited { get; set; }
 
+        public string SysId { get; set; }
+
         public string RoleId { get; set; }
 
         public SysRoleRank RoleRank { get; set; }
 
-        public string RoleName { get; set; }
+        public string? RoleName { get; set; }
 
         public DateTime? LastLoginAt { get; set; }
 

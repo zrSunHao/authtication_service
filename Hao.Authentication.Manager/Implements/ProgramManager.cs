@@ -361,6 +361,7 @@ namespace Hao.Authentication.Manager.Implements
             }
             return res;
         }
+
         public async Task<ResponseResult<bool>> UpdateFunct(FunctM model)
         {
             var res = new ResponseResult<bool>();
@@ -439,6 +440,7 @@ namespace Hao.Authentication.Manager.Implements
             }
             return res;
         }
+
         public async Task<ResponseResult<bool>> DeleteFunct(string id)
         {
             var res = new ResponseResult<bool>();

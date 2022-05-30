@@ -10,13 +10,17 @@ namespace Hao.Authentication.Persistence.Views
 
         public string Name { get; set; }
 
+        public string Code { get; set; }
+
         public string SysId { get; set; }
 
         public string SysName { get; set; }
 
         public string SysCode { get; set; }
 
-        public bool Limited { get; set; }
+        public ConstraintMethod? CttMethod { get; set; }
+
+        public DateTime? LimitedExpiredAt { get; set; }
 
         public DateTime? CreatedAt { get; set; }
 

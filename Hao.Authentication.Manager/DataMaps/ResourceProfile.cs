@@ -8,7 +8,9 @@ namespace Hao.Authentication.Manager.DataMaps
     {
         public ResourceProfile()
         {
-            CreateMap<FileResource, ResourceM> ();
+            CreateMap<FileResource, ResourceM>();
+            CreateMap<ResourceM, FileResource>()
+                .ForMember(x => x.CreatedAt, y => y.MapFrom(z => DateTime.Now));
         }
     }
 }

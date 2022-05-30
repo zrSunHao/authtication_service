@@ -13,9 +13,16 @@ namespace Hao.Authentication.Domain.Interfaces
 
         public Task<ResponseResult<bool>> Delete(string id);
 
+
+
         public Task<ResponsePagingResult<SysProgramM>> GetOwnedPgmList(PagingParameter<SysOwnedPgmFilter> param);
 
         public Task<ResponsePagingResult<SysProgramM>> GetNotOwnedPgmList(PagingParameter<SysNotOwnedPgmFilter> param);
+
+        public Task<ResponseResult<bool>> AddPgm(string sysId, string pgmId);
+
+        public Task<ResponseResult<bool>> DeletePgm(string sysId, string pgmId);
+
 
         public Task<ResponsePagingResult<SysCtmM>> GetCtms(PagingParameter<SysCtmFilter> param);
 

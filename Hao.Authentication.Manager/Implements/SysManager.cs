@@ -13,6 +13,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Hao.Authentication.Domain.Paging;
 using Hao.Authentication.Domain.Models;
+using Hao.Authentication.Persistence.Entities;
+using Hao.Authentication.Common.Enums;
 
 namespace Hao.Authentication.Manager.Implements
 {
@@ -29,17 +31,32 @@ namespace Hao.Authentication.Manager.Implements
             _logger = logger;
         }
 
+        #region System
+
         public async Task<ResponseResult<bool>> Add(SysM model)
         {
             var res = new ResponseResult<bool>();
             try
             {
+                // 判断是否存在同名、同标识码的系统
+                var nameExist = await _dbContext.Sys
+                    .AnyAsync(x => !x.Deleted && x.Name == model.Name);
+                if (nameExist) throw new MyCustomException($"名称为【{model.Name}】的系统已存在！");
+                var codeExist = await _dbContext.Sys
+                    .AnyAsync(x => !x.Deleted && x.Code == model.Code);
+                if (codeExist) throw new MyCustomException($"标识码为【{model.Code}】的系统已存在！");
 
+                var entity = _mapper.Map<Sys>(model);
+                entity.Id = entity.GetId(this.MachineCode);
+                entity.CreatedById = CurrentUserId;
+
+                await _dbContext.AddAsync(entity);
+                await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)
             {
                 res.AddError(e);
-                _logger.LogError(e, $"xxxx失败！");
+                _logger.LogError(e, $"添加系统【{model.Name} - {model.Code}】失败");
             }
             return res;
         }
@@ -49,12 +66,36 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponseResult<bool>();
             try
             {
+                var entity = await _dbContext.Sys
+                    .FirstOrDefaultAsync(x => !x.Deleted && x.Id == model.Id);
+                if (entity == null) throw new MyCustomException($"未查询到Id为【{model.Id}】的系统信息！");
 
+                // 如果名称或标识码改变则判断是否与其他系统冲突
+                if (entity.Name != model.Name)
+                {
+                    var nameExist = await _dbContext.Sys
+                    .AnyAsync(x => !x.Deleted && x.Name == model.Name);
+                    if (nameExist) throw new MyCustomException($"名称为【{model.Name}】的系统已存在！");
+                    entity.Name = model.Name;
+                }
+                if (entity.Code != model.Code)
+                {
+                    var codeExist = await _dbContext.Sys
+                    .AnyAsync(x => !x.Deleted && x.Code == model.Code);
+                    if (codeExist) throw new MyCustomException($"标识码为【{model.Code}】的系统已存在！");
+                    entity.Code = model.Code;
+                }
+                entity.Intro = model.Intro;
+                entity.Remark = model.Remark;
+                entity.LastModifiedAt = DateTime.Now;
+                entity.LastModifiedById = CurrentUserId;
+
+                await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)
             {
                 res.AddError(e);
-                _logger.LogError(e, $"xxxx失败！");
+                _logger.LogError(e, $"更新系统【{model.Id}】失败");
             }
             return res;
         }
@@ -64,12 +105,45 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponsePagingResult<SysM>();
             try
             {
+                var query = _dbContext.Sys.Where(x => !x.Deleted);
+                var filter = param.Filter;
+                if (filter != null)
+                {
+                    if (!string.IsNullOrEmpty(filter.Name))
+                        query = query.Where(x => x.Name.Contains(filter.Name));
+                    if (!string.IsNullOrEmpty(filter.Code))
+                        query = query.Where(x => x.Code.Contains(filter.Code));
+                    if (!string.IsNullOrEmpty(filter.IntroOrRemark))
+                        query = query.Where(x => x.Remark.Contains(filter.IntroOrRemark) || x.Intro.Contains(filter.IntroOrRemark));
+                    if (filter.StartAt.HasValue)
+                        query = query.Where(x => x.CreatedAt >= filter.StartAt.Value);
+                    if (filter.EndAt.HasValue)
+                        query = query.Where(x => x.CreatedAt <= filter.EndAt.Value.AddDays(1).AddSeconds(-1));
+                }
 
+                query = query.OrderByDescending(x => x.CreatedAt);
+                if (param.Sort != null && param.Sort.ToLower() == "desc")
+                {
+                    if (param.SortColumn?.ToLower() == "Name".ToLower())
+                        query = query.OrderByDescending(x => x.Name);
+                }
+                else
+                {
+                    if (param.SortColumn?.ToLower() == "CreatedAt".ToLower())
+                        query = query.OrderBy(x => x.CreatedAt);
+                    if (param.SortColumn?.ToLower() == "Name".ToLower())
+                        query = query.OrderBy(x => x.Name);
+                }
+
+                res.RowsCount = await query.CountAsync();
+                query = query.AsPaging(param.PageIndex, param.PageSize);
+                var data = await query.ToListAsync();
+                res.Data = _mapper.Map<List<SysM>>(data);
             }
             catch (Exception e)
             {
                 res.AddError(e);
-                _logger.LogError(e, $"xxxx失败！");
+                _logger.LogError(e, $"获取系统列表失败");
             }
             return res;
         }
@@ -79,12 +153,83 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponseResult<bool>();
             try
             {
+                var entity = await _dbContext.Sys
+                    .FirstOrDefaultAsync(x => !x.Deleted && x.Id == id);
+                if (entity == null) throw new MyCustomException($"未查询到Id为【{id}】的系统信息！");
 
+                entity.Deleted = true;
+                entity.DeletedAt = DateTime.Now;
+                entity.DeletedById = CurrentUserId;
+
+                await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)
             {
                 res.AddError(e);
-                _logger.LogError(e, $"xxxx失败！");
+                _logger.LogError(e, $"删除系统【{id}】信息失败失败！");
+            }
+            return res;
+        }
+
+        #endregion
+
+        #region Program
+
+        public async Task<ResponseResult<bool>> AddPgm(string sysId, string pgmId)
+        {
+            var res = new ResponseResult<bool>();
+            try
+            {
+                var exist = await _dbContext.SysProgramRelation
+                    .AnyAsync(x => x.ProgramId == pgmId && x.SysId == sysId);
+                if (exist) throw new MyCustomException("系统已关联该程序，请勿重复添加！");
+
+                var entity = new SysProgramRelation
+                {
+                    SysId = sysId,
+                    ProgramId = pgmId,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = CurrentUserId,
+                };
+
+                await _dbContext.AddAsync(entity);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                res.AddError(e);
+                _logger.LogError(e, $"添加系统【{sysId}】关联程序【{pgmId}】失败失败！");
+            }
+            return res;
+        }
+
+        public async Task<ResponseResult<bool>> DeletePgm(string sysId, string pgmId)
+        {
+            var res = new ResponseResult<bool>();
+            try
+            {
+                var entity = await _dbContext.SysProgramRelation
+                    .FirstOrDefaultAsync(x => x.SysId == sysId && x.ProgramId == pgmId);
+                if (entity == null) return res;
+                _dbContext.Remove(entity);
+
+                var roleIds = await _dbContext.SysRole
+                    .Where(x => x.SysId == sysId)
+                    .Select(y => y.Id)
+                    .ToListAsync();
+                if (roleIds.Any())
+                {
+                    var srfs = await _dbContext.SysRoleFuncRelation
+                    .Where(x => x.ProgramId == pgmId && roleIds.Contains(x.RoleId))
+                    .ToListAsync();
+                    if (srfs.Any()) _dbContext.RemoveRange(srfs);
+                }
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                res.AddError(e);
+                _logger.LogError(e, $"取消系统【{sysId}】的程序【{pgmId}】关联失败！");
             }
             return res;
         }
@@ -94,12 +239,29 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponsePagingResult<SysProgramM>();
             try
             {
+                var filter = param.Filter;
+                if (filter == null) throw new MyCustomException("查询参数未添加必要的系统信息");
 
+                var query = from sp in _dbContext.SysProgramRelation
+                            join p in _dbContext.Program on sp.ProgramId equals p.Id
+                            where p.Deleted == false && sp.SysId == filter.SysId
+                            select p;
+                if (!string.IsNullOrEmpty(filter.NameOrCode))
+                    query = query.Where(x => x.Name.Contains(filter.NameOrCode) || x.Code.Contains(filter.NameOrCode));
+                if (filter.Category.HasValue && filter.Category.Value != 0)
+                    query = query.Where(x => x.Category == filter.Category);
+
+                query = query.OrderBy(x => x.Name);
+                res.RowsCount = await query.CountAsync();
+                query = query.AsPaging(param.PageIndex, param.PageSize);
+                var entities = await query.ToListAsync();
+                var data = _mapper.Map<List<SysProgramM>>(entities);
+                res.Data = data;
             }
             catch (Exception e)
             {
                 res.AddError(e);
-                _logger.LogError(e, $"xxxx失败！");
+                _logger.LogError(e, $"查询系统【{param.Filter?.SysId}】的关联程序列表失败！");
             }
             return res;
         }
@@ -109,44 +271,116 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponsePagingResult<SysProgramM>();
             try
             {
+                var filter = param.Filter;
+                if (filter == null) throw new MyCustomException("查询参数未添加必要的系统信息");
 
+                var query = from sp in _dbContext.SysProgramRelation
+                            join p in _dbContext.Program on sp.ProgramId equals p.Id
+                            where p.Deleted == false && sp.SysId != filter.SysId
+                            select p;
+
+                if (!string.IsNullOrEmpty(filter.NameOrCode))
+                    query = query.Where(x => x.Name.Contains(filter.NameOrCode) || x.Code.Contains(filter.NameOrCode));
+                if (!string.IsNullOrEmpty(filter.IntroOrRemark))
+                    query = query.Where(x => x.Remark.Contains(filter.IntroOrRemark) || x.Intro.Contains(filter.IntroOrRemark));
+                if (filter.Category.HasValue && filter.Category.Value != 0)
+                    query = query.Where(x => x.Category == filter.Category);
+
+                query = query.OrderBy(x => x.Name);
+                res.RowsCount = await query.CountAsync();
+                query = query.AsPaging(param.PageIndex, param.PageSize);
+                var entities = await query.ToListAsync();
+                var data = _mapper.Map<List<SysProgramM>>(entities);
+                res.Data = data;
             }
             catch (Exception e)
             {
                 res.AddError(e);
-                _logger.LogError(e, $"xxxx失败！");
+                _logger.LogError(e, $"查询系统【{param.Filter?.SysId}】的关联程序列表失败！");
             }
             return res;
         }
+
+        #endregion
+
+        #region Customer
 
         public async Task<ResponsePagingResult<SysCtmM>> GetCtms(PagingParameter<SysCtmFilter> param)
         {
             var res = new ResponsePagingResult<SysCtmM>();
             try
             {
+                var filter = param.Filter;
+                if (filter == null) throw new MyCustomException("查询参数未添加必要的系统信息");
 
+                var query = _dbContext.SysCtmView.Where(x => x.SysId == filter.SysId);
+                if (!string.IsNullOrEmpty(filter.NameOrRole))
+                    query = query.Where(x => x.Name.Contains(filter.NameOrRole)
+                    || (x.RoleName != null && x.RoleName.Contains(filter.NameOrRole)));
+                if (!string.IsNullOrEmpty(filter.Remark))
+                    query = query.Where(x => x.Remark.Contains(filter.Remark));
+                if (filter.Limited.HasValue)
+                    query = query.Where(x => x.Limited == filter.Limited.Value);
+                if (filter.StartAt.HasValue)
+                    query = query.Where(x => x.LastLoginAt >= filter.StartAt.Value);
+                if (filter.EndAt.HasValue)
+                    query = query.Where(x => x.LastLoginAt <= filter.EndAt.Value.AddDays(1).AddSeconds(-1));
+
+                query = query.OrderByDescending(x => x.LastLoginAt);
+                if (param.Sort != null && param.Sort.ToLower() == "desc")
+                {
+                    if (param.SortColumn?.ToLower() == "Name".ToLower())
+                        query = query.OrderByDescending(x => x.Name);
+                }
+                else
+                {
+                    if (param.SortColumn?.ToLower() == "LastLoginAt".ToLower())
+                        query = query.OrderBy(x => x.CreatedAt);
+                    if (param.SortColumn?.ToLower() == "Name".ToLower())
+                        query = query.OrderBy(x => x.Name);
+                }
+
+                res.RowsCount = await query.CountAsync();
+                query = query.AsPaging(param.PageIndex, param.PageSize);
+                var data = await query.ToListAsync();
+                res.Data = _mapper.Map<List<SysCtmM>>(data);
             }
             catch (Exception e)
             {
                 res.AddError(e);
-                _logger.LogError(e, $"xxxx失败！");
+                _logger.LogError(e, $"查询系统【{param.Filter?.SysId}】的客户列表失败！");
             }
             return res;
         }
 
+        #endregion
 
+        #region Role
 
         public async Task<ResponseResult<bool>> AddRole(SysRoleM model)
         {
             var res = new ResponseResult<bool>();
             try
             {
+                // 判断该程序下是否存在同名、同标识码的页面/模块
+                var nameExist = await _dbContext.SysRole
+                    .AnyAsync(x => !x.Deleted && x.SysId == model.SysId && x.Name == model.Name);
+                if (nameExist) throw new MyCustomException($"名称为【{model.Name}】的角色已存在！");
+                var codeExist = await _dbContext.SysRole
+                    .AnyAsync(x => !x.Deleted && x.SysId == model.SysId && x.Code == model.Code);
+                if (codeExist) throw new MyCustomException($"标识码为【{model.Code}】的角色已存在！");
 
+                var entity = _mapper.Map<SysRole>(model);
+                entity.Id = entity.GetId(this.MachineCode);
+                entity.CreatedById = CurrentUserId;
+
+                await _dbContext.AddAsync(entity);
+                await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)
             {
                 res.AddError(e);
-                _logger.LogError(e, $"xxxx失败！");
+                _logger.LogError(e, $"添加系统【{model.SysId}】的角色【 {model.Name}】失败");
             }
             return res;
         }
@@ -156,12 +390,57 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponseResult<bool>();
             try
             {
+                var entity = await _dbContext.SysRole
+                    .FirstOrDefaultAsync(x => !x.Deleted && x.Id == model.Id);
+                if (entity == null) throw new MyCustomException($"未查询到Id为【{model.Id}】的角色信息！");
 
+                // 如果名称或标识码改变则判断是否与其他程序冲突
+                if (entity.Name != model.Name)
+                {
+                    var nameExist = await _dbContext.SysRole
+                    .AnyAsync(x => !x.Deleted && x.SysId == model.SysId && x.Name == model.Name);
+                    if (nameExist) throw new MyCustomException($"名称为【{model.Name}】的角色已存在！");
+                    entity.Name = model.Name;
+                }
+                if (entity.Code != model.Code)
+                {
+                    var codeExist = await _dbContext.SysRole
+                    .AnyAsync(x => !x.Deleted && x.SysId == model.SysId && x.Code == model.Code);
+                    if (codeExist) throw new MyCustomException($"标识码为【{model.Code}】的角色已存在！");
+                    entity.Code = model.Code;
+                }
+                entity.Intro = model.Intro;
+                entity.Remark = model.Remark;
+                entity.LastModifiedAt = DateTime.Now;
+                entity.LastModifiedById = CurrentUserId;
+
+                await _dbContext.Constraint
+                        .Where(x => !x.Cancelled && x.TargetId == model.Id)
+                        .ForEachAsync(x => { x.Cancelled = true; });
+                if (model.CttMethod != null && model.CttMethod != 0)
+                {
+                    var ctt = new Constraint
+                    {
+                        TargetId = model.Id,
+                        Category = ConstraintCategory.system_role,
+                        Method = model.CttMethod.Value,
+                        ExpiredAt = model.CttMethod == ConstraintMethod._lock ? model.LimitedExpiredAt : null,
+                        Origin = "管理员设置",
+                        Remark = "无",
+                        Cancelled = false,
+                        CreatedAt = DateTime.Now,
+                        CreatedById = this.CurrentUserId,
+                    };
+                    ctt.Id = ctt.GetId(this.MachineCode);
+                    await _dbContext.AddAsync(ctt);
+                }
+
+                await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)
             {
                 res.AddError(e);
-                _logger.LogError(e, $"xxxx失败！");
+                _logger.LogError(e, $"更新角色【{model.Id}】失败");
             }
             return res;
         }
@@ -171,12 +450,46 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponsePagingResult<SysRoleM>();
             try
             {
+                var filter = param.Filter;
+                if (filter == null) throw new MyCustomException("查询参数未添加必要的系统信息");
+                var query = _dbContext.SysRoleView.Where(x => x.SysId == filter.SysId);
+                if (!string.IsNullOrEmpty(filter.NameOrCode))
+                    query = query.Where(x => x.Name.Contains(filter.NameOrCode)
+                    || (x.Code != null && x.SysCode.Contains(filter.NameOrCode)));
+                if (filter.CttMethod.HasValue && filter.CttMethod != 0)
+                    query = query.Where(x => x.CttMethod == filter.CttMethod.Value);
+                if (filter.Rank.HasValue)
+                    query = query.Where(x => x.Rank == filter.Rank.Value);
+                if (filter.StartAt.HasValue)
+                    query = query.Where(x => x.CreatedAt >= filter.StartAt.Value);
+                if (filter.EndAt.HasValue)
+                    query = query.Where(x => x.CreatedAt <= filter.EndAt.Value.AddDays(1).AddSeconds(-1));
 
+                query = query.OrderByDescending(x => x.CreatedAt);
+                if (param.Sort != null && param.Sort.ToLower() == "desc")
+                {
+                    if (param.SortColumn?.ToLower() == "Name".ToLower())
+                        query = query.OrderByDescending(x => x.Name);
+                }
+                else
+                {
+                    if (param.SortColumn?.ToLower() == "CreatedAt".ToLower())
+                        query = query.OrderBy(x => x.CreatedAt);
+                    if (param.SortColumn?.ToLower() == "Name".ToLower())
+                        query = query.OrderBy(x => x.Name);
+                }
+
+                query = query.OrderBy(x => x.Name);
+                res.RowsCount = await query.CountAsync();
+                query = query.AsPaging(param.PageIndex, param.PageSize);
+                var entities = await query.ToListAsync();
+                var data = _mapper.Map<List<SysRoleM>>(entities);
+                res.Data = data;
             }
             catch (Exception e)
             {
                 res.AddError(e);
-                _logger.LogError(e, $"xxxx失败！");
+                _logger.LogError(e, $"查询系统【{param.Filter?.SysId}】的角色列表失败！");
             }
             return res;
         }
@@ -186,12 +499,24 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponseResult<bool>();
             try
             {
+                var entity = await _dbContext.SysRole
+                    .FirstOrDefaultAsync(x => x.Id == id);
+                if (entity == null) throw new MyCustomException("未查询到角色信息");
+                entity.Deleted = true;
+                entity.DeletedAt = DateTime.Now;
+                entity.DeletedById = CurrentUserId;
 
+                var srfs = await _dbContext.SysRoleFuncRelation
+                    .Where(x => x.RoleId == id)
+                    .ToListAsync();
+                if (srfs.Any()) _dbContext.RemoveRange(srfs);
+
+                await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)
             {
                 res.AddError(e);
-                _logger.LogError(e, $"xxxx失败！");
+                _logger.LogError(e, $"删除id为【{id}】角色的信息失败！");
             }
             return res;
         }
@@ -225,5 +550,7 @@ namespace Hao.Authentication.Manager.Implements
             }
             return res;
         }
+
+        #endregion Role
     }
 }
