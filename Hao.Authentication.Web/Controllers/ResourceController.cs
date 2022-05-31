@@ -8,6 +8,8 @@ using System.Net.Http.Headers;
 
 namespace Hao.Authentication.Web.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class ResourceController : ControllerBase
     {
         private readonly IResourceManager _manager;
@@ -21,12 +23,13 @@ namespace Hao.Authentication.Web.Controllers
         }
 
         [HttpPost("Save")]
-        public async Task<ResponseResult<string>> Save(string ownerId)
+        public async Task<ResponseResult<string>> Save(string ownerId,string category)
         {
             var res = new ResponseResult<string>();
             try
             {
-                if(string.IsNullOrEmpty(ownerId)) throw new MyCustomException("ownerId is null!");
+                if (string.IsNullOrEmpty(ownerId)) throw new MyCustomException("ownerId is null!");
+                if (string.IsNullOrEmpty(category)) throw new MyCustomException("category is null!");
                 var invalid = !Request.HasFormContentType || Request.Form.Files == null || !Request.Form.Files.Any();
                 if (invalid) throw new MyCustomException("No file found in the form!");
                 var file = Request?.Form?.Files?.FirstOrDefault();
@@ -56,11 +59,15 @@ namespace Hao.Authentication.Web.Controllers
                     Type = file.ContentType,
                     Suffix = suffix,
                     Length = file.Length,
-                    Category = "--"
+                    Category = category
                 };
 
                 var result = await _manager.Save(dto);
-                if (result.Success) res.Data = newFileName;
+                if (result.Success)
+                {
+                    
+                    res.Data = $"{_configuration["FileResourceBaseUrl"]}?name={newFileName}";
+                }
                 else new MyCustomException(result.AllMessages);
             }
             catch (Exception e)

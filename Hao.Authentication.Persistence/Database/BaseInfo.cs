@@ -33,7 +33,7 @@ namespace Hao.Authentication.Persistence.Database
                 throw new ArgumentNullException("机器码为空");
             lock (_lock)
             {
-                string time = DateTime.Now.ToString("yyMMdd_hhmmss");
+                string time = DateTime.Now.ToString("yyMMdd_HHmmss");
                 if (time != _time) { _time = time; _index = 1; }
                 else _index++;
                 if (string.IsNullOrEmpty(_tablePrefix))

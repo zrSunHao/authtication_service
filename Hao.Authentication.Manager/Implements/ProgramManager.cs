@@ -285,7 +285,7 @@ namespace Hao.Authentication.Manager.Implements
             try
             {
                 var data = await _dbContext.ProgramSection
-                    .Where(x => !x.Deleted)
+                    .Where(x => !x.Deleted && x.ProgramId == pgmId)
                     .OrderBy(x => x.Code)
                     .ToListAsync();
                 res.RowsCount = data.Count();

@@ -10,6 +10,7 @@ namespace Hao.Authentication.Manager.DataMaps
         {
             CreateMap<FileResource, ResourceM>();
             CreateMap<ResourceM, FileResource>()
+                .ForMember(x => x.Id, y => y.Ignore())
                 .ForMember(x => x.CreatedAt, y => y.MapFrom(z => DateTime.Now));
         }
     }

@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hao.Authentication.Web.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class SysController : ControllerBase
     {
         private readonly ISysManager _manager;
@@ -51,16 +53,16 @@ namespace Hao.Authentication.Web.Controllers
             return await _manager.GetNotOwnedPgmList(param);
         }
 
-        [HttpPost("GetNotOwnedPgmList")]
+        [HttpPost("AddPgm")]
         public async Task<ResponseResult<bool>> AddPgm(string sysId, string pgmId)
         {
-            return await AddPgm(sysId, pgmId);
+            return await _manager.AddPgm(sysId, pgmId);
         }
 
-        [HttpDelete("GetNotOwnedPgmList")]
+        [HttpDelete("DeletePgm")]
         public async Task<ResponseResult<bool>> DeletePgm(string sysId, string pgmId)
         {
-            return await DeletePgm(sysId, pgmId);
+            return await _manager.DeletePgm(sysId, pgmId);
         }
 
 

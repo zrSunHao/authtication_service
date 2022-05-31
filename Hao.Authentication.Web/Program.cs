@@ -42,7 +42,14 @@ app.Use(async (context, next) =>
     Stopwatch watch = new Stopwatch();
     watch.Start();
     // Do work that can write to the Response.
-    await next.Invoke();
+    try
+    {
+        await next.Invoke();
+    }
+    catch(Exception e)
+    {
+        Console.WriteLine(e.Message);
+    }
     // Do logging or other work that doesn't write to the Response.
     watch.Stop();
     Console.WriteLine($"本次请求耗时{watch.ElapsedMilliseconds}毫秒");

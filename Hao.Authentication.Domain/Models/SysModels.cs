@@ -8,7 +8,7 @@ namespace Hao.Authentication.Domain.Models
 
         public string Name { get; set; }
 
-        public string Logo { get; set; }
+        public string? Logo { get; set; }
 
         public string Code { get; set; }
 
@@ -106,7 +106,7 @@ namespace Hao.Authentication.Domain.Models
 
         public List<string> SectIds { get; set; }
 
-        public List<string> FuncIds { get; set; }
+        public List<string> FunctIds { get; set; }
     }
 
     public class SysCtmM
@@ -156,6 +156,8 @@ namespace Hao.Authentication.Domain.Models
         public string NameOrCode { get; set; }
 
         public ProgramCategory? Category { get; set; }
+
+        public string IntroOrRemark { get; set; }
     }
 
     public class SysNotOwnedPgmFilter
@@ -165,8 +167,6 @@ namespace Hao.Authentication.Domain.Models
         public string NameOrCode { get; set; }
 
         public ProgramCategory? Category { get; set; }
-
-        public string IntroOrRemark { get; set; }
     }
 
     public class SysRoleFilter

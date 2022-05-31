@@ -105,7 +105,7 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponsePagingResult<SysM>();
             try
             {
-                var query = _dbContext.Sys.Where(x => !x.Deleted);
+                var query = _dbContext.SysView.AsQueryable();
                 var filter = param.Filter;
                 if (filter != null)
                 {
@@ -138,6 +138,11 @@ namespace Hao.Authentication.Manager.Implements
                 res.RowsCount = await query.CountAsync();
                 query = query.AsPaging(param.PageIndex, param.PageSize);
                 var data = await query.ToListAsync();
+                var url = FileResourceUrl;
+                data.ForEach(x =>
+                {
+                    if(!string.IsNullOrEmpty(x.Logo)) x.Logo = $"{url}?name={x.Logo}";
+                });
                 res.Data = _mapper.Map<List<SysM>>(data);
             }
             catch (Exception e)
@@ -248,13 +253,14 @@ namespace Hao.Authentication.Manager.Implements
                             select p;
                 if (!string.IsNullOrEmpty(filter.NameOrCode))
                     query = query.Where(x => x.Name.Contains(filter.NameOrCode) || x.Code.Contains(filter.NameOrCode));
+                if (!string.IsNullOrEmpty(filter.IntroOrRemark))
+                    query = query.Where(x => x.Remark.Contains(filter.IntroOrRemark) || x.Intro.Contains(filter.IntroOrRemark));
                 if (filter.Category.HasValue && filter.Category.Value != 0)
                     query = query.Where(x => x.Category == filter.Category);
 
                 query = query.OrderBy(x => x.Name);
-                res.RowsCount = await query.CountAsync();
-                query = query.AsPaging(param.PageIndex, param.PageSize);
                 var entities = await query.ToListAsync();
+                res.RowsCount = entities.Count;
                 var data = _mapper.Map<List<SysProgramM>>(entities);
                 res.Data = data;
             }
@@ -274,22 +280,20 @@ namespace Hao.Authentication.Manager.Implements
                 var filter = param.Filter;
                 if (filter == null) throw new MyCustomException("查询参数未添加必要的系统信息");
 
-                var query = from sp in _dbContext.SysProgramRelation
-                            join p in _dbContext.Program on sp.ProgramId equals p.Id
-                            where p.Deleted == false && sp.SysId != filter.SysId
+                var query = from p in _dbContext.Program
+                            join sp in _dbContext.SysProgramRelation on p.Id equals sp.ProgramId into sp1
+                            from sp2 in sp1.DefaultIfEmpty()
+                            where p.Deleted == false && sp2.SysId != filter.SysId
                             select p;
 
                 if (!string.IsNullOrEmpty(filter.NameOrCode))
                     query = query.Where(x => x.Name.Contains(filter.NameOrCode) || x.Code.Contains(filter.NameOrCode));
-                if (!string.IsNullOrEmpty(filter.IntroOrRemark))
-                    query = query.Where(x => x.Remark.Contains(filter.IntroOrRemark) || x.Intro.Contains(filter.IntroOrRemark));
                 if (filter.Category.HasValue && filter.Category.Value != 0)
-                    query = query.Where(x => x.Category == filter.Category);
+                    query = query.Where(x => x.Category == filter.Category.Value);
 
                 query = query.OrderBy(x => x.Name);
-                res.RowsCount = await query.CountAsync();
-                query = query.AsPaging(param.PageIndex, param.PageSize);
                 var entities = await query.ToListAsync();
+                res.RowsCount = entities.Count;
                 var data = _mapper.Map<List<SysProgramM>>(entities);
                 res.Data = data;
             }
@@ -373,7 +377,7 @@ namespace Hao.Authentication.Manager.Implements
                 var entity = _mapper.Map<SysRole>(model);
                 entity.Id = entity.GetId(this.MachineCode);
                 entity.CreatedById = CurrentUserId;
-
+                // TODO 约束
                 await _dbContext.AddAsync(entity);
                 await _dbContext.SaveChangesAsync();
             }
@@ -434,7 +438,7 @@ namespace Hao.Authentication.Manager.Implements
                     ctt.Id = ctt.GetId(this.MachineCode);
                     await _dbContext.AddAsync(ctt);
                 }
-
+                // TODO 约束
                 await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)
@@ -458,7 +462,7 @@ namespace Hao.Authentication.Manager.Implements
                     || (x.Code != null && x.SysCode.Contains(filter.NameOrCode)));
                 if (filter.CttMethod.HasValue && filter.CttMethod != 0)
                     query = query.Where(x => x.CttMethod == filter.CttMethod.Value);
-                if (filter.Rank.HasValue)
+                if (filter.Rank.HasValue && filter.Rank != 0)
                     query = query.Where(x => x.Rank == filter.Rank.Value);
                 if (filter.StartAt.HasValue)
                     query = query.Where(x => x.CreatedAt >= filter.StartAt.Value);
@@ -529,7 +533,7 @@ namespace Hao.Authentication.Manager.Implements
                 var pgms = await (from sr in _dbContext.SysRole
                                   join sp in _dbContext.SysProgramRelation on sr.SysId equals sp.SysId
                                   join p in _dbContext.Program on sp.ProgramId equals p.Id
-                                  where sp.SysId == id && !p.Deleted
+                                  where sr.Id == id && !p.Deleted
                                   orderby p.Name
                                   select new SysRolePgmM
                                   {
@@ -540,7 +544,7 @@ namespace Hao.Authentication.Manager.Implements
                 var pgmIds = pgms.Select(x => x.Id).ToList();
 
                 var sects = await _dbContext.ProgramSection
-                    .Where(x => !x.Deleted && pgmIds.Contains(x.Id))
+                    .Where(x => !x.Deleted && pgmIds.Contains(x.ProgramId))
                     .OrderBy(x => x.Name)
                     .Select(y => new SysRoleSectM
                     {
@@ -553,7 +557,7 @@ namespace Hao.Authentication.Manager.Implements
                 var sectIds = sects.Select(x => x.Id).ToList();
 
                 var functs = await _dbContext.ProgramFunction
-                    .Where(x => !x.Deleted && pgmIds.Contains(x.Id))
+                    .Where(x => !x.Deleted && pgmIds.Contains(x.ProgramId))
                     .OrderBy(x => x.Name)
                     .Select(y => new SysRoleFunctM
                     {
@@ -565,6 +569,7 @@ namespace Hao.Authentication.Manager.Implements
                     }).ToListAsync();
 
                 var checkIds = await _dbContext.SysRoleFuncRelation
+                    .Where(x=>x.RoleId == id)
                     .Select(x => x.TargetId)
                     .ToListAsync();
                 if (checkIds.Any())
@@ -612,7 +617,7 @@ namespace Hao.Authentication.Manager.Implements
                 var oldEntities = await _dbContext.SysRoleFuncRelation
                     .Where(x=>x.ProgramId == model.PgmId && x.RoleId == model.RoleId)
                     .ToListAsync();
-                _dbContext.Remove(oldEntities);
+                if(oldEntities.Any()) _dbContext.RemoveRange(oldEntities);
 
                 var newEntities = new List<SysRoleFuncRelation>();
                 if (model.SectIds != null)
@@ -622,9 +627,9 @@ namespace Hao.Authentication.Manager.Implements
                         newEntities.Add(new SysRoleFuncRelation() { TargetId = x, IsFunction = false, });
                     });
                 }
-                if (model.FuncIds != null)
+                if (model.FunctIds != null)
                 {
-                    model.FuncIds.ForEach(x =>
+                    model.FunctIds.ForEach(x =>
                     {
                         newEntities.Add(new SysRoleFuncRelation() { TargetId = x, IsFunction = true, });
                     });
@@ -637,7 +642,7 @@ namespace Hao.Authentication.Manager.Implements
                     x.CreatedById = CurrentUserId;
                 });
 
-                await _dbContext.SysRoleFuncRelation.AddRangeAsync(newEntities);
+                if(newEntities.Any()) await _dbContext.SysRoleFuncRelation.AddRangeAsync(newEntities);
                 await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)

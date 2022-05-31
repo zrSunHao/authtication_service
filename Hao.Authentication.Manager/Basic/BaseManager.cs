@@ -43,6 +43,11 @@ namespace Hao.Authentication.Manager.Basic
         protected string MachineCode => GetConfiguration("Platform:MachineCode");
 
         /// <summary>
+        /// 机器码
+        /// </summary>
+        protected string FileResourceUrl => GetConfiguration("FileResourceBaseUrl");
+
+        /// <summary>
         /// 当前用户Id
         /// </summary>
         public string CurrentUserId = "Ctm20220527171601001";

@@ -40,7 +40,7 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponseResult<bool>();
             try
             {
-                var entity = _mapper.Map<ResourceM>(model);
+                var entity = _mapper.Map<FileResource>(model);
                 await _dbContext.AddAsync(entity);
                 await _dbContext.SaveChangesAsync();
             }
@@ -74,7 +74,7 @@ namespace Hao.Authentication.Manager.Implements
         {
             lock (_codeLock)
             {
-                string time = DateTime.Now.ToString("yyMMddhhmmss");
+                string time = DateTime.Now.ToString("yyMMddHHmmss");
                 if (time != _codeTime) { _codeTime = time; _codeIndex = 1; }
                 else _codeIndex++;
             }
