@@ -526,7 +526,73 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponsePagingResult<SysRolePgmM>();
             try
             {
+                var pgms = await (from sr in _dbContext.SysRole
+                                  join sp in _dbContext.SysProgramRelation on sr.SysId equals sp.SysId
+                                  join p in _dbContext.Program on sp.ProgramId equals p.Id
+                                  where sp.SysId == id && !p.Deleted
+                                  orderby p.Name
+                                  select new SysRolePgmM
+                                  {
+                                      Id = p.Id,
+                                      Name = p.Name,
+                                  }).ToListAsync();
+                if (!pgms.Any()) return res;
+                var pgmIds = pgms.Select(x => x.Id).ToList();
 
+                var sects = await _dbContext.ProgramSection
+                    .Where(x => !x.Deleted && pgmIds.Contains(x.Id))
+                    .OrderBy(x => x.Name)
+                    .Select(y => new SysRoleSectM
+                    {
+                        Id = y.Id,
+                        Name = y.Name,
+                        PgmId = y.ProgramId,
+                        Checked = false
+                    }).ToListAsync();
+                if (!sects.Any()){ res.Data = pgms;return res; }
+                var sectIds = sects.Select(x => x.Id).ToList();
+
+                var functs = await _dbContext.ProgramFunction
+                    .Where(x => !x.Deleted && pgmIds.Contains(x.Id))
+                    .OrderBy(x => x.Name)
+                    .Select(y => new SysRoleFunctM
+                    {
+                        Id = y.Id,
+                        Name = y.Name,
+                        PgmId = y.ProgramId,
+                        SectId = y.SectionId,
+                        Checked = false
+                    }).ToListAsync();
+
+                var checkIds = await _dbContext.SysRoleFuncRelation
+                    .Select(x => x.TargetId)
+                    .ToListAsync();
+                if (checkIds.Any())
+                {
+                    sects.ForEach(x =>
+                    {
+                        if (checkIds.Contains(x.Id)) x.Checked = true;
+                    });
+                    functs.ForEach(x =>
+                    {
+                        if (checkIds.Contains(x.Id)) x.Checked = true;
+                    });
+                }
+
+                if(functs.Any())
+                {
+                    sects.ForEach(x =>
+                    {
+                        x.Functs = functs.Where(y=>y.SectId == x.Id).ToList();
+                    });
+                }
+                pgms.ForEach(x =>
+                {
+                    x.Sects = sects.Where(y => y.PgmId == x.Id).ToList();
+                });
+
+                res.Data = pgms;
+                res.RowsCount = pgms.Count;
             }
             catch (Exception e)
             {
@@ -541,7 +607,38 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponseResult<bool>();
             try
             {
+                if (string.IsNullOrEmpty(model.PgmId) || string.IsNullOrEmpty(model.RoleId))
+                    throw new MyCustomException("程序Id或RoleId为空！");
+                var oldEntities = await _dbContext.SysRoleFuncRelation
+                    .Where(x=>x.ProgramId == model.PgmId && x.RoleId == model.RoleId)
+                    .ToListAsync();
+                _dbContext.Remove(oldEntities);
 
+                var newEntities = new List<SysRoleFuncRelation>();
+                if (model.SectIds != null)
+                {
+                    model.SectIds.ForEach(x =>
+                    {
+                        newEntities.Add(new SysRoleFuncRelation() { TargetId = x, IsFunction = false, });
+                    });
+                }
+                if (model.FuncIds != null)
+                {
+                    model.FuncIds.ForEach(x =>
+                    {
+                        newEntities.Add(new SysRoleFuncRelation() { TargetId = x, IsFunction = true, });
+                    });
+                }
+                newEntities.ForEach(x =>
+                {
+                    x.RoleId = model.RoleId;
+                    x.ProgramId = model.PgmId;
+                    x.CreatedAt = DateTime.Now;
+                    x.CreatedById = CurrentUserId;
+                });
+
+                await _dbContext.SysRoleFuncRelation.AddRangeAsync(newEntities);
+                await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)
             {
