@@ -25,9 +25,7 @@ namespace Hao.Authentication.Manager.DataMaps
 
             CreateMap<SysCtmView, SysCtmM>();
 
-            CreateMap<SysRoleView, SysRoleM>()
-                .ForMember(x => x.CttMethod, y => y.Ignore())
-                .ForMember(x => x.LimitedExpiredAt, y => y.Ignore());
+            CreateMap<SysRoleView, SysRoleM>();
             CreateMap<SysRoleM, SysRole>()
                 .ForMember(x => x.Id, y => y.Ignore())
                 .ForMember(x => x.LastModifiedAt, y => y.MapFrom(z => DateTime.Now))

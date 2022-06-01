@@ -413,6 +413,7 @@ namespace Hao.Authentication.Manager.Implements
                     if (codeExist) throw new MyCustomException($"标识码为【{model.Code}】的角色已存在！");
                     entity.Code = model.Code;
                 }
+
                 entity.Intro = model.Intro;
                 entity.Remark = model.Remark;
                 entity.LastModifiedAt = DateTime.Now;
@@ -438,7 +439,7 @@ namespace Hao.Authentication.Manager.Implements
                     ctt.Id = ctt.GetId(this.MachineCode);
                     await _dbContext.AddAsync(ctt);
                 }
-                // TODO 约束
+
                 await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)
@@ -458,8 +459,7 @@ namespace Hao.Authentication.Manager.Implements
                 if (filter == null) throw new MyCustomException("查询参数未添加必要的系统信息");
                 var query = _dbContext.SysRoleView.Where(x => x.SysId == filter.SysId);
                 if (!string.IsNullOrEmpty(filter.NameOrCode))
-                    query = query.Where(x => x.Name.Contains(filter.NameOrCode)
-                    || (x.Code != null && x.SysCode.Contains(filter.NameOrCode)));
+                    query = query.Where(x => x.Name.Contains(filter.NameOrCode) || x.Code.Contains(filter.NameOrCode));
                 if (filter.CttMethod.HasValue && filter.CttMethod != 0)
                     query = query.Where(x => x.CttMethod == filter.CttMethod.Value);
                 if (filter.Rank.HasValue && filter.Rank != 0)
