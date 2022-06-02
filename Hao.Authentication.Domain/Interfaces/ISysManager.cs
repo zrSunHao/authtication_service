@@ -13,6 +13,8 @@ namespace Hao.Authentication.Domain.Interfaces
 
         public Task<ResponseResult<bool>> Delete(string id);
 
+        public Task<ResponsePagingResult<OptionItem<string>>> GetOptions();
+
 
 
         public Task<ResponsePagingResult<SysProgramM>> GetOwnedPgmList(PagingParameter<SysOwnedPgmFilter> param);
@@ -35,6 +37,8 @@ namespace Hao.Authentication.Domain.Interfaces
         public Task<ResponsePagingResult<SysRoleM>> GetRoleList(PagingParameter<SysRoleFilter> param);
 
         public Task<ResponseResult<bool>> DeleteRole(string id);
+
+        public Task<ResponsePagingResult<OptionItem<string>>> GetRoleOptions(string sysId);
 
         public Task<ResponsePagingResult<SysRolePgmM>> GetRolePgmList(string id);
 

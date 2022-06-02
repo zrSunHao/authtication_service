@@ -12,6 +12,7 @@ namespace Hao.Authentication.Persistence.Database
         public DbSet<CustomerInformation> CustomerInformation { get; set; }
         public DbSet<CustomerLog> CustomerLog { get; set; }
         public DbSet<CustomerRoleRelation> CustomerRoleRelation { get; set; }
+        public DbSet<UserLastLoginRecord> UserLastLoginRecord { get; set; }
 
 
         public DbSet<Program> Program { get; set; }

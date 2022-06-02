@@ -15,6 +15,8 @@ namespace Hao.Authentication.Manager
             services.AddTransient<IConstraintManager, ConstraintManager>();
             services.AddTransient<IResourceManager, ResourceManager>();
             services.AddTransient<ISysManager, SysManager>();
+            services.AddTransient<IUserManager, UserManager>();
+            services.AddTransient<ICustomerManager, CustomerManager>();
 
             return services;
         }

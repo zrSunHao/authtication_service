@@ -40,6 +40,12 @@ namespace Hao.Authentication.Web.Controllers
             return await _manager.Delete(id);
         }
 
+        [HttpGet("GetOptions")]
+        public async Task<ResponsePagingResult<OptionItem<string>>> GetOptions()
+        {
+            return await _manager.GetOptions();
+        }
+
 
         [HttpPost("GetOwnedPgmList")]
         public async Task<ResponsePagingResult<SysProgramM>> GetOwnedPgmList(PagingParameter<SysOwnedPgmFilter> param)
@@ -95,6 +101,12 @@ namespace Hao.Authentication.Web.Controllers
         public async Task<ResponseResult<bool>> DeleteRole(string id)
         {
             return await _manager.DeleteRole(id);
+        }
+
+        [HttpGet("GetRoleOptions")]
+        public async Task<ResponsePagingResult<OptionItem<string>>> GetRoleOptions(string sysId)
+        {
+            return await _manager.GetRoleOptions(sysId);
         }
 
         [HttpGet("GetRolePgmList")]

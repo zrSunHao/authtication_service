@@ -31,6 +31,21 @@ namespace Hao.Authentication.Domain.Models
         public DateTime CreatedAt { get; set; }
     }
 
+    public class CttAddM
+    {
+        public string TargetId { get; set; }
+
+        public ConstraintCategory Category { get; set; }
+
+        public ConstraintMethod Method { get; set; }
+
+        public string Origin { get; set; }
+
+        public string Remark { get; set; }
+
+        public DateTime? ExpiredAt { get; set; }
+    }
+
     public class CttFilter
     {
         public string Name { get; set; }
@@ -43,4 +58,6 @@ namespace Hao.Authentication.Domain.Models
 
         public DateTime? EndAt { get; set; }
     }
+
+    
 }

@@ -8,7 +8,7 @@ namespace Hao.Authentication.Persistence.Views
 
         public string SysId { get; set; }
 
-        public string SysLogo { get; set; }
+        public string? SysLogo { get; set; }
 
         public string SysName { get; set; }
 
@@ -18,7 +18,7 @@ namespace Hao.Authentication.Persistence.Views
 
         public SysRoleRank Rank { get; set; }
 
-        public string Remark { get; set; }
+        public string? Remark { get; set; }
 
         public DateTime CreatedAt { get; set; }
     }

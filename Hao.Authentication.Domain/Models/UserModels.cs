@@ -2,14 +2,14 @@
 
 namespace Hao.Authentication.Domain.Models
 {
-    public class LoginDto
+    public class LoginM
     {
         public string UserName { get; set; }
 
         public string Password { get; set; }
     }
 
-    public class RegisterDto
+    public class RegisterM
     {
         public string UserName { get; set; }
 

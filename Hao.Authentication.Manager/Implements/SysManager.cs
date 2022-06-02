@@ -171,7 +171,29 @@ namespace Hao.Authentication.Manager.Implements
             catch (Exception e)
             {
                 res.AddError(e);
-                _logger.LogError(e, $"删除系统【{id}】信息失败失败！");
+                _logger.LogError(e, $"删除系统【{id}】信息失败！");
+            }
+            return res;
+        }
+
+        public async Task<ResponsePagingResult<OptionItem<string>>> GetOptions()
+        {
+            var res = new ResponsePagingResult<OptionItem<string>>();
+            try
+            {
+                var options = await _dbContext.Sys
+                    .Where(x => !x.Deleted)
+                    .OrderBy(x => x.Name)
+                    .Select(y => new OptionItem<string>
+                    {
+                        Key = y.Id,
+                        Value = y.Name
+                    }).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                res.AddError(e);
+                _logger.LogError(e, $"获取系统下拉选项失败！");
             }
             return res;
         }
@@ -521,6 +543,29 @@ namespace Hao.Authentication.Manager.Implements
             {
                 res.AddError(e);
                 _logger.LogError(e, $"删除id为【{id}】角色的信息失败！");
+            }
+            return res;
+        }
+
+        public async Task<ResponsePagingResult<OptionItem<string>>> GetRoleOptions(string sysId)
+        {
+            var res = new ResponsePagingResult<OptionItem<string>>();
+            try
+            {
+                var rank = SysRoleRank.manager;
+                var options = await _dbContext.SysRole
+                    .Where(x => !x.Deleted && x.SysId == sysId && x.Rank == rank)
+                    .OrderBy(x => x.Name)
+                    .Select(y => new OptionItem<string>
+                    {
+                        Key = y.Id,
+                        Value = y.Name
+                    }).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                res.AddError(e);
+                _logger.LogError(e, $"获取角色下拉选项失败！");
             }
             return res;
         }

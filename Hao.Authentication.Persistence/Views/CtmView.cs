@@ -4,7 +4,7 @@
     {
         public string Id { get; set; }
 
-        public string Avatar { get; set; }
+        public string? Avatar { get; set; }
 
         public string Name { get; set; }
 
@@ -14,7 +14,7 @@
 
         public DateTime? LastLoginAt { get; set; }
 
-        public string Remark { get; set; }
+        public string? Remark { get; set; }
 
         public DateTime? CreatedAt { get; set; }
     }

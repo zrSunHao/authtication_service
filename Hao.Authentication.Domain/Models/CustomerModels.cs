@@ -3,6 +3,46 @@
 namespace Hao.Authentication.Domain.Models
 {
 
+    public class CtmM
+    {
+        public string Id { get; set; }
+
+        public string? Avatar { get; set; }
+
+        public string Name { get; set; }
+
+        public string Nickname { get; set; }
+
+        public bool Limited { get; set; }
+
+        public DateTime? LastLoginAt { get; set; }
+
+        public string? Remark { get; set; }
+
+        public DateTime? CreatedAt { get; set; }
+    }
+
+    public class CtmRoleView
+    {
+        public long Id { get; set; }
+
+        public string SysId { get; set; }
+
+        public string? SysLogo { get; set; }
+
+        public string SysName { get; set; }
+
+        public string RoleId { get; set; }
+
+        public string RoleName { get; set; }
+
+        public SysRoleRank Rank { get; set; }
+
+        public string? Remark { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+    }
+
     public class CtmLogM
     {
         public long Id { get; set; }
@@ -11,9 +51,9 @@ namespace Hao.Authentication.Domain.Models
 
         public string SysName { get; set; }
 
-        public SysRoleRank RoleRank { get; set; }
+        public SysRoleRank? RoleRank { get; set; }
 
-        public string RoleId { get; set; }
+        public string? RoleId { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
@@ -41,13 +81,13 @@ namespace Hao.Authentication.Domain.Models
 
     public class CtmCttAddM
     {
-        public string CustomerId { get; set; }
+        public string CtmId { get; set; }
 
         public ConstraintCategory Category { get; set; }
 
         public ConstraintMethod Method { get; set; }
 
-        public string SysId { get; set; }
+        public string? SysId { get; set; }
 
         public DateTime? ExpiredAt { get; set; }
 
@@ -56,7 +96,7 @@ namespace Hao.Authentication.Domain.Models
 
     public class CtmRoleAddM
     {
-        public string CustomerId { get; set; }
+        public string CtmId { get; set; }
 
         public string SysId { get; set; }
 

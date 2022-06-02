@@ -8,5 +8,11 @@ namespace Hao.Authentication.Domain.Interfaces
         public Task<ResponseResult<bool>> Cancel(string id);
 
         public Task<ResponsePagingResult<CttM>> GetList(PagingParameter<CttFilter> param);
+
+        /// <summary>
+        /// 添加约束
+        /// </summary>
+        /// <returns></returns>
+        public Task<ResponseResult<bool>> Add(CttAddM ctt,bool directlySave = false);
     }
 }

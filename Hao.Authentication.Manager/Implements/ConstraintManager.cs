@@ -4,15 +4,11 @@ using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Domain.Paging;
 using Hao.Authentication.Manager.Basic;
 using Hao.Authentication.Persistence.Database;
+using Hao.Authentication.Persistence.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hao.Authentication.Manager.Implements
 {
@@ -27,6 +23,37 @@ namespace Hao.Authentication.Manager.Implements
             : base(dbContext, mapper, configuration, httpContextAccessor)
         {
             _logger = logger;
+        }
+
+        public async Task<ResponseResult<bool>> Add(CttAddM ctt, bool directlySave = false)
+        {
+            var res = new ResponseResult<bool>();
+            try
+            {
+                if (string.IsNullOrEmpty(ctt.TargetId) || ctt.Category == 0 || ctt.Method == 0)
+                    throw new MyCustomException("添加约束需要的信息不全！");
+
+                await _dbContext.Constraint
+                    .Where(x => !x.Cancelled && x.TargetId == ctt.TargetId && x.Category == ctt.Category)
+                    .ForEachAsync(y =>
+                    {
+                        y.Cancelled = true;
+                        y.LastModifiedAt = DateTime.Now;
+                        y.LastModifiedById = CurrentUserId;
+                    });
+
+                var entity = _mapper.Map<Constraint>(ctt);
+                entity.Id = entity.GetId(MachineCode);
+                entity.CreatedById = CurrentUserId;
+                await _dbContext.AddAsync(entity);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                res.AddError(e);
+                _logger.LogError(e, $"添加TargetId为【{ctt.TargetId}】、类别为【{ctt.Category.ToString()}】的约束失败");
+            }
+            return res;
         }
 
         public async Task<ResponseResult<bool>> Cancel(string id)
