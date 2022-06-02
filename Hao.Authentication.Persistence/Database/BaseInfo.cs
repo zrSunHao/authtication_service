@@ -45,8 +45,8 @@ namespace Hao.Authentication.Persistence.Database
                 }
             }
             string rand = _random.Next(100, 999).ToString();
-            // 表前缀4位、时间14位、机器码4位、顺序码5位、随机码3位
-            return $"{_tablePrefix.PadRight(4,'*')}{_time}{machine.PadLeft(4, '*')}{string.Format("{0:D5}",_index)}{rand}";
+            // 表前缀4位、时间13位、机器码4位、顺序码5位、随机码3位
+            return $"{_tablePrefix.PadRight(4,'x')}{_time}{machine.PadLeft(4, '0')}{string.Format("{0:D5}",_index)}{rand}";
         }
 
         private string GetTablePrefix()

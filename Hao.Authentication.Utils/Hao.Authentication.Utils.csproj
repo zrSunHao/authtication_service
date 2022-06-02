@@ -6,10 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="File\" />
-    <Folder Include="String\" />
-    <Folder Include="Cache\" />
-  </ItemGroup>
-
 </Project>

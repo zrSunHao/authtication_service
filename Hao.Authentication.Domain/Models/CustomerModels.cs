@@ -22,7 +22,7 @@ namespace Hao.Authentication.Domain.Models
         public DateTime? CreatedAt { get; set; }
     }
 
-    public class CtmRoleView
+    public class CtmRoleM
     {
         public long Id { get; set; }
 
@@ -62,7 +62,7 @@ namespace Hao.Authentication.Domain.Models
 
     public class PeopleM
     {
-        public string CustomerId { get; set; }
+        public string CtmId { get; set; }
 
         public string FullName { get; set; }
 
@@ -76,7 +76,7 @@ namespace Hao.Authentication.Domain.Models
 
         public string Intro { get; set; }
 
-        public DateTime LastModifiedAt { get; set; }
+        public DateTime? LastModifiedAt { get; set; }
     }
 
     public class CtmCttAddM
@@ -94,7 +94,7 @@ namespace Hao.Authentication.Domain.Models
         public string Remark { get; set; }
     }
 
-    public class CtmRoleAddM
+    public class CtmRoleUpdateM
     {
         public string CtmId { get; set; }
 
@@ -120,7 +120,7 @@ namespace Hao.Authentication.Domain.Models
 
     public class CtmRoleFilter
     {
-        public string CustomerId { get; set; }
+        public string CtmId { get; set; }
 
         public string SysName { get; set; }
 
@@ -129,16 +129,16 @@ namespace Hao.Authentication.Domain.Models
 
     public class CtmCttFilter
     {
-        public string CustomerId { get; set; }
+        public string CtmId { get; set; }
 
-        public ConstraintCategory Category { get; set; }
+        public ConstraintCategory? Category { get; set; }
 
         public string SysName { get; set; }
     }
 
     public class CtmLogFilter
     {
-        public string CustomerId { get; set; }
+        public string CtmId { get; set; }
 
         public string Operate { get; set; }
 

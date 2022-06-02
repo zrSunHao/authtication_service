@@ -14,6 +14,6 @@ namespace Hao.Authentication.Domain.Interfaces
 
         public Task<ResponseResult<bool>> Register(RegisterM model);
 
-        public Task<ResponseResult<AuthResultM>> ResetPsd(string oldPsd,string newPsd);
+        public Task<ResponseResult<bool>> ResetPsd(string oldPsd,string newPsd);
     }
 }
