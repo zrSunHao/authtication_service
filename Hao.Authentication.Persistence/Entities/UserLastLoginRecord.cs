@@ -7,12 +7,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hao.Authentication.Persistence.Entities
 {
-    [TablePrefix(PrefixConsts.UserLastLoginRecord)]
     [Table(nameof(UserLastLoginRecord))]
     [Index(nameof(CustomerId), IsUnique = false)]
     [Index(nameof(SysId), IsUnique = false)]
     [Index(nameof(RoleId), IsUnique = false)]
-    public class UserLastLoginRecord : BaseInfo
+    public class UserLastLoginRecord
     {
         [Key]
         public Guid Id { get; set; }

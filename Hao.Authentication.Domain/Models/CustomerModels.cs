@@ -51,9 +51,7 @@ namespace Hao.Authentication.Domain.Models
 
         public string SysName { get; set; }
 
-        public SysRoleRank? RoleRank { get; set; }
-
-        public string? RoleId { get; set; }
+        public string? RoleName { get; set; }
 
         public DateTime CreatedAt { get; set; }
 

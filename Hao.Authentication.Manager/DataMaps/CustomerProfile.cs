@@ -19,6 +19,10 @@ namespace Hao.Authentication.Manager.DataMaps
                 .ForMember(x => x.CtmId, y => y.MapFrom(z => z.CustomerId));
 
             CreateMap<CtmRoleView, CtmRoleM>();
+
+            CreateMap<CtmCttAddM, CttAddM>()
+                .ForMember(x => x.TargetId, y => y.MapFrom(z => z.CtmId))
+                .ForMember(x => x.Origin, y => y.MapFrom(z => "管理员添加"));
         }
     }
 }

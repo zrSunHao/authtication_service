@@ -9,8 +9,6 @@
 
         public const string Customer = "Ctm";
 
-        public const string UserLastLoginRecord = "ULLR";
-
         public const string FileResource = "FR";
 
         public const string Program = "Pgm";

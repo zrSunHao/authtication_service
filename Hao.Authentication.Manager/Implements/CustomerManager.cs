@@ -10,11 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hao.Authentication.Manager.Implements
 {
@@ -114,7 +109,6 @@ namespace Hao.Authentication.Manager.Implements
                 HashHandler.CreateHash(psd, out var hash, out var salt);
                 entity.Password = hash;
                 entity.PasswordSalt = salt;
-                entity.PasswordSalt = salt;
                 entity.LastModifiedAt = DateTime.Now;
                 entity.LastModifiedById = CurrentUserId;
                 await _dbContext.SaveChangesAsync();
@@ -178,7 +172,7 @@ namespace Hao.Authentication.Manager.Implements
             {
                 var filter = param.Filter;
                 if (filter == null || string.IsNullOrEmpty(filter?.CtmId))
-                    throw new MyCustomException("缺少必要的客户信息！");
+                    throw new MyCustomException("缺少查询需要的客户信息！");
                 var query = _dbContext.CtmRoleView.AsQueryable();
                 if (!string.IsNullOrEmpty(filter.SysName))
                     query = query.Where(x => x.SysName.Contains(filter.SysName));
@@ -271,7 +265,7 @@ namespace Hao.Authentication.Manager.Implements
             {
                 var filter = param.Filter;
                 if (filter == null || string.IsNullOrEmpty(filter?.CtmId))
-                    throw new MyCustomException("缺少必要的客户信息！");
+                    throw new MyCustomException("缺少查询需要的客户信息！");
                 var query = _dbContext.CttView.AsQueryable();
                 if (!string.IsNullOrEmpty(filter.SysName))
                     query = query.Where(x => x.SysName != null && x.Origin.Contains(filter.SysName));
@@ -310,7 +304,10 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponseResult<bool>();
             try
             {
-
+                if (string.IsNullOrEmpty(model.Remark)) model.Remark = "无";
+                var m = _mapper.Map<CttAddM>(model);
+                var result = await _ctt.Add(m,false);
+                await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)
             {
@@ -325,7 +322,47 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponsePagingResult<CtmLogM>();
             try
             {
+                var filter = param.Filter;
+                if (filter == null) throw new MyCustomException("缺少查询需要的客户信息！");
+                var query = from cl in _dbContext.CustomerLog
+                            join s in _dbContext.Sys on cl.SystemId equals s.Id
+                            join r in _dbContext.SysRole on cl.RoleId equals r.Id
+                            where !s.Deleted && !r.Deleted && cl.CustomerId == filter.CtmId
+                            select new CtmLogM
+                            {
+                                Id = cl.Id,
+                                Operate = cl.Operate,
+                                SysName = s.Name,
+                                RoleName = r.Name,
+                                CreatedAt = cl.CreatedAt,
+                                Remark = cl.Remark,
+                            };
+                if(!string.IsNullOrEmpty(filter.Operate))
+                    query = query.Where(x=>x.Operate.Contains(filter.Operate));
+                if (!string.IsNullOrEmpty(filter.SysName))
+                    query = query.Where(x => x.SysName.Contains(filter.SysName));
+                if (filter.StartAt.HasValue)
+                    query = query.Where(x => x.CreatedAt >= filter.StartAt.Value);
+                if (filter.EndAt.HasValue)
+                    query = query.Where(x => x.CreatedAt <= filter.EndAt.Value.AddDays(1).AddSeconds(-1));
 
+                query = query.OrderByDescending(x => x.CreatedAt);
+                if (param.Sort != null && param.Sort.ToLower() == "desc")
+                {
+                    if (param.SortColumn?.ToLower() == "Operate".ToLower())
+                        query = query.OrderByDescending(x => x.Operate);
+                }
+                else
+                {
+                    if (param.SortColumn?.ToLower() == "CreatedAt".ToLower())
+                        query = query.OrderBy(x => x.CreatedAt);
+                    if (param.SortColumn?.ToLower() == "Operate".ToLower())
+                        query = query.OrderBy(x => x.Operate);
+                }
+
+                res.RowsCount = await query.CountAsync();
+                query = query.AsPaging(param.PageIndex, param.PageSize);
+                res.Data = await query.ToListAsync();
             }
             catch (Exception e)
             {

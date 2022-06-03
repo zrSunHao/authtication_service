@@ -45,25 +45,6 @@ namespace Hao.Authentication.Domain.Models
         public DateTime? CreatedAt { get; set; }
     }
 
-    public class AuthPeopleM
-    {
-        public string CustomerId { get; set; }
-
-        public string FullName { get; set; }
-
-        public CustomerGender Gender { get; set; }
-
-        public DateTime? Birthday { get; set; }
-
-        public CustomerEducation Education { get; set; }
-
-        public string Profession { get; set; }
-
-        public string Intro { get; set; }
-
-        public DateTime LastModifiedAt { get; set; }
-    }
-
     public class AuthRoleM
     {
         public string Id { get; set; }
@@ -73,11 +54,6 @@ namespace Hao.Authentication.Domain.Models
         public SysRoleRank Rank { get; set; }
     }
 
-    public class AuthSectPermsM
-    {
-        public string SectCodes { get; set; }
-        public string FunctCodes { get; set; }
-    }
 
     public class AuthResultM
     {
@@ -87,19 +63,12 @@ namespace Hao.Authentication.Domain.Models
         public AuthCtmM Customer { get; set; }
 
         /// <summary>
-        /// 个人信息
-        /// </summary>
-        public AuthPeopleM People { get; set; }
-
-        /// <summary>
         /// 角色
         /// </summary>
         public AuthRoleM Role { get; set; }
 
-        /// <summary>
-        /// 可进入模块
-        /// </summary>
-        public List<AuthSectPermsM> Perms { get; set; }
+        public List<string> SectCodes { get; set; }
+        public List<string> FunctCodes { get; set; }
 
         /// <summary>
         /// JWT
@@ -109,6 +78,6 @@ namespace Hao.Authentication.Domain.Models
         /// <summary>
         /// 本次登录主键
         /// </summary>
-        public string Key { get; set; }
+        public string Id { get; set; }
     }
 }

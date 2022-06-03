@@ -46,7 +46,7 @@ namespace Hao.Authentication.Manager.Implements
                 entity.Id = entity.GetId(MachineCode);
                 entity.CreatedById = CurrentUserId;
                 await _dbContext.AddAsync(entity);
-                await _dbContext.SaveChangesAsync();
+                if(directlySave) await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)
             {

@@ -2,6 +2,7 @@
 using Hao.Authentication.Persistence.Database;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +37,13 @@ namespace Hao.Authentication.Manager.Basic
         /// <param name="key"></param>
         /// <returns></returns>
         protected string GetConfiguration(string key) => _configuration[key];
+
+        /// <summary>
+        /// 获取当前Http请求头信息
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        protected KeyValuePair<string, StringValues> GetHeader(string key) => _httpContextAccessor.HttpContext.Request.Headers.FirstOrDefault(x => x.Key == key);
 
         /// <summary>
         /// 机器码

@@ -21,5 +21,7 @@
         public string FunctName { get; set; }
 
         public string FunctCode { get; set; }
+
+        public bool? Limited { get; set; }
     }
 }
