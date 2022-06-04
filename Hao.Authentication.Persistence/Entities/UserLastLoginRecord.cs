@@ -1,20 +1,22 @@
-﻿using Hao.Authentication.Persistence.Attributes;
-using Hao.Authentication.Persistence.Consts;
-using Hao.Authentication.Persistence.Database;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hao.Authentication.Persistence.Entities
 {
     [Table(nameof(UserLastLoginRecord))]
+    [Index(nameof(LoginId), IsUnique = true)]
     [Index(nameof(CustomerId), IsUnique = false)]
     [Index(nameof(SysId), IsUnique = false)]
     [Index(nameof(RoleId), IsUnique = false)]
     public class UserLastLoginRecord
     {
         [Key]
-        public Guid Id { get; set; }
+        public long Id { get; set; }
+
+        [ScaffoldColumn(false)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public Guid LoginId { get; set; }
 
         [Required]
         [MaxLength(32)]

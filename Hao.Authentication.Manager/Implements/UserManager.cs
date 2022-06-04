@@ -67,9 +67,11 @@ namespace Hao.Authentication.Manager.Implements
                 result.Role = _mapper.Map<AuthRoleM>(role);
                 result.SectCodes = sects;
                 result.FunctCodes = functs;
-                result.Id = record.Id.ToString();
-                result.Token = this.BuilderToken(record.Id.ToString(), sysCode.Value, role.Code, entity.Name);
+                result.LoginId = record.LoginId.ToString();
+                result.Token = this.BuilderToken(record.LoginId.ToString(), sysCode.Value, role.Code, entity.Name);
                 res.Data = result;
+
+                throw new Exception("test!");
             }
             catch (Exception e)
             {
@@ -79,11 +81,19 @@ namespace Hao.Authentication.Manager.Implements
             return res;
         }
 
+        private static object _lock = new object();
         public async Task<ResponseResult<bool>> Register(RegisterM model)
         {
             var res = new ResponseResult<bool>();
             try
             {
+                lock (_lock)
+                {
+                    var exist = _dbContext.Customer.Any(x => x.Name == model.UserName);
+                    if (exist) throw new MyCustomException("账号已存在！");
+                }
+                
+
                 var ctm = new Customer
                 {
                     Name = model.UserName,
@@ -173,7 +183,7 @@ namespace Hao.Authentication.Manager.Implements
                     .FirstOrDefaultAsync(x => x.CustomerId == ctmId && x.SysId == sysId);
             if (record != null)
             {
-                record.Id = Guid.NewGuid();
+                record.LoginId = Guid.NewGuid();
                 record.RoleId = roleId;
                 record.CreatedAt = DateTime.Now;
                 record.ExpiredAt = DateTime.Now.AddDays(2);
@@ -182,7 +192,7 @@ namespace Hao.Authentication.Manager.Implements
             {
                 record = new UserLastLoginRecord()
                 {
-                    Id = Guid.NewGuid(),
+                    LoginId = Guid.NewGuid(),
                     CustomerId = ctmId,
                     RoleId = roleId,
                     SysId = sysId,
@@ -191,6 +201,17 @@ namespace Hao.Authentication.Manager.Implements
                 };
                 await _dbContext.AddAsync(record);
             }
+            var log = new CustomerLog()
+            {
+                CustomerId = ctmId,
+                ProgramId = "Pgm*220528_112419001*00001260",
+                Operate = "login",
+                RoleId = roleId,
+                RemoteAddress = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString(),
+                CreatedAt = DateTime.Now,
+                Remark = "无"
+            };
+            await _dbContext.AddAsync(log);
             await _dbContext.SaveChangesAsync();
             return record;
         }
@@ -217,13 +238,14 @@ namespace Hao.Authentication.Manager.Implements
 
         private string BuilderToken(string recordId, string sysCode, string roleCode, string userName)
         {
+            var key = GetConfiguration("Platform:Key");
             var msg = new TokenMsg
             {
                 Id = recordId,
                 System = sysCode,
                 Role = roleCode,
                 Name = userName,
-                Key = GetConfiguration("Platform:Key")
+                Key = key
             };
             var handler = new TokenHandler();
             return handler.BuilderToken(msg);

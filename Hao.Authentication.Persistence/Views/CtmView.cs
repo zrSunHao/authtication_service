@@ -10,7 +10,7 @@
 
         public string Nickname { get; set; }
 
-        public bool Limited { get; set; }
+        public bool? Limited { get; set; }
 
         public DateTime? LastLoginAt { get; set; }
 

@@ -11,12 +11,16 @@ namespace Hao.Authentication.Domain.Interfaces
 
         public Task<ResponseResult<bool>> ResetPsd(string ctmId, string psd);
 
+        public Task<ResponseResult<CtmM>> GetById(string ctmId);
+
         public Task<ResponseResult<PeopleM>> GetPeople(string ctmId);
 
         public Task<ResponseResult<bool>> UpdatePeople(PeopleM model);
 
 
         public Task<ResponsePagingResult<CtmRoleM>> GetRoleList(PagingParameter<CtmRoleFilter> param);
+
+        public Task<ResponseResult<bool>> AddRole(CtmRoleUpdateM model);
 
         public Task<ResponseResult<bool>> UpdateRole(CtmRoleUpdateM model);
 

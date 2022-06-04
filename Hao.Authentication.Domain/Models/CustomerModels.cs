@@ -24,7 +24,7 @@ namespace Hao.Authentication.Domain.Models
 
     public class CtmRoleM
     {
-        public long Id { get; set; }
+        public string Id { get; set; }
 
         public string SysId { get; set; }
 

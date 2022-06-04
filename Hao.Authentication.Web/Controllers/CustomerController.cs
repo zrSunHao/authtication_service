@@ -22,6 +22,12 @@ namespace Hao.Authentication.Web.Controllers
             return await _manager.GetList(param);
         }
 
+        [HttpGet("GetById")]
+        public async Task<ResponseResult<CtmM>> GetById(string ctmId)
+        {
+            return await _manager.GetById(ctmId);
+        }
+
         [HttpPatch("AddRemark")]
         public async Task<ResponseResult<bool>> AddRemark(string ctmId, string remark)
         {
@@ -53,6 +59,12 @@ namespace Hao.Authentication.Web.Controllers
             return await _manager.GetRoleList(param);
         }
 
+        [HttpPost("AddRole")]
+        public async Task<ResponseResult<bool>> AddRole(CtmRoleUpdateM model)
+        {
+            return await _manager.AddRole(model);
+        }
+
         [HttpPatch("UpdateRole")]
         public async Task<ResponseResult<bool>> UpdateRole(CtmRoleUpdateM model)
         {
@@ -64,6 +76,8 @@ namespace Hao.Authentication.Web.Controllers
         {
             return await _manager.DeleteRole(ctmId, roleId);
         }
+
+
 
         [HttpPost("GetCttList")]
         public async Task<ResponsePagingResult<CttM>> GetCttList(PagingParameter<CtmCttFilter> param)

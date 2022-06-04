@@ -24,10 +24,6 @@ namespace Hao.Authentication.Domain.Models
         public DateTime? Birthday { get; set; }
 
         public CustomerEducation Education { get; set; }
-
-        public string Profession { get; set; }
-
-        public string Intro { get; set; }
     }
 
     public class AuthCtmM
@@ -78,6 +74,6 @@ namespace Hao.Authentication.Domain.Models
         /// <summary>
         /// 本次登录主键
         /// </summary>
-        public string Id { get; set; }
+        public string LoginId { get; set; }
     }
 }

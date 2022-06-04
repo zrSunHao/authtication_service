@@ -41,9 +41,13 @@ namespace Hao.Authentication.Manager.Implements
                     if (!string.IsNullOrEmpty(filter.NameOrNickname))
                         query = query.Where(x => x.Name.Contains(filter.NameOrNickname) || x.Nickname.Contains(filter.NameOrNickname));
                     if (!string.IsNullOrEmpty(filter.Remark))
-                        query = query.Where(x => x.Remark != null &&x.Remark.Contains(filter.Remark));
+                        query = query.Where(x => x.Remark != null && x.Remark.Contains(filter.Remark));
                     if (filter.Limited.HasValue)
-                        query = query.Where(x => x.Limited == filter.Limited.Value);
+                    {
+                        if (filter.Limited.Value)
+                            query = query.Where(x => x.Limited == true);
+                        else query = query.Where(x => x.Limited == false || x.Limited == null);
+                    }
                     if (filter.StartAt.HasValue)
                         query = query.Where(x => x.CreatedAt >= filter.StartAt.Value);
                     if (filter.EndAt.HasValue)
@@ -55,6 +59,8 @@ namespace Hao.Authentication.Manager.Implements
                 {
                     if (param.SortColumn?.ToLower() == "Name".ToLower())
                         query = query.OrderByDescending(x => x.Name);
+                    if (param.SortColumn?.ToLower() == "LastLoginAt".ToLower())
+                        query = query.OrderByDescending(x => x.LastLoginAt);
                 }
                 else
                 {
@@ -62,11 +68,17 @@ namespace Hao.Authentication.Manager.Implements
                         query = query.OrderBy(x => x.CreatedAt);
                     if (param.SortColumn?.ToLower() == "Name".ToLower())
                         query = query.OrderBy(x => x.Name);
+                    if (param.SortColumn?.ToLower() == "LastLoginAt".ToLower())
+                        query = query.OrderBy(x => x.LastLoginAt);
                 }
 
                 res.RowsCount = await query.CountAsync();
                 query = query.AsPaging(param.PageIndex, param.PageSize);
                 var data = await query.ToListAsync();
+                data.ForEach(x =>
+                {
+                    x.Avatar = this.BuilderFileUrl(x.Avatar);
+                });
                 res.Data = _mapper.Map<List<CtmM>>(data);
             }
             catch (Exception e)
@@ -77,7 +89,7 @@ namespace Hao.Authentication.Manager.Implements
             return res;
         }
 
-        public async Task<ResponseResult<bool>> AddRemark(string ctmId,string remark)
+        public async Task<ResponseResult<bool>> AddRemark(string ctmId, string remark)
         {
             var res = new ResponseResult<bool>();
             try
@@ -117,6 +129,25 @@ namespace Hao.Authentication.Manager.Implements
             {
                 res.AddError(e);
                 _logger.LogError(e, $"重置Id为【{ctmId}】的客户的密码失败");
+            }
+            return res;
+        }
+
+        public async Task<ResponseResult<CtmM>> GetById(string ctmId)
+        {
+            var res = new ResponseResult<CtmM>();
+            try
+            {
+                var entity = await _dbContext.CtmView.AsNoTracking()
+                   .FirstOrDefaultAsync(x => x.Id == ctmId);
+                if (entity == null) throw new MyCustomException("未查询到客户数据！");
+                entity.Avatar = this.BuilderFileUrl(entity.Avatar);
+                res.Data = _mapper.Map<CtmM>(entity);
+            }
+            catch (Exception e)
+            {
+                res.AddError(e);
+                _logger.LogError(e, $"获取Id为【{ctmId}】的客户账号信息失败");
             }
             return res;
         }
@@ -173,17 +204,19 @@ namespace Hao.Authentication.Manager.Implements
                 var filter = param.Filter;
                 if (filter == null || string.IsNullOrEmpty(filter?.CtmId))
                     throw new MyCustomException("缺少查询需要的客户信息！");
-                var query = _dbContext.CtmRoleView.AsQueryable();
+                var query = _dbContext.CtmRoleView.Where(x=>x.Id == filter.CtmId).AsNoTracking();
+
                 if (!string.IsNullOrEmpty(filter.SysName))
                     query = query.Where(x => x.SysName.Contains(filter.SysName));
                 if (!string.IsNullOrEmpty(filter.RoleName))
                     query = query.Where(x => x.RoleName.Contains(filter.RoleName));
 
-                query = query.OrderByDescending(x => x.SysName);
                 if (param.Sort != null && param.Sort.ToLower() == "desc")
                 {
                     if (param.SortColumn?.ToLower() == "CreatedAt".ToLower())
                         query = query.OrderByDescending(x => x.CreatedAt);
+                    if (param.SortColumn?.ToLower() == "SysName".ToLower())
+                        query = query.OrderByDescending(x => x.SysName);
                 }
                 else
                 {
@@ -194,8 +227,12 @@ namespace Hao.Authentication.Manager.Implements
                 }
 
                 res.RowsCount = await query.CountAsync();
-                query = query.AsPaging(param.PageIndex, param.PageSize);
+                query = query.AsPaging(1, 10);
                 var data = await query.ToListAsync();
+                data.ForEach(x =>
+                {
+                    x.SysLogo = this.BuilderFileUrl(x.SysLogo);
+                });
                 res.Data = _mapper.Map<List<CtmRoleM>>(data);
             }
             catch (Exception e)
@@ -206,21 +243,21 @@ namespace Hao.Authentication.Manager.Implements
             return res;
         }
 
-        public async Task<ResponseResult<bool>> UpdateRole(CtmRoleUpdateM model)
+        public async Task<ResponseResult<bool>> AddRole(CtmRoleUpdateM model)
         {
             var res = new ResponseResult<bool>();
             try
             {
-                var olds = await _dbContext.CustomerRoleRelation
-                    .Where(x=>x.RoleId == model.RoleId && x.CustomerId == model.CtmId)
-                    .ToListAsync();
-                if(olds.Any()) _dbContext.RemoveRange(olds);
+                var exist = await _dbContext.CustomerRoleRelation
+                    .AnyAsync(x => x.SysId == model.SysId && x.CustomerId == model.CtmId);
+                if (exist) throw new MyCustomException("客户在该系统下已赋予角色！");
 
                 var entity = new CustomerRoleRelation()
                 {
                     CustomerId = model.CtmId,
                     RoleId = model.RoleId,
                     Remark = "暂无",
+                    SysId = model.SysId,
                     CreatedAt = DateTime.Now,
                     CreatedById = CurrentUserId
                 };
@@ -235,7 +272,37 @@ namespace Hao.Authentication.Manager.Implements
             return res;
         }
 
-        public async Task<ResponseResult<bool>> DeleteRole(string ctmId,string roleId)
+        public async Task<ResponseResult<bool>> UpdateRole(CtmRoleUpdateM model)
+        {
+            var res = new ResponseResult<bool>();
+            try
+            {
+                var olds = await _dbContext.CustomerRoleRelation
+                    .Where(x => x.SysId == model.SysId && x.CustomerId == model.CtmId)
+                    .ToListAsync();
+                if (olds.Any()) _dbContext.RemoveRange(olds);
+
+                var entity = new CustomerRoleRelation()
+                {
+                    CustomerId = model.CtmId,
+                    RoleId = model.RoleId,
+                    Remark = "暂无",
+                    SysId = model.SysId,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = CurrentUserId
+                };
+                await _dbContext.AddAsync(entity);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                res.AddError(e);
+                _logger.LogError(e, $"更新客户【{model.CtmId}】角色【{model.RoleId}】失败");
+            }
+            return res;
+        }
+
+        public async Task<ResponseResult<bool>> DeleteRole(string ctmId, string roleId)
         {
             var res = new ResponseResult<bool>();
             try
@@ -306,7 +373,7 @@ namespace Hao.Authentication.Manager.Implements
             {
                 if (string.IsNullOrEmpty(model.Remark)) model.Remark = "无";
                 var m = _mapper.Map<CttAddM>(model);
-                var result = await _ctt.Add(m,false);
+                var result = await _ctt.Add(m, false);
                 await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)
@@ -337,8 +404,8 @@ namespace Hao.Authentication.Manager.Implements
                                 CreatedAt = cl.CreatedAt,
                                 Remark = cl.Remark,
                             };
-                if(!string.IsNullOrEmpty(filter.Operate))
-                    query = query.Where(x=>x.Operate.Contains(filter.Operate));
+                if (!string.IsNullOrEmpty(filter.Operate))
+                    query = query.Where(x => x.Operate.Contains(filter.Operate));
                 if (!string.IsNullOrEmpty(filter.SysName))
                     query = query.Where(x => x.SysName.Contains(filter.SysName));
                 if (filter.StartAt.HasValue)

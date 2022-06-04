@@ -4,7 +4,7 @@ namespace Hao.Authentication.Persistence.Views
 {
     public class CtmRoleView
     {
-        public long Id { get; set; }
+        public string Id { get; set; }
 
         public string SysId { get; set; }
 

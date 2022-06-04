@@ -12,6 +12,8 @@ namespace Hao.Authentication.Manager.DataMaps
             CreateMap<RegisterM, CustomerInformation>()
                 .ForMember(x => x.Id, y => y.Ignore())
                 .ForMember(x => x.CustomerId, y => y.Ignore())
+                .ForMember(x => x.Intro, y => y.MapFrom(z => "暂无"))
+                .ForMember(x => x.Profession, y => y.MapFrom(z => "- - -"))
                 .ForMember(x => x.LastModifiedAt, y => y.MapFrom(z => DateTime.Now));
 
             CreateMap<CtmView, AuthCtmM>();

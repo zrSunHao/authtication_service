@@ -138,10 +138,9 @@ namespace Hao.Authentication.Manager.Implements
                 res.RowsCount = await query.CountAsync();
                 query = query.AsPaging(param.PageIndex, param.PageSize);
                 var data = await query.ToListAsync();
-                var url = FileResourceUrl;
                 data.ForEach(x =>
                 {
-                    if(!string.IsNullOrEmpty(x.Logo)) x.Logo = $"{url}?name={x.Logo}";
+                    x.Logo = this.BuilderFileUrl(x.Logo);
                 });
                 res.Data = _mapper.Map<List<SysM>>(data);
             }
@@ -181,7 +180,7 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponsePagingResult<OptionItem<string>>();
             try
             {
-                var options = await _dbContext.Sys
+                res.Data = await _dbContext.Sys
                     .Where(x => !x.Deleted)
                     .OrderBy(x => x.Name)
                     .Select(y => new OptionItem<string>
@@ -552,9 +551,9 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponsePagingResult<OptionItem<string>>();
             try
             {
-                var rank = SysRoleRank.manager;
-                var options = await _dbContext.SysRole
-                    .Where(x => !x.Deleted && x.SysId == sysId && x.Rank == rank)
+                var rank = SysRoleRank.super_manager;
+                res.Data = await _dbContext.SysRole
+                    .Where(x => !x.Deleted && x.SysId == sysId && x.Rank < rank)
                     .OrderBy(x => x.Name)
                     .Select(y => new OptionItem<string>
                     {
