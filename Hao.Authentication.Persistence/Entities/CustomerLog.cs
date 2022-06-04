@@ -31,7 +31,7 @@ namespace Hao.Authentication.Persistence.Entities
         public string? RoleId { get; set; }
 
         [MaxLength(64)]
-        public string RemoteAddress { get; set; }
+        public string? RemoteAddress { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }

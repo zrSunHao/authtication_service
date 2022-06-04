@@ -35,6 +35,8 @@ namespace Hao.Authentication.Domain.Models
     {
         public string TargetId { get; set; }
 
+        public string? SysId { get; set; }
+
         public ConstraintCategory Category { get; set; }
 
         public ConstraintMethod Method { get; set; }

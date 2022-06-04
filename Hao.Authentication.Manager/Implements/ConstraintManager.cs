@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Hao.Authentication.Common.Enums;
 using Hao.Authentication.Domain.Interfaces;
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Domain.Paging;
@@ -33,8 +34,9 @@ namespace Hao.Authentication.Manager.Implements
                 if (string.IsNullOrEmpty(ctt.TargetId) || ctt.Category == 0 || ctt.Method == 0)
                     throw new MyCustomException("添加约束需要的信息不全！");
 
-                await _dbContext.Constraint
-                    .Where(x => !x.Cancelled && x.TargetId == ctt.TargetId && x.Category == ctt.Category)
+                    await _dbContext.Constraint
+                    .Where(x => !x.Cancelled && x.TargetId == ctt.TargetId 
+                    && x.Category == ctt.Category && x.SysId == ctt.SysId)
                     .ForEachAsync(y =>
                     {
                         y.Cancelled = true;
@@ -42,6 +44,11 @@ namespace Hao.Authentication.Manager.Implements
                         y.LastModifiedById = CurrentUserId;
                     });
 
+                if (ctt.Method == ConstraintMethod._lock && (ctt.ExpiredAt == null
+                    || (ctt.ExpiredAt.HasValue && ctt.ExpiredAt <= DateTime.Now)))
+                    ctt.Method = ConstraintMethod.forbid;
+                if (ctt.Category == ConstraintCategory.customer_one_system && string.IsNullOrEmpty(ctt.SysId))
+                    ctt.Category = ConstraintCategory.customer_all_system;
                 var entity = _mapper.Map<Constraint>(ctt);
                 entity.Id = entity.GetId(MachineCode);
                 entity.CreatedById = CurrentUserId;

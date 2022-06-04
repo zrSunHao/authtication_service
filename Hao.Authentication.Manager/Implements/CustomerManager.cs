@@ -333,7 +333,7 @@ namespace Hao.Authentication.Manager.Implements
                 var filter = param.Filter;
                 if (filter == null || string.IsNullOrEmpty(filter?.CtmId))
                     throw new MyCustomException("缺少查询需要的客户信息！");
-                var query = _dbContext.CttView.AsQueryable();
+                var query = _dbContext.CttView.AsNoTracking().Where(x=>x.CtmId == filter.CtmId);
                 if (!string.IsNullOrEmpty(filter.SysName))
                     query = query.Where(x => x.SysName != null && x.Origin.Contains(filter.SysName));
                 if (filter.Category.HasValue && filter.Category.Value != 0)
@@ -342,14 +342,14 @@ namespace Hao.Authentication.Manager.Implements
                 query = query.OrderByDescending(x => x.CreatedAt);
                 if (param.Sort != null && param.Sort.ToLower() == "desc")
                 {
-                    if (param.SortColumn?.ToLower() == "expiredAt".ToLower())
+                    if (param.SortColumn?.ToLower() == "ExpiredAt".ToLower())
                         query = query.OrderByDescending(x => x.ExpiredAt);
                 }
                 else
                 {
                     if (param.SortColumn?.ToLower() == "CreatedAt".ToLower())
                         query = query.OrderBy(x => x.CreatedAt);
-                    if (param.SortColumn?.ToLower() == "expiredAt".ToLower())
+                    if (param.SortColumn?.ToLower() == "ExpiredAt".ToLower())
                         query = query.OrderBy(x => x.ExpiredAt);
                 }
 

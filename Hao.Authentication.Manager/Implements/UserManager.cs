@@ -51,6 +51,7 @@ namespace Hao.Authentication.Manager.Implements
                 var sysId = await this.GetCurrentSysId(sysCode.Value);
                 var pgmId = await this.GetCurrentPgmId(pgmCode.Value);
 
+                await this.CtmCtts(ctm.Id, sysId);
                 var role = await this.GetCtmRole(entity.Id, sysId);
                 var record = await this.UpdateRecord(entity.Id, sysId, role.Id);
                 var sects = await _dbContext.SysRoleSectView
@@ -70,8 +71,6 @@ namespace Hao.Authentication.Manager.Implements
                 result.LoginId = record.LoginId.ToString();
                 result.Token = this.BuilderToken(record.LoginId.ToString(), sysCode.Value, role.Code, entity.Name);
                 res.Data = result;
-
-                throw new Exception("test!");
             }
             catch (Exception e)
             {
@@ -148,6 +147,32 @@ namespace Hao.Authentication.Manager.Implements
         }
 
 
+        private async Task<bool> CtmCtts(string ctmId,string sysId)
+        {
+            var ctts = await _dbContext.CttView
+                .Where(x => x.CtmId == ctmId && (x.SysId == null || x.SysId == sysId))
+                .ToListAsync();
+            if (ctts.Any())
+            {
+                var msgs = new List<string>();
+                ctts.ForEach(x =>
+                {
+                    if(x.Category == ConstraintCategory.customer_all_system)
+                    {
+                        if (x.Method == ConstraintMethod.forbid) msgs.Add("账号已被禁用！");
+                        else if (x.Method == ConstraintMethod._lock) msgs.Add($"账号已被锁定至{x.ExpiredAt?.ToString("F")}！");
+                    }
+                    if (x.Category == ConstraintCategory.customer_one_system)
+                    {
+                        if (x.Method == ConstraintMethod.forbid) msgs.Add("账号已被该系统禁用！");
+                        else if (x.Method == ConstraintMethod._lock) msgs.Add($"账号已被该系统锁定至{x.ExpiredAt?.ToString("F")}！");
+                    }
+                });
+                throw new MyCustomException(string.Join(' ', msgs));
+            }
+
+            return true;
+        }
 
         private async Task<SysRoleView> GetCtmRole(string ctmId,string sysId)
         {
@@ -165,6 +190,7 @@ namespace Hao.Authentication.Manager.Implements
                     {
                         CustomerId = ctmId,
                         RoleId = role.Id,
+                        SysId = sysId,
                         CreatedAt = DateTime.Now,
                         CreatedById = ctmId,
                         Remark = "登陆时自动赋予！"
@@ -199,7 +225,6 @@ namespace Hao.Authentication.Manager.Implements
                     CreatedAt = DateTime.Now,
                     ExpiredAt = DateTime.Now.AddDays(2),
                 };
-                await _dbContext.AddAsync(record);
             }
             var log = new CustomerLog()
             {
@@ -207,6 +232,7 @@ namespace Hao.Authentication.Manager.Implements
                 ProgramId = "Pgm*220528_112419001*00001260",
                 Operate = "login",
                 RoleId = roleId,
+                SystemId = sysId,
                 RemoteAddress = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString(),
                 CreatedAt = DateTime.Now,
                 Remark = "无"

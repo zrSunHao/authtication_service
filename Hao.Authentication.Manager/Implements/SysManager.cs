@@ -646,7 +646,7 @@ namespace Hao.Authentication.Manager.Implements
             catch (Exception e)
             {
                 res.AddError(e);
-                _logger.LogError(e, $"xxxx失败！");
+                _logger.LogError(e, $"更新角色【{id}】关联的程序功能列表失败！");
             }
             return res;
         }
@@ -692,7 +692,7 @@ namespace Hao.Authentication.Manager.Implements
             catch (Exception e)
             {
                 res.AddError(e);
-                _logger.LogError(e, $"xxxx失败！");
+                _logger.LogError(e, $"更新角色【{model.RoleId}】关联程序【{model.PgmId}】的功能失败！");
             }
             return res;
         }

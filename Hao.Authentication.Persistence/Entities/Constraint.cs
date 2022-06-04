@@ -19,7 +19,10 @@ namespace Hao.Authentication.Persistence.Entities
 
         [Required]
         [MaxLength(32)]
-        public string TargetId { get; set; }
+        public string TargetId { get; set; } // customer/role/function
+
+        [MaxLength(32)]
+        public string? SysId { get; set; }
 
         [Required]
         public ConstraintCategory Category { get; set; }
