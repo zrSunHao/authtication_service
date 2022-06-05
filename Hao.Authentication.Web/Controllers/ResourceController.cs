@@ -2,12 +2,14 @@
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Domain.Paging;
 using Hao.Authentication.Manager.Basic;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using System.Net.Http.Headers;
 
 namespace Hao.Authentication.Web.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ResourceController : ControllerBase
@@ -83,8 +85,9 @@ namespace Hao.Authentication.Web.Controllers
             return await _manager.GetByCode(code);
         }
 
+        [AllowAnonymous]
         [HttpGet("GetFileByName")]
-        public IActionResult GetFileByName(string name)
+        public IActionResult GetFileByName(string name,string key)
         {
             try
             {

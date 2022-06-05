@@ -1,7 +1,11 @@
 using Hao.Authentication.Manager;
 using Hao.Authentication.Persistence.Database;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Diagnostics;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +27,50 @@ builder.Services.AddControllers();
 
 // Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(option =>
+{
+    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        Description = "Please enter into field the word 'Bearer ' followed by a space and the JWT value",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+    });
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    { new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference()
+                        {
+                            Id = "Bearer",
+                            Type = ReferenceType.SecurityScheme
+                        }
+                    }, Array.Empty<string>() }
+                });
+});
+
+var tokenKey = builder.Configuration["Platform:Key"];
+var issuer = builder.Configuration["Platform:Issuer"];
+builder.Services
+    .AddAuthentication(op =>
+    {
+        op.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        op.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.IncludeErrorDetails = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuer = true,
+            ValidIssuer = issuer,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey)),
+            //ClockSkew = TimeSpan.Zero
+        };
+    });
 
 #endregion
 
@@ -46,7 +93,7 @@ app.Use(async (context, next) =>
     {
         await next.Invoke();
     }
-    catch(Exception e)
+    catch (Exception e)
     {
         Console.WriteLine(e.Message);
     }
@@ -56,9 +103,8 @@ app.Use(async (context, next) =>
 });
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseRouting();
-
 app.Use(async (context, next) =>
 {
     if (context.Request.Method == "OPTIONS")
@@ -74,10 +120,7 @@ app.Use(async (context, next) =>
     // Do logging or other work that doesn't write to the Response.
 });
 app.UseCors("CorsPolicy");
-
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 #endregion

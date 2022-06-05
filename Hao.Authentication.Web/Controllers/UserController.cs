@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hao.Authentication.Web.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class UserController : ControllerBase

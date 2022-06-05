@@ -6,6 +6,7 @@ using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -54,8 +55,9 @@ namespace Hao.Authentication.Manager.Basic
         {
             if (string.IsNullOrEmpty(fileName)) return "";
             var baseUrl = FileResourceUrl;
+            var key = CurrentLoginId.ToString();
             if (fileName.Contains(baseUrl)) return fileName;
-            return $"{baseUrl}?name={fileName}";
+            return $"{baseUrl}?name={fileName}&key={key}";
         }
 
         /// <summary>
@@ -64,7 +66,7 @@ namespace Hao.Authentication.Manager.Basic
         protected string MachineCode => GetConfiguration("Platform:MachineCode");
 
         /// <summary>
-        /// 机器码
+        /// 资源地址
         /// </summary>
         protected string FileResourceUrl => GetConfiguration("FileResourceBaseUrl");
 
@@ -72,5 +74,19 @@ namespace Hao.Authentication.Manager.Basic
         /// 当前用户Id
         /// </summary>
         public string CurrentUserId = "Ctm20220527171601001";
+        /// <summary>
+        /// 当前用户登录Id
+        /// </summary>
+        public Guid CurrentLoginId => this.GetUserLoginId();
+
+        private Guid GetUserLoginId() 
+        { 
+            var id = _httpContextAccessor.HttpContext
+                .User?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Sid)?.Value;
+            if (string.IsNullOrEmpty(id)) throw new MyCustomException("");
+            Guid.TryParse(id, out Guid loginId);
+            if(loginId== Guid.Empty) throw new MyCustomException("");
+            return loginId;
+        }
     }
 }

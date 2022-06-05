@@ -28,6 +28,10 @@ namespace Hao.Authentication.Persistence.Entities
 
         [Required]
         [MaxLength(32)]
+        public string PgmId { get; set; }
+
+        [Required]
+        [MaxLength(32)]
         public string RoleId { get; set; }
 
         [Required]

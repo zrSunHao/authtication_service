@@ -30,7 +30,7 @@ namespace Hao.Authentication.Utils
             {
                 Issuer = info.Issuer,
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddHours(6).AddMinutes(10),
+                Expires = info.ExpiredAt,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKeyBt), SecurityAlgorithms.HmacSha512Signature)
             };
 
@@ -48,6 +48,7 @@ namespace Hao.Authentication.Utils
 
         public string Key { get; set; }
         public string Issuer { get; set; }
+        public DateTime ExpiredAt { get; set; }
         public Dictionary<string, string> Pairs { get; set; }
     }
 }

@@ -53,7 +53,7 @@ namespace Hao.Authentication.Manager.Implements
                 await this.CtmCtts(ctm.Id, sysId);
 
                 var role = await this.GetCtmRole(entity.Id, sysId);
-                var record = await this.UpdateRecord(entity.Id, sysId, role.Id);
+                var record = await this.UpdateRecord(entity.Id, sysId, pgmId, role.Id);
                 var sects = await _dbContext.SysRoleSectView
                     .Where(x => x.Id == role.Id)
                     .Select(x => new { x.SectCode, x.PgmId })
@@ -69,7 +69,7 @@ namespace Hao.Authentication.Manager.Implements
                 result.SectCodes = sects.Where(x => x.PgmId == pgmId).Select(x => x.SectCode).ToList();
                 result.FunctCodes = functs.Where(x => x.PgmId == pgmId).Select(x => x.FunctCode).ToList();
                 result.LoginId = record.LoginId.ToString();
-                result.Token = this.BuilderToken(record.LoginId.ToString(), sysCode, role.Code, entity.Name);
+                result.Token = this.BuilderToken(record.LoginId.ToString(), sysCode, role.Code, entity.Name, record.ExpiredAt);
                 res.Data = result;
             }
             catch (Exception e)
@@ -202,7 +202,7 @@ namespace Hao.Authentication.Manager.Implements
             return role;
         }
 
-        private async Task<UserLastLoginRecord> UpdateRecord(string ctmId, string sysId, string roleId)
+        private async Task<UserLastLoginRecord> UpdateRecord(string ctmId, string sysId, string pgmId, string roleId)
         {
             var record = await _dbContext.UserLastLoginRecord
                     .FirstOrDefaultAsync(x => x.CustomerId == ctmId && x.SysId == sysId);
@@ -211,7 +211,7 @@ namespace Hao.Authentication.Manager.Implements
                 record.LoginId = Guid.NewGuid();
                 record.RoleId = roleId;
                 record.CreatedAt = DateTime.Now;
-                record.ExpiredAt = DateTime.Now.AddDays(2);
+                record.ExpiredAt = DateTime.Now.AddDays(3);
             }
             else
             {
@@ -220,6 +220,7 @@ namespace Hao.Authentication.Manager.Implements
                     LoginId = Guid.NewGuid(),
                     CustomerId = ctmId,
                     RoleId = roleId,
+                    PgmId = pgmId,
                     SysId = sysId,
                     CreatedAt = DateTime.Now,
                     ExpiredAt = DateTime.Now.AddDays(2),
@@ -228,7 +229,7 @@ namespace Hao.Authentication.Manager.Implements
             var log = new CustomerLog()
             {
                 CustomerId = ctmId,
-                ProgramId = "Pgm*220528_112419001*00001260",
+                ProgramId = pgmId,
                 Operate = "login",
                 RoleId = roleId,
                 SystemId = sysId,
@@ -261,16 +262,19 @@ namespace Hao.Authentication.Manager.Implements
             return pgmId;
         }
 
-        private string BuilderToken(string recordId, string sysCode, string roleCode, string userName)
+        private string BuilderToken(string recordId, string sysCode, string roleCode, string userName,DateTime expiredAt)
         {
             var key = GetConfiguration("Platform:Key");
+            var issuer = GetConfiguration("Platform:Issuer");
             var msg = new TokenMsg
             {
                 Id = recordId,
                 System = sysCode,
                 Role = roleCode,
                 Name = userName,
-                Key = key
+                ExpiredAt = expiredAt,
+                Key = key,
+                Issuer = issuer,
             };
             var handler = new TokenHandler();
             return handler.BuilderToken(msg);
