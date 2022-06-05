@@ -7,6 +7,10 @@ namespace Hao.Authentication.Domain.Models
         public string UserName { get; set; }
 
         public string Password { get; set; }
+
+        public string SysCode { get; set; }
+
+        public string PgmCode { get; set; }
     }
 
     public class RegisterM

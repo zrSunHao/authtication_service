@@ -91,7 +91,7 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponsePagingResult<CttM>();
             try
             {
-                var query = _dbContext.CttView.AsQueryable();
+                var query = _dbContext.CttView.AsNoTracking().AsQueryable();
                 var filter = param.Filter;
                 if (filter != null)
                 {

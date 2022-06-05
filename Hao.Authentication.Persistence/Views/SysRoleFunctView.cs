@@ -12,7 +12,7 @@
 
         public string SysCode { get; set; }
 
-        public string ProgramId { get; set; }
+        public string PgmId { get; set; }
 
         public string SectId { get; set; }
 

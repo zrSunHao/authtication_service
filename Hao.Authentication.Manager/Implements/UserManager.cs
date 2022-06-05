@@ -34,6 +34,11 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponseResult<AuthResultM>();
             try
             {
+                var sysCode = model.SysCode;
+                if (string.IsNullOrEmpty(sysCode)) throw new MyCustomException("系统标识为空！");
+                var pgmCode = model.PgmCode;
+                if (string.IsNullOrEmpty(pgmCode)) throw new MyCustomException("程序标识为空！");
+
                 var entity = await _dbContext.Customer.AsNoTracking()
                     .FirstOrDefaultAsync(x => x.Name == model.UserName && !x.Deleted);
                 if (entity == null) throw new MyCustomException("账号或密码不正确！");
@@ -43,33 +48,28 @@ namespace Hao.Authentication.Manager.Implements
                     .FirstOrDefaultAsync(x => x.Id == entity.Id);
                 if (ctm == null) throw new MyCustomException("未查询到账号数据！");
 
-                var sysCode = this.GetHeader("sys");
-                if (string.IsNullOrEmpty(sysCode.Value)) throw new MyCustomException("程序标识为空！");
-                var pgmCode = this.GetHeader("pgm");
-                if (string.IsNullOrEmpty(pgmCode.Value))
-                    throw new MyCustomException("系统或程序标识为空！");
-                var sysId = await this.GetCurrentSysId(sysCode.Value);
-                var pgmId = await this.GetCurrentPgmId(pgmCode.Value);
-
+                var sysId = await this.GetCurrentSysId(sysCode);
+                var pgmId = await this.GetCurrentPgmId(pgmCode);
                 await this.CtmCtts(ctm.Id, sysId);
+
                 var role = await this.GetCtmRole(entity.Id, sysId);
                 var record = await this.UpdateRecord(entity.Id, sysId, role.Id);
                 var sects = await _dbContext.SysRoleSectView
                     .Where(x => x.Id == role.Id)
-                    .Select(x => x.SectCode)
+                    .Select(x => new { x.SectCode, x.PgmId })
                     .ToListAsync();
                 var functs = await _dbContext.SysRoleFunctView
                     .Where(x => x.Id == role.Id && x.Limited != true)
-                    .Select(x => x.FunctCode)
+                    .Select(x => new { x.FunctCode, x.PgmId })
                     .ToListAsync();
 
                 var result = new AuthResultM();
                 result.Customer = _mapper.Map<AuthCtmM>(ctm);
                 result.Role = _mapper.Map<AuthRoleM>(role);
-                result.SectCodes = sects;
-                result.FunctCodes = functs;
+                result.SectCodes = sects.Where(x => x.PgmId == pgmId).Select(x => x.SectCode).ToList();
+                result.FunctCodes = functs.Where(x => x.PgmId == pgmId).Select(x => x.FunctCode).ToList();
                 result.LoginId = record.LoginId.ToString();
-                result.Token = this.BuilderToken(record.LoginId.ToString(), sysCode.Value, role.Code, entity.Name);
+                result.Token = this.BuilderToken(record.LoginId.ToString(), sysCode, role.Code, entity.Name);
                 res.Data = result;
             }
             catch (Exception e)
@@ -91,7 +91,6 @@ namespace Hao.Authentication.Manager.Implements
                     var exist = _dbContext.Customer.Any(x => x.Name == model.UserName);
                     if (exist) throw new MyCustomException("账号已存在！");
                 }
-                
 
                 var ctm = new Customer
                 {
@@ -147,7 +146,7 @@ namespace Hao.Authentication.Manager.Implements
         }
 
 
-        private async Task<bool> CtmCtts(string ctmId,string sysId)
+        private async Task<bool> CtmCtts(string ctmId, string sysId)
         {
             var ctts = await _dbContext.CttView
                 .Where(x => x.CtmId == ctmId && (x.SysId == null || x.SysId == sysId))
@@ -157,7 +156,7 @@ namespace Hao.Authentication.Manager.Implements
                 var msgs = new List<string>();
                 ctts.ForEach(x =>
                 {
-                    if(x.Category == ConstraintCategory.customer_all_system)
+                    if (x.Category == ConstraintCategory.customer_all_system)
                     {
                         if (x.Method == ConstraintMethod.forbid) msgs.Add("账号已被禁用！");
                         else if (x.Method == ConstraintMethod._lock) msgs.Add($"账号已被锁定至{x.ExpiredAt?.ToString("F")}！");
@@ -174,7 +173,7 @@ namespace Hao.Authentication.Manager.Implements
             return true;
         }
 
-        private async Task<SysRoleView> GetCtmRole(string ctmId,string sysId)
+        private async Task<SysRoleView> GetCtmRole(string ctmId, string sysId)
         {
             SysRoleView? role = await (from cr in _dbContext.CustomerRoleRelation
                                        join r in _dbContext.SysRoleView on cr.RoleId equals r.Id
@@ -203,7 +202,7 @@ namespace Hao.Authentication.Manager.Implements
             return role;
         }
 
-        private async Task<UserLastLoginRecord> UpdateRecord(string ctmId, string sysId,string roleId)
+        private async Task<UserLastLoginRecord> UpdateRecord(string ctmId, string sysId, string roleId)
         {
             var record = await _dbContext.UserLastLoginRecord
                     .FirstOrDefaultAsync(x => x.CustomerId == ctmId && x.SysId == sysId);

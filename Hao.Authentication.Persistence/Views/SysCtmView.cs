@@ -16,6 +16,8 @@ namespace Hao.Authentication.Persistence.Views
 
         public string SysId { get; set; }
 
+        public string SysName { get; set; }
+
         public string RoleId { get; set; }
 
         public SysRoleRank RoleRank { get; set; }
