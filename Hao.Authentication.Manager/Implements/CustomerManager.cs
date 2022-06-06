@@ -46,7 +46,7 @@ namespace Hao.Authentication.Manager.Implements
                     {
                         if (filter.Limited.Value)
                             query = query.Where(x => x.Limited == true);
-                        else query = query.Where(x => x.Limited == false || x.Limited == null);
+                        else query = query.Where(x => x.Limited == false);
                     }
                     if (filter.StartAt.HasValue)
                         query = query.Where(x => x.CreatedAt >= filter.StartAt.Value);

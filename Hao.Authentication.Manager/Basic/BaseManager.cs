@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Hao.Authentication.Persistence.Database;
+using Hao.Authentication.Persistence.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -64,7 +65,7 @@ namespace Hao.Authentication.Manager.Basic
         /// <summary>
         /// 机器码
         /// </summary>
-        protected string MachineCode => GetConfiguration("Platform:MachineCode");
+        protected string MachineCode => GetConfiguration("Platform:ProgramCode");
 
         /// <summary>
         /// 资源地址
@@ -72,31 +73,31 @@ namespace Hao.Authentication.Manager.Basic
         protected string FileResourceUrl => GetConfiguration("FileResourceBaseUrl");
 
         /// <summary>
+        /// 用户登录记录
+        /// </summary>
+        public UserLastLoginRecord LoginRecord => GetLoginRecord();
+
+        /// <summary>
         /// 当前用户Id
         /// </summary>
-        public string CurrentUserId => GetCurrentUserId();
+        public string CurrentUserId => LoginRecord.CustomerId;
         /// <summary>
         /// 当前用户登录Id
         /// </summary>
-        public Guid CurrentLoginId => this.GetUserLoginId();
+        public Guid CurrentLoginId => LoginRecord.LoginId;
+        
 
-        private string GetCurrentUserId()
+
+        private UserLastLoginRecord? _lastLoginRecord;
+        private UserLastLoginRecord GetLoginRecord()
         {
-            Guid loginId = GetUserLoginId();
-            var record = _dbContext.UserLastLoginRecord
-                .FirstOrDefault(x => x.LoginId == loginId);
-            if (record == null) throw new MyCustomException("未查询到登录信息！");
-            return record.CustomerId;
-        }
-
-        private Guid GetUserLoginId() 
-        { 
-            var id = _httpContextAccessor.HttpContext
-                .User?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Sid)?.Value;
-            if (string.IsNullOrEmpty(id)) throw new MyCustomException("未查询到登录信息！");
-            Guid.TryParse(id, out Guid loginId);
-            if(loginId== Guid.Empty) throw new MyCustomException("未查询到登录信息！");
-            return loginId;
+            if (_lastLoginRecord != null) return _lastLoginRecord;
+            _httpContextAccessor.HttpContext.Items.TryGetValue(nameof(UserLastLoginRecord), out object? obj);
+            if (obj == null) throw new MyCustomException("未查询到登录信息！");
+            else if (obj is UserLastLoginRecord) _lastLoginRecord = obj as UserLastLoginRecord;
+            else throw new MyCustomException("未查询到登录信息！");
+            if (_lastLoginRecord == null) throw new MyCustomException("未查询到登录信息！");
+            else return _lastLoginRecord;
         }
     }
 }

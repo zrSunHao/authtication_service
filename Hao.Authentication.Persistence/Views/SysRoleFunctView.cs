@@ -14,6 +14,8 @@
 
         public string PgmId { get; set; }
 
+        public string PgmCode { get; set; }
+
         public string SectId { get; set; }
 
         public string FunctId { get; set; }

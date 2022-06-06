@@ -1,6 +1,7 @@
 ﻿using Hao.Authentication.Domain.Interfaces;
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Domain.Paging;
+using Hao.Authentication.Web.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +19,7 @@ namespace Hao.Authentication.Web.Controllers
             _manager = manager;
         }
 
+        [Function("Report_GetWidgetList")]
         [HttpGet("GetWidgetList")]
         public async Task<ResponsePagingResult<WidgetM>> GetWidgetList()
         {

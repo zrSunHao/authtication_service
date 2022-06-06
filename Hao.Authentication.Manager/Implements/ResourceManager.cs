@@ -83,7 +83,7 @@ namespace Hao.Authentication.Manager.Implements
             return $"{CODE_PREFIX}{_codeTime}{string.Format("{0:D5}", _codeIndex)}{rand}_{MachineCode}";
         }
 
-        public new string BuilderFileUrl(string? fileName)
+        public string BuilderFileUrl(string? fileName)
         {
             return base.BuilderFileUrl(fileName);
         }

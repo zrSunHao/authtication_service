@@ -28,12 +28,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<MonitorMiddleware>();
-
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseRouting();
 app.UseMyCors();
 app.UseAuthorization();
+app.UseMiddleware<PrivilegeMiddleware>();
 app.MapControllers();
 
 #endregion

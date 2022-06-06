@@ -16,6 +16,8 @@ namespace Hao.Authentication.Persistence.Views
 
         public string PgmId { get; set; }
 
+        public string PgmCode { get; set; }
+
         public string SectId { get; set; }
 
         public string SectName { get; set; }
