@@ -51,6 +51,8 @@ namespace Hao.Authentication.Domain.Models
 
         public string SysName { get; set; }
 
+        public string PgmName { get; set; }
+
         public string? RoleName { get; set; }
 
         public DateTime CreatedAt { get; set; }

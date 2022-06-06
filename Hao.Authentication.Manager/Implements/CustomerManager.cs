@@ -394,12 +394,14 @@ namespace Hao.Authentication.Manager.Implements
                 var query = from cl in _dbContext.CustomerLog
                             join s in _dbContext.Sys on cl.SystemId equals s.Id
                             join r in _dbContext.SysRole on cl.RoleId equals r.Id
-                            where !s.Deleted && !r.Deleted && cl.CustomerId == filter.CtmId
+                            join p in _dbContext.Program on cl.ProgramId equals p.Id
+                            where cl.CustomerId == filter.CtmId
                             select new CtmLogM
                             {
                                 Id = cl.Id,
                                 Operate = cl.Operate,
                                 SysName = s.Name,
+                                PgmName = p.Name,
                                 RoleName = r.Name,
                                 CreatedAt = cl.CreatedAt,
                                 Remark = cl.Remark,

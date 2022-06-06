@@ -10,5 +10,7 @@ namespace Hao.Authentication.Domain.Interfaces
         public Task<ResponseResult<ResourceM>> GetByCode(string code);
 
         public string GetNewCode();
+
+        public string BuilderFileUrl(string? fileName);
     }
 }

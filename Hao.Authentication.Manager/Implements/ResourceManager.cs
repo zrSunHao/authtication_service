@@ -82,5 +82,10 @@ namespace Hao.Authentication.Manager.Implements
             // 前缀2位、时间12位、顺序码5位、随机码3位、机器码4位
             return $"{CODE_PREFIX}{_codeTime}{string.Format("{0:D5}", _codeIndex)}{rand}_{MachineCode}";
         }
+
+        public new string BuilderFileUrl(string? fileName)
+        {
+            return base.BuilderFileUrl(fileName);
+        }
     }
 }

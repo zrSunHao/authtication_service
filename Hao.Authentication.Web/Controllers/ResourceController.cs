@@ -52,7 +52,7 @@ namespace Hao.Authentication.Web.Controllers
                     await file.CopyToAsync(fs);
                 }
 
-                var dto = new ResourceM()
+                var model = new ResourceM()
                 {
                     Code = code,
                     Name = file.FileName,
@@ -64,12 +64,8 @@ namespace Hao.Authentication.Web.Controllers
                     Category = category
                 };
 
-                var result = await _manager.Save(dto);
-                if (result.Success)
-                {
-                    
-                    res.Data = $"{_configuration["FileResourceBaseUrl"]}?name={newFileName}";
-                }
+                var result = await _manager.Save(model);
+                if (result.Success) res.Data = _manager.BuilderFileUrl(model.FileName);
                 else new MyCustomException(result.AllMessages);
             }
             catch (Exception e)

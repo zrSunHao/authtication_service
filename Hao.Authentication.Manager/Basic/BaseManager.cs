@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hao.Authentication.Persistence.Database;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
 using System;
@@ -51,11 +52,11 @@ namespace Hao.Authentication.Manager.Basic
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        protected string BuilderFileUrl(string? fileName)
+        protected string BuilderFileUrl(string? fileName,string key = "")
         {
             if (string.IsNullOrEmpty(fileName)) return "";
             var baseUrl = FileResourceUrl;
-            var key = CurrentLoginId.ToString();
+            if(string.IsNullOrEmpty(key)) key = CurrentLoginId.ToString();
             if (fileName.Contains(baseUrl)) return fileName;
             return $"{baseUrl}?name={fileName}&key={key}";
         }
@@ -73,19 +74,28 @@ namespace Hao.Authentication.Manager.Basic
         /// <summary>
         /// 当前用户Id
         /// </summary>
-        public string CurrentUserId = "Ctm20220527171601001";
+        public string CurrentUserId => GetCurrentUserId();
         /// <summary>
         /// 当前用户登录Id
         /// </summary>
         public Guid CurrentLoginId => this.GetUserLoginId();
 
+        private string GetCurrentUserId()
+        {
+            Guid loginId = GetUserLoginId();
+            var record = _dbContext.UserLastLoginRecord
+                .FirstOrDefault(x => x.LoginId == loginId);
+            if (record == null) throw new MyCustomException("未查询到登录信息！");
+            return record.CustomerId;
+        }
+
         private Guid GetUserLoginId() 
         { 
             var id = _httpContextAccessor.HttpContext
                 .User?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Sid)?.Value;
-            if (string.IsNullOrEmpty(id)) throw new MyCustomException("");
+            if (string.IsNullOrEmpty(id)) throw new MyCustomException("未查询到登录信息！");
             Guid.TryParse(id, out Guid loginId);
-            if(loginId== Guid.Empty) throw new MyCustomException("");
+            if(loginId== Guid.Empty) throw new MyCustomException("未查询到登录信息！");
             return loginId;
         }
     }

@@ -63,6 +63,7 @@ namespace Hao.Authentication.Manager.Implements
                     .Select(x => new { x.FunctCode, x.PgmId })
                     .ToListAsync();
 
+                ctm.Avatar = this.BuilderFileUrl(ctm.Avatar, record.LoginId.ToString());
                 var result = new AuthResultM();
                 result.Customer = _mapper.Map<AuthCtmM>(ctm);
                 result.Role = _mapper.Map<AuthRoleM>(role);
@@ -205,7 +206,7 @@ namespace Hao.Authentication.Manager.Implements
         private async Task<UserLastLoginRecord> UpdateRecord(string ctmId, string sysId, string pgmId, string roleId)
         {
             var record = await _dbContext.UserLastLoginRecord
-                    .FirstOrDefaultAsync(x => x.CustomerId == ctmId && x.SysId == sysId);
+                    .FirstOrDefaultAsync(x => x.CustomerId == ctmId && x.SysId == sysId && x.PgmId == pgmId);
             if (record != null)
             {
                 record.LoginId = Guid.NewGuid();
@@ -230,7 +231,7 @@ namespace Hao.Authentication.Manager.Implements
             {
                 CustomerId = ctmId,
                 ProgramId = pgmId,
-                Operate = "login",
+                Operate = "登录",
                 RoleId = roleId,
                 SystemId = sysId,
                 RemoteAddress = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString(),
