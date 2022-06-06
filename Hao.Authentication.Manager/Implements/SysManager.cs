@@ -1,20 +1,15 @@
 ﻿using AutoMapper;
+using Hao.Authentication.Common.Enums;
 using Hao.Authentication.Domain.Interfaces;
+using Hao.Authentication.Domain.Models;
+using Hao.Authentication.Domain.Paging;
 using Hao.Authentication.Manager.Basic;
 using Hao.Authentication.Persistence.Database;
-using Microsoft.EntityFrameworkCore;
+using Hao.Authentication.Persistence.Entities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Hao.Authentication.Domain.Paging;
-using Hao.Authentication.Domain.Models;
-using Hao.Authentication.Persistence.Entities;
-using Hao.Authentication.Common.Enums;
 
 namespace Hao.Authentication.Manager.Implements
 {
@@ -368,6 +363,10 @@ namespace Hao.Authentication.Manager.Implements
                 res.RowsCount = await query.CountAsync();
                 query = query.AsPaging(param.PageIndex, param.PageSize);
                 var data = await query.ToListAsync();
+                data.ForEach(x =>
+                {
+                    x.Avatar = this.BuilderFileUrl(x.Avatar);
+                });
                 res.Data = _mapper.Map<List<SysCtmM>>(data);
             }
             catch (Exception e)
