@@ -17,15 +17,18 @@ namespace Hao.Authentication.Manager.Implements
     public class SysManager : BaseManager, ISysManager
     {
         private readonly ILogger _logger;
+        private readonly IConstraintManager _ctt;
         public SysManager(PlatFormDbContext dbContext,
             IMapper mapper,
             ICacheProvider cache,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
-            ILogger<SysManager> logger)
+            ILogger<SysManager> logger,
+            IConstraintManager ctt)
             : base(dbContext, mapper, configuration, httpContextAccessor, cache)
         {
             _logger = logger;
+            _ctt = ctt;
         }
 
         #region System
@@ -336,11 +339,11 @@ namespace Hao.Authentication.Manager.Implements
                 if (filter == null) throw new MyCustomException("查询参数未添加必要的系统信息");
 
                 var query = _dbContext.SysCtmView.Where(x => x.SysId == filter.SysId);
-                if (!string.IsNullOrEmpty(filter.NameOrRole))
-                    query = query.Where(x => x.Name.Contains(filter.NameOrRole)
-                    || (x.RoleName != null && x.RoleName.Contains(filter.NameOrRole)));
-                if (!string.IsNullOrEmpty(filter.Remark))
-                    query = query.Where(x => x.Remark.Contains(filter.Remark));
+                if (!string.IsNullOrEmpty(filter.NameOrNickname))
+                    query = query.Where(x => x.Name.Contains(filter.NameOrNickname)
+                    ||  x.Nickname.Contains(filter.NameOrNickname));
+                if (!string.IsNullOrEmpty(filter.RoleId))
+                    query = query.Where(x => x.RoleId == filter.RoleId);
                 if (filter.Limited.HasValue)
                     query = query.Where(x => x.Limited == filter.Limited.Value);
                 if (filter.StartAt.HasValue)
@@ -375,6 +378,49 @@ namespace Hao.Authentication.Manager.Implements
             {
                 res.AddError(e);
                 _logger.LogError(e, $"查询系统【{param.Filter?.SysId}】的客户列表失败！");
+            }
+            return res;
+        }
+
+        public async Task<ResponseResult<bool>> AddCtmCtt(CtmCttAddM model)
+        {
+            var res = new ResponseResult<bool>();
+            try
+            {
+                model.Category = ConstraintCategory.customer_one_system;
+                if (string.IsNullOrEmpty(model.Remark)) model.Remark = "无";
+                var m = _mapper.Map<CttAddM>(model);
+                var result = await _ctt.Add(m, false);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                res.AddError(e);
+                _logger.LogError(e, $"添加客户【{model.CtmId}】系统【{model.SysId}】的约束失败");
+            }
+            return res;
+        }
+
+        public async Task<ResponseResult<bool>> CancelCtmCtt(string sysId, string ctmId)
+        {
+            var res = new ResponseResult<bool>();
+            try
+            {
+                await _dbContext.Constraint.Where(x => !x.Cancelled
+                && x.Category == ConstraintCategory.customer_one_system
+                && x.TargetId == ctmId && x.SysId == sysId)
+                    .ForEachAsync(y =>
+                    {
+                        y.Cancelled = true;
+                        y.LastModifiedAt = DateTime.Now;
+                        y.LastModifiedById = CurrentUserId;
+                    });
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                res.AddError(e);
+                _logger.LogError(e, $"删除客户【{ctmId}】系统【{sysId}】的约束失败");
             }
             return res;
         }

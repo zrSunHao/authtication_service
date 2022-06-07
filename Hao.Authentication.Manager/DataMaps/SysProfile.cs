@@ -2,11 +2,6 @@
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Persistence.Entities;
 using Hao.Authentication.Persistence.Views;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hao.Authentication.Manager.DataMaps
 {
@@ -23,7 +18,8 @@ namespace Hao.Authentication.Manager.DataMaps
             CreateMap<Program, SysProgramM>()
                 .ForMember(x => x.SysId, y => y.Ignore());
 
-            CreateMap<SysCtmView, SysCtmM>();
+            CreateMap<SysCtmView, SysCtmM>()
+                 .ForMember(x => x.Rank, y => y.MapFrom(z => z.RoleRank));
 
             CreateMap<SysRoleView, SysRoleM>();
             CreateMap<SysRoleM, SysRole>()

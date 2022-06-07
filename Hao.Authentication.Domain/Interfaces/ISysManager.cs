@@ -28,6 +28,9 @@ namespace Hao.Authentication.Domain.Interfaces
 
         public Task<ResponsePagingResult<SysCtmM>> GetCtms(PagingParameter<SysCtmFilter> param);
 
+        public Task<ResponseResult<bool>> AddCtmCtt(CtmCttAddM model);
+
+        public Task<ResponseResult<bool>> CancelCtmCtt(string sysId, string ctmId);
 
 
         public Task<ResponseResult<bool>> AddRole(SysRoleM model);

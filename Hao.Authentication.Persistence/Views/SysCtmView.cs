@@ -22,7 +22,7 @@ namespace Hao.Authentication.Persistence.Views
 
         public SysRoleRank RoleRank { get; set; }
 
-        public string? RoleName { get; set; }
+        public string RoleName { get; set; }
 
         public DateTime? LastLoginAt { get; set; }
 

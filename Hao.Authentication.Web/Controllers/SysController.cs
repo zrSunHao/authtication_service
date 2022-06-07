@@ -80,6 +80,18 @@ namespace Hao.Authentication.Web.Controllers
             return await _manager.GetCtms(param);
         }
 
+        [HttpPost("AddCtmCtt")]
+        public async Task<ResponseResult<bool>> AddCtmCtt(CtmCttAddM model)
+        {
+            return await _manager.AddCtmCtt(model);
+        }
+
+        [HttpDelete("CancelCtmCtt")]
+        public async Task<ResponseResult<bool>> CancelCtmCtt(string sysId, string ctmId)
+        {
+            return await _manager.CancelCtmCtt(sysId, ctmId);
+        }
+
 
         [HttpPost("AddRole")]
         public async Task<ResponseResult<bool>> AddRole(SysRoleM model)

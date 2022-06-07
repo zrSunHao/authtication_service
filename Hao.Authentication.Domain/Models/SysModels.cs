@@ -123,7 +123,7 @@ namespace Hao.Authentication.Domain.Models
 
         public string RoleId { get; set; }
 
-        public SysRoleRank RoleRank { get; set; }
+        public SysRoleRank Rank { get; set; }
 
         public string RoleName { get; set; }
 
@@ -188,11 +188,11 @@ namespace Hao.Authentication.Domain.Models
     {
         public string SysId { get; set; }
 
-        public string NameOrRole { get; set; }
+        public string NameOrNickname { get; set; }
 
         public bool? Limited { get; set; }
 
-        public string Remark { get; set; }
+        public string? RoleId { get; set; }
 
         public DateTime? StartAt { get; set; }
 
