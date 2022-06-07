@@ -54,7 +54,6 @@ namespace Hao.Authentication.Domain.Models
         public SysRoleRank Rank { get; set; }
     }
 
-
     public class AuthResultM
     {
         /// <summary>
@@ -79,5 +78,24 @@ namespace Hao.Authentication.Domain.Models
         /// 本次登录主键
         /// </summary>
         public string LoginId { get; set; }
+    }
+
+    public class UserLastLoginRecordM
+    {
+        public long Id { get; set; }
+
+        public Guid LoginId { get; set; }
+
+        public string CustomerId { get; set; }
+
+        public string SysId { get; set; }
+
+        public string PgmId { get; set; }
+
+        public string RoleId { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+
+        public DateTime ExpiredAt { get; set; }
     }
 }

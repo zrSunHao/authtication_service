@@ -10,7 +10,8 @@ namespace Hao.Authentication.Web.Extentions
             string connectStr = configuration.GetConnectionString("Default");
             services.AddDbContext<PlatFormDbContext>(
                 config => config.UseSqlServer(connectStr,
-                optionBuilder => optionBuilder.MigrationsAssembly(typeof(PlatFormDbContext).Assembly.GetName().Name))
+                optionBuilder => optionBuilder.MigrationsAssembly(typeof(PlatFormDbContext).Assembly.GetName().Name)),
+                ServiceLifetime.Scoped
                 );
             return services;
         }

@@ -3,6 +3,7 @@ using Hao.Authentication.Domain.Interfaces;
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Domain.Paging;
 using Hao.Authentication.Manager.Basic;
+using Hao.Authentication.Manager.Providers;
 using Hao.Authentication.Persistence.Database;
 using Hao.Authentication.Persistence.Entities;
 using Microsoft.AspNetCore.Http;
@@ -27,10 +28,11 @@ namespace Hao.Authentication.Manager.Implements
         private object _codeLock = new object();
         public ResourceManager(PlatFormDbContext dbContext,
             IMapper mapper,
+            ICacheProvider cache,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
             ILogger<ResourceManager> logger)
-            : base(dbContext, mapper, configuration, httpContextAccessor)
+            : base(dbContext, mapper, configuration, httpContextAccessor, cache)
         {
             _logger = logger;
         }

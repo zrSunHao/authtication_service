@@ -4,18 +4,13 @@ using Hao.Authentication.Domain.Interfaces;
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Domain.Paging;
 using Hao.Authentication.Manager.Basic;
+using Hao.Authentication.Manager.Providers;
 using Hao.Authentication.Persistence.Database;
 using Hao.Authentication.Persistence.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hao.Authentication.Manager.Implements
 {
@@ -24,10 +19,11 @@ namespace Hao.Authentication.Manager.Implements
         private readonly ILogger _logger;
         public ProgramManager(PlatFormDbContext dbContext,
             IMapper mapper,
+            ICacheProvider cache,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
             ILogger<ProgramManager> logger)
-            : base(dbContext, mapper, configuration, httpContextAccessor)
+            : base(dbContext, mapper, configuration, httpContextAccessor, cache)
         {
             _logger = logger;
         }

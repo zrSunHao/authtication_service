@@ -4,6 +4,7 @@ using Hao.Authentication.Domain.Interfaces;
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Domain.Paging;
 using Hao.Authentication.Manager.Basic;
+using Hao.Authentication.Manager.Providers;
 using Hao.Authentication.Persistence.Database;
 using Hao.Authentication.Persistence.Entities;
 using Hao.Authentication.Persistence.Views;
@@ -12,7 +13,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Security.Claims;
 
 namespace Hao.Authentication.Manager.Implements
 {
@@ -21,10 +21,11 @@ namespace Hao.Authentication.Manager.Implements
         private readonly ILogger _logger;
         public UserManager(PlatFormDbContext dbContext,
             IMapper mapper,
+            ICacheProvider cache,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
             ILogger<UserManager> logger)
-            : base(dbContext, mapper, configuration, httpContextAccessor)
+            : base(dbContext, mapper, configuration, httpContextAccessor, cache)
         {
             _logger = logger;
         }

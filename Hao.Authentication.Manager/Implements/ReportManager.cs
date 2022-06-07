@@ -3,6 +3,7 @@ using Hao.Authentication.Domain.Interfaces;
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Domain.Paging;
 using Hao.Authentication.Manager.Basic;
+using Hao.Authentication.Manager.Providers;
 using Hao.Authentication.Persistence.Database;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -21,10 +22,11 @@ namespace Hao.Authentication.Manager.Implements
         private readonly ILogger _logger;
         public ReportManager(PlatFormDbContext dbContext,
             IMapper mapper,
+            ICacheProvider cache,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
             ILogger<ReportManager> logger)
-            : base(dbContext, mapper, configuration, httpContextAccessor)
+            : base(dbContext, mapper, configuration, httpContextAccessor, cache)
         {
             _logger = logger;
         }

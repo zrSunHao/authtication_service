@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Hao.Authentication.Domain.Models;
+using Hao.Authentication.Manager.Providers;
 using Hao.Authentication.Persistence.Database;
 using Hao.Authentication.Persistence.Entities;
 using Microsoft.AspNetCore.Http;
@@ -21,17 +23,20 @@ namespace Hao.Authentication.Manager.Basic
         protected readonly IHttpContextAccessor _httpContextAccessor;
         protected readonly IServiceProvider _serviceProvider;
         protected readonly IConfiguration _configuration;
+        protected readonly ICacheProvider _cache;
 
         public BaseManager(PlatFormDbContext dbContext,
             IMapper mapper,
             IConfiguration configuration,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            ICacheProvider cache)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
             _serviceProvider = _httpContextAccessor.HttpContext.RequestServices;
+            _cache = cache;
         }
 
         /// <summary>
@@ -75,7 +80,7 @@ namespace Hao.Authentication.Manager.Basic
         /// <summary>
         /// 用户登录记录
         /// </summary>
-        public UserLastLoginRecord LoginRecord => GetLoginRecord();
+        public UserLastLoginRecordM LoginRecord => GetLoginRecord();
 
         /// <summary>
         /// 当前用户Id
@@ -88,13 +93,13 @@ namespace Hao.Authentication.Manager.Basic
         
 
 
-        private UserLastLoginRecord? _lastLoginRecord;
-        private UserLastLoginRecord GetLoginRecord()
+        private UserLastLoginRecordM? _lastLoginRecord;
+        private UserLastLoginRecordM GetLoginRecord()
         {
             if (_lastLoginRecord != null) return _lastLoginRecord;
-            _httpContextAccessor.HttpContext.Items.TryGetValue(nameof(UserLastLoginRecord), out object? obj);
+            _httpContextAccessor.HttpContext.Items.TryGetValue(nameof(UserLastLoginRecordM), out object? obj);
             if (obj == null) throw new MyCustomException("未查询到登录信息！");
-            else if (obj is UserLastLoginRecord) _lastLoginRecord = obj as UserLastLoginRecord;
+            else if (obj is UserLastLoginRecordM) _lastLoginRecord = obj as UserLastLoginRecordM;
             else throw new MyCustomException("未查询到登录信息！");
             if (_lastLoginRecord == null) throw new MyCustomException("未查询到登录信息！");
             else return _lastLoginRecord;

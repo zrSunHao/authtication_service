@@ -14,8 +14,10 @@ namespace Hao.Authentication.Manager
             services.AddMemoryCache();
             services.AddSingleton<ICacheProvider, MemoryCacheProvider>();
 
-            services.AddTransient<IProgramManager, ProgramManager>();
             services.AddTransient<IConstraintManager, ConstraintManager>();
+
+            services.AddTransient<IPrivilegeManager, PrivilegeManager>();
+            services.AddTransient<IProgramManager, ProgramManager>();
             services.AddTransient<IResourceManager, ResourceManager>();
             services.AddTransient<ISysManager, SysManager>();
             services.AddTransient<IUserManager, UserManager>();
