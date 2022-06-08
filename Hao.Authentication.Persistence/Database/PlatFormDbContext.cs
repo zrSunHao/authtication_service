@@ -18,6 +18,7 @@ namespace Hao.Authentication.Persistence.Database
         public DbSet<Program> Program { get; set; }
         public DbSet<ProgramSection> ProgramSection { get; set; }
         public DbSet<ProgramFunction> ProgramFunction { get; set; }
+        public DbSet<ProgramCustomerRelation> ProgramCustomerRelation { get; set; }
 
 
         public DbSet<Sys> Sys { get; set; }
@@ -31,8 +32,10 @@ namespace Hao.Authentication.Persistence.Database
 
 
         public DbSet<CtmView> CtmView { get; set; }
+        public DbSet<CtmSimpleView> CtmSimpleView { get; set; }
         public DbSet<CtmRoleView> CtmRoleView { get; set; }
         public DbSet<CtmLastLoginView> CtmLastLoginView { get; set; }
+        
 
         public DbSet<CttView> CttView { get; set; }
 
@@ -51,6 +54,7 @@ namespace Hao.Authentication.Persistence.Database
             modelBuilder.ApplyConfigurationsFromAssembly(this.GetType().Assembly);
 
             modelBuilder.Entity<CtmView>().ToTable(typeof(CtmView).Name, t => t.ExcludeFromMigrations());
+            modelBuilder.Entity<CtmSimpleView>().ToTable(typeof(CtmSimpleView).Name, t => t.ExcludeFromMigrations());
             modelBuilder.Entity<CtmRoleView>().ToTable(typeof(CtmRoleView).Name, t => t.ExcludeFromMigrations());
             modelBuilder.Entity<CtmLastLoginView>().ToTable(typeof(CtmLastLoginView).Name, t => t.ExcludeFromMigrations());
 

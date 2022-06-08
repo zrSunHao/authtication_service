@@ -54,15 +54,15 @@
 
     public static class PagingProfile
     {
-        public static IQueryable<T> AsPaging<T>(this IQueryable<T> query, int pageIndex, int pageSize)
+        public static IQueryable<T> AsPaging<T>(this IQueryable<T> query, int pageIndex = 1, int pageSize = 10)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
-            if (pageIndex < 0) pageIndex = 1;
+            if (pageIndex <= 0) pageIndex = 1;
 
 
-            if (pageSize < 1) pageSize = 10;
+            if (pageSize <= 1) pageSize = 10;
 
             return query.Skip((pageIndex - 1) * pageSize).Take(pageSize);
         }

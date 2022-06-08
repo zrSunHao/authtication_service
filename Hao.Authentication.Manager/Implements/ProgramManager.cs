@@ -46,8 +46,17 @@ namespace Hao.Authentication.Manager.Implements
                 var entity = _mapper.Map<Program>(model);
                 entity.Id = entity.GetId(this.MachineCode);
                 entity.CreatedById = CurrentUserId;
-
                 await _dbContext.AddAsync(entity);
+
+                var relation = new ProgramCustomerRelation()
+                {
+                    CustomerId = CurrentUserId,
+                    ProgramId = entity.Id,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = CurrentUserId,
+                    Deleted = false,
+                };
+                await _dbContext.AddAsync(relation);
                 await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)
@@ -179,6 +188,15 @@ namespace Hao.Authentication.Manager.Implements
                     });
 
                 await _dbContext.ProgramFunction
+                    .Where(x => x.ProgramId == id && !x.Deleted)
+                    .ForEachAsync(x =>
+                    {
+                        x.Deleted = true;
+                        x.DeletedAt = DateTime.Now;
+                        x.DeletedById = CurrentUserId;
+                    });
+
+                await _dbContext.ProgramCustomerRelation
                     .Where(x => x.ProgramId == id && !x.Deleted)
                     .ForEachAsync(x =>
                     {
@@ -455,6 +473,140 @@ namespace Hao.Authentication.Manager.Implements
             {
                 res.AddError(e);
                 _logger.LogError(e, $"删除功能【{id}】失败");
+            }
+            return res;
+        }
+
+        #endregion
+
+        #region Customer
+
+        public async Task<ResponsePagingResult<PgmCtmM>> GetOwnedCtmList(PagingParameter<PgmCtmFilter> param)
+        {
+            var res = new ResponsePagingResult<PgmCtmM>();
+            try
+            {
+                var filter = param.Filter;
+                if (filter == null) throw new MyCustomException("查询参数未添加必要的程序信息");
+
+                var query = from pc in _dbContext.ProgramCustomerRelation
+                            join c in _dbContext.CtmSimpleView on pc.CustomerId equals c.Id
+                            where pc.ProgramId == filter.PgmId && !pc.Deleted
+                            select c;
+                if (!string.IsNullOrEmpty(filter.Name))
+                    query = query.Where(x => x.Name.Contains(filter.Name));
+                if (!string.IsNullOrEmpty(filter.Nickname))
+                    query = query.Where(x => x.Nickname.Contains(filter.Nickname));
+
+                query = query.OrderBy(x => x.Name);
+                res.RowsCount = await query.CountAsync();
+                query = query.AsPaging(pageIndex: param.PageIndex);
+                var entities = await query.ToListAsync();
+                var data = _mapper.Map<List<PgmCtmM>>(entities);
+                data.ForEach(x =>
+                {
+                    x.Avatar = this.BuilderFileUrl(x.Avatar);
+                });
+                res.Data = data;
+            }
+            catch (Exception e)
+            {
+                res.AddError(e);
+                _logger.LogError(e, $"查询程序【{param.Filter?.PgmId}】的关联客户列表失败！");
+            }
+            return res;
+        }
+
+        public async Task<ResponsePagingResult<PgmCtmM>> GetNotOwnedCtmList(PagingParameter<PgmCtmFilter> param)
+        {
+            var res = new ResponsePagingResult<PgmCtmM>();
+            try
+            {
+                var filter = param.Filter;
+                if (filter == null) throw new MyCustomException("查询参数未添加必要的程序信息");
+
+                var relationIds = await _dbContext.ProgramCustomerRelation
+                    .Where(x => x.ProgramId == filter.PgmId && !x.Deleted)
+                    .Select(x => x.CustomerId)
+                    .ToListAsync();
+                var query = _dbContext.CtmSimpleView.AsNoTracking()
+                    .Where(x =>  !relationIds.Contains(x.Id));
+
+                if (!string.IsNullOrEmpty(filter.Name))
+                    query = query.Where(x => x.Name.Contains(filter.Name));
+                if (!string.IsNullOrEmpty(filter.Nickname))
+                    query = query.Where(x => x.Nickname.Contains(filter.Nickname));
+
+                query = query.OrderBy(x => x.Name);
+                res.RowsCount = await query.CountAsync();
+                query = query.AsPaging(pageIndex : param.PageIndex);
+                var entities = await query.ToListAsync();
+                var data = _mapper.Map<List<PgmCtmM>>(entities);
+                data.ForEach(x =>
+                {
+                    x.Avatar = this.BuilderFileUrl(x.Avatar);
+                });
+                res.Data = data;
+            }
+            catch (Exception e)
+            {
+                res.AddError(e);
+                _logger.LogError(e, $"查询程序【{param.Filter?.PgmId}】的关联客户列表失败！");
+            }
+            return res;
+        }
+
+        public async Task<ResponseResult<bool>> AddCtm(string pgmId, string ctmId)
+        {
+            var res = new ResponseResult<bool>();
+            try
+            {
+                var exist = await _dbContext.ProgramCustomerRelation
+                    .AnyAsync(x => x.ProgramId == pgmId && x.CustomerId == ctmId && !x.Deleted);
+                if (exist) throw new MyCustomException("程序已关联该用户，请勿重复添加！");
+
+                var entity = new ProgramCustomerRelation
+                {
+                    CustomerId = ctmId,
+                    ProgramId = pgmId,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = CurrentUserId,
+                    Deleted = false,
+                };
+
+                await _dbContext.AddAsync(entity);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                res.AddError(e);
+                _logger.LogError(e, $"添加程序【{pgmId}】关联用户【{ctmId}】失败失败！");
+            }
+            return res;
+        }
+
+        public async Task<ResponseResult<bool>> DeleteCtm(string pgmId, string ctmId)
+        {
+            var res = new ResponseResult<bool>();
+            try
+            {
+                var isOwner = await _dbContext.Program
+                    .AnyAsync(x => !x.Deleted && x.Id == pgmId && x.CreatedById == ctmId);
+                if (isOwner) throw new MyCustomException("该用户为当前程序的创建者，不能取消关联！");
+
+                var entity = await _dbContext.ProgramCustomerRelation
+                    .FirstOrDefaultAsync(x => x.ProgramId == pgmId && x.CustomerId == ctmId && !x.Deleted);
+
+                if (entity == null) return res;
+                entity.Deleted = true;
+                entity.DeletedAt = DateTime.Now;
+                entity.DeletedById = CurrentUserId;
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                res.AddError(e);
+                _logger.LogError(e, $"取消程序【{pgmId}】的用户【{ctmId}】关联失败！");
             }
             return res;
         }

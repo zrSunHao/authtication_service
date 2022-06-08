@@ -34,6 +34,8 @@ namespace Hao.Authentication.Manager.DataMaps
                 .ForMember(x => x.LimitedExpiredAt, y => y.Ignore());
 
             CreateMap<PgmFunctView, FunctM> ();
+
+            CreateMap<CtmSimpleView, PgmCtmM>();
         }
     }
 }

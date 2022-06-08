@@ -99,5 +99,30 @@ namespace Hao.Authentication.Web.Controllers
         {
             return await _manager.GetFunctList(sectId);
         }
+
+
+        [HttpPost("GetOwnedCtmList")]
+        public async Task<ResponsePagingResult<PgmCtmM>> GetOwnedCtmList(PagingParameter<PgmCtmFilter> param)
+        {
+            return await _manager.GetOwnedCtmList(param);
+        }
+
+        [HttpPost("GetNotOwnedCtmList")]
+        public async Task<ResponsePagingResult<PgmCtmM>> GetNotOwnedCtmList(PagingParameter<PgmCtmFilter> param)
+        {
+            return await _manager.GetNotOwnedCtmList(param);
+        }
+
+        [HttpPost("AddCtm")]
+        public async Task<ResponseResult<bool>> AddCtm(string pgmId, string ctmId)
+        {
+            return await _manager.AddCtm(pgmId, ctmId);
+        }
+
+        [HttpDelete("DeleteCtm")]
+        public async Task<ResponseResult<bool>> DeleteCtm(string pgmId, string ctmId)
+        {
+            return await _manager.DeleteCtm(pgmId, ctmId);
+        }
     }
 }

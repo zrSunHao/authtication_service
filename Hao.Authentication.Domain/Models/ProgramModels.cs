@@ -53,7 +53,22 @@ namespace Hao.Authentication.Domain.Models
         public DateTime? CreatedAt { get; set; }
     }
 
+    public class PgmCtmM
+    {
+        public string Id { get; set; }
 
+        public string? Avatar { get; set; }
+
+        public string Name { get; set; }
+
+        public string Nickname { get; set; }
+
+        public string? Intro { get; set; }
+
+        public string? Remark { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+    }
 
 
     public class PgmFilter
@@ -68,4 +83,14 @@ namespace Hao.Authentication.Domain.Models
 
         public DateTime? EndAt { get; set; }
     }
+
+    public class PgmCtmFilter
+    {
+        public string PgmId { get; set; }
+
+        public string Name { get; set; }
+
+        public string Nickname { get; set; }
+    }
+
 }

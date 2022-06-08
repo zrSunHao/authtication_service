@@ -207,7 +207,7 @@ namespace Hao.Authentication.Manager.Implements
             try
             {
                 var exist = await _dbContext.SysProgramRelation
-                    .AnyAsync(x => x.ProgramId == pgmId && x.SysId == sysId);
+                    .AnyAsync(x => !x.Deleted && x.ProgramId == pgmId && x.SysId == sysId);
                 if (exist) throw new MyCustomException("系统已关联该程序，请勿重复添加！");
 
                 var entity = new SysProgramRelation
@@ -235,9 +235,11 @@ namespace Hao.Authentication.Manager.Implements
             try
             {
                 var entity = await _dbContext.SysProgramRelation
-                    .FirstOrDefaultAsync(x => x.SysId == sysId && x.ProgramId == pgmId);
+                    .FirstOrDefaultAsync(x => x.SysId == sysId && x.ProgramId == pgmId && !x.Deleted);
                 if (entity == null) return res;
-                _dbContext.Remove(entity);
+                entity.Deleted = true;
+                entity.DeletedAt = DateTime.Now;
+                entity.DeletedById = CurrentUserId;
 
                 var roleIds = await _dbContext.SysRole
                     .Where(x => x.SysId == sysId)
@@ -270,7 +272,7 @@ namespace Hao.Authentication.Manager.Implements
 
                 var query = from sp in _dbContext.SysProgramRelation
                             join p in _dbContext.Program on sp.ProgramId equals p.Id
-                            where p.Deleted == false && sp.SysId == filter.SysId
+                            where p.Deleted == false && sp.SysId == filter.SysId && !sp.Deleted
                             select p;
                 if (!string.IsNullOrEmpty(filter.NameOrCode))
                     query = query.Where(x => x.Name.Contains(filter.NameOrCode) || x.Code.Contains(filter.NameOrCode));
@@ -301,11 +303,11 @@ namespace Hao.Authentication.Manager.Implements
                 var filter = param.Filter;
                 if (filter == null) throw new MyCustomException("查询参数未添加必要的系统信息");
 
-                var query = from p in _dbContext.Program
-                            join sp in _dbContext.SysProgramRelation on p.Id equals sp.ProgramId into sp1
-                            from sp2 in sp1.DefaultIfEmpty()
-                            where p.Deleted == false && sp2.SysId != filter.SysId
-                            select p;
+                var relationIds = await _dbContext.SysProgramRelation
+                    .Where(x => x.SysId == filter.SysId && !x.Deleted)
+                    .Select(x => x.ProgramId)
+                    .ToListAsync();
+                var query = _dbContext.Program.AsNoTracking().Where(x => !x.Deleted && !relationIds.Contains(x.Id));
 
                 if (!string.IsNullOrEmpty(filter.NameOrCode))
                     query = query.Where(x => x.Name.Contains(filter.NameOrCode) || x.Code.Contains(filter.NameOrCode));

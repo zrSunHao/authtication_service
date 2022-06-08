@@ -10,6 +10,8 @@ namespace Hao.Authentication.Persistence.Configuration
         {
             builder.Property(x => x.Name).HasMaxLength(32).IsRequired();
 
+            builder.Property(x => x.Nickname).HasMaxLength(32).IsRequired();
+
             builder.Property(x => x.Password).IsRequired();
 
             builder.Property(x => x.PasswordSalt).IsRequired();

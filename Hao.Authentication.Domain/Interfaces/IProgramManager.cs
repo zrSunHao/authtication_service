@@ -32,5 +32,15 @@ namespace Hao.Authentication.Domain.Interfaces
         public Task<ResponseResult<bool>> DeleteFunct(string id);
 
         public Task<ResponsePagingResult<FunctM>> GetFunctList(string sectId);
+
+
+
+        public Task<ResponsePagingResult<PgmCtmM>> GetOwnedCtmList(PagingParameter<PgmCtmFilter> param);
+
+        public Task<ResponsePagingResult<PgmCtmM>> GetNotOwnedCtmList(PagingParameter<PgmCtmFilter> param);
+
+        public Task<ResponseResult<bool>> AddCtm(string pgmId, string ctmId);
+
+        public Task<ResponseResult<bool>> DeleteCtm(string pgmId, string ctmId);
     }
 }

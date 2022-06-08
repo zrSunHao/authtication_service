@@ -4,24 +4,25 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hao.Authentication.Persistence.Entities
 {
-    [Table(nameof(SysProgramRelation))]
-    [Index(nameof(SysId), IsUnique = false)]
+    [Table(nameof(ProgramCustomerRelation))]
     [Index(nameof(ProgramId), IsUnique = false)]
-    public class SysProgramRelation
+    [Index(nameof(CustomerId), IsUnique = false)]
+    public class ProgramCustomerRelation
     {
         [Key]
         [ScaffoldColumn(false)]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
-        [MaxLength(32)]
         [Required]
-        public string SysId { get; set; }
-
         [MaxLength(32)]
-        [Required]
         public string ProgramId { get; set; }
 
+        [Required]
+        [MaxLength(32)]
+        public string CustomerId { get; set; }
+
+        [Required]
         public DateTime CreatedAt { get; set; }
 
         [MaxLength(32)]
