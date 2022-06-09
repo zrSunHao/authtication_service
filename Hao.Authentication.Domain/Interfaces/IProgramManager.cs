@@ -13,6 +13,8 @@ namespace Hao.Authentication.Domain.Interfaces
 
         public Task<ResponsePagingResult<ProgramM>> GetList(PagingParameter<PgmFilter> param);
 
+        public Task<ResponseResult<bool>> FlushCache(string id);
+
 
 
         public Task<ResponseResult<bool>> AddSect(SectM model);

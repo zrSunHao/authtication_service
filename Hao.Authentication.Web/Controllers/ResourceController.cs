@@ -1,4 +1,5 @@
-﻿using Hao.Authentication.Domain.Interfaces;
+﻿using Hao.Authentication.Domain.Consts;
+using Hao.Authentication.Domain.Interfaces;
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Domain.Paging;
 using Hao.Authentication.Manager.Basic;
@@ -37,7 +38,7 @@ namespace Hao.Authentication.Web.Controllers
                 var file = Request?.Form?.Files?.FirstOrDefault();
                 if (file == null) throw new MyCustomException("No file found in the form!");
 
-                string rootPath = _configuration["FileStorageDirectory"];
+                string rootPath = _configuration[CfgConsts.FILE_RESOURCE_DIRECTORY];
                 var directory = new DirectoryInfo(rootPath);
                 if (!directory.Exists) { directory.Create(); }
 
@@ -87,7 +88,7 @@ namespace Hao.Authentication.Web.Controllers
         {
             try
             {
-                string rootPath = _configuration["FileStorageDirectory"];
+                string rootPath = _configuration[CfgConsts.FILE_RESOURCE_DIRECTORY];
                 string path = @$"{rootPath}\{name}";
                 var file = new FileInfo(path);
                 if (!file.Exists) return NotFound();

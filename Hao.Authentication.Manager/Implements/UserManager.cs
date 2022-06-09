@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Hao.Authentication.Common.Enums;
+using Hao.Authentication.Domain.Consts;
 using Hao.Authentication.Domain.Interfaces;
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Domain.Paging;
@@ -19,15 +20,18 @@ namespace Hao.Authentication.Manager.Implements
     public class UserManager : BaseManager, IUserManager
     {
         private readonly ILogger _logger;
+        private readonly IPrivilegeManager _privilege;
         public UserManager(PlatFormDbContext dbContext,
             IMapper mapper,
             ICacheProvider cache,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
+            IPrivilegeManager privilege,
             ILogger<UserManager> logger)
             : base(dbContext, mapper, configuration, httpContextAccessor, cache)
         {
             _logger = logger;
+            _privilege = privilege;
         }
 
         public async Task<ResponseResult<AuthResultM>> Login(LoginM model)
@@ -50,26 +54,20 @@ namespace Hao.Authentication.Manager.Implements
                 if (ctm == null) throw new MyCustomException("未查询到账号数据！");
 
                 var sysId = await this.GetCurrentSysId(sysCode);
-                var pgmId = await this.GetCurrentPgmId(pgmCode);
+                var pgmId = await this.GetCurrentPgmId(sysId, pgmCode);
                 await this.CtmCtts(ctm.Id, sysId);
 
                 var role = await this.GetCtmRole(entity.Id, sysId);
                 var record = await this.UpdateRecord(entity.Id, sysId, pgmId, role.Id);
-                var sects = await _dbContext.SysRoleSectView
-                    .Where(x => x.Id == role.Id)
-                    .Select(x => new { x.SectCode, x.PgmId })
-                    .ToListAsync();
-                var functs = await _dbContext.SysRoleFunctView
-                    .Where(x => x.Id == role.Id && x.Limited != true)
-                    .Select(x => new { x.FunctCode, x.PgmId })
-                    .ToListAsync();
+                var sects = await _privilege.GetPgmSectCodes(role.Id, pgmCode);
+                var functs = await _privilege.GetPgmFunctCodes(role.Id,pgmCode);
 
                 ctm.Avatar = this.BuilderFileUrl(ctm.Avatar, record.LoginId.ToString());
                 var result = new AuthResultM();
                 result.Customer = _mapper.Map<AuthCtmM>(ctm);
                 result.Role = _mapper.Map<AuthRoleM>(role);
-                result.SectCodes = sects.Where(x => x.PgmId == pgmId).Select(x => x.SectCode).ToList();
-                result.FunctCodes = functs.Where(x => x.PgmId == pgmId).Select(x => x.FunctCode).ToList();
+                result.SectCodes = sects;
+                result.FunctCodes = functs;
                 result.LoginId = record.LoginId.ToString();
                 result.Token = this.BuilderToken(record.LoginId.ToString(), sysCode, role.Code, entity.Name, record.ExpiredAt);
                 res.Data = result;
@@ -210,6 +208,7 @@ namespace Hao.Authentication.Manager.Implements
                     .FirstOrDefaultAsync(x => x.CustomerId == ctmId && x.SysId == sysId && x.PgmId == pgmId);
             if (record != null)
             {
+                _cache.Remove(record.LoginId.ToString());
                 record.LoginId = Guid.NewGuid();
                 record.RoleId = roleId;
                 record.CreatedAt = DateTime.Now;
@@ -228,6 +227,7 @@ namespace Hao.Authentication.Manager.Implements
                     ExpiredAt = DateTime.Now.AddDays(2),
                 };
             }
+            _cache.Save(record.LoginId.ToString(), record);
             var log = new CustomerLog()
             {
                 CustomerId = ctmId,
@@ -254,20 +254,21 @@ namespace Hao.Authentication.Manager.Implements
             return sysId;
         }
 
-        private async Task<string> GetCurrentPgmId(string code)
+        private async Task<string> GetCurrentPgmId(string sysId,string code)
         {
-            string? pgmId = await _dbContext.Program.AsNoTracking()
-                .Where(x => x.Code == code && !x.Deleted)
-                .Select(y => y.Id)
-                .FirstOrDefaultAsync();
+            string? pgmId = await (from sp in _dbContext.SysProgramRelation
+                                   join p in _dbContext.Program on sp.ProgramId equals p.Id
+                                   where !sp.Deleted && sp.SysId == sysId && p.Code == code && !p.Deleted
+                                   select p.Id).FirstOrDefaultAsync();
+
             if (string.IsNullOrEmpty(pgmId)) throw new MyCustomException("未查询到当前程序信息！");
             return pgmId;
         }
 
         private string BuilderToken(string recordId, string sysCode, string roleCode, string userName,DateTime expiredAt)
         {
-            var key = GetConfiguration("Platform:Key");
-            var issuer = GetConfiguration("Platform:Issuer");
+            var key = GetConfiguration(CfgConsts.PLATFORM_KEY);
+            var issuer = GetConfiguration(CfgConsts.PLATFORM_ISSUER);
             var msg = new TokenMsg
             {
                 Id = recordId,

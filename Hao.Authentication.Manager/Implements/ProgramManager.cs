@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Hao.Authentication.Common.Enums;
+using Hao.Authentication.Domain.Consts;
 using Hao.Authentication.Domain.Interfaces;
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Domain.Paging;
@@ -215,6 +216,21 @@ namespace Hao.Authentication.Manager.Implements
             return res;
         }
 
+        public async Task<ResponseResult<bool>> FlushCache(string id)
+        {
+            var res = new ResponseResult<bool>();
+            try
+            {
+                await this.RemoveRoleCache(id);
+            }
+            catch (Exception e)
+            {
+                res.AddError(e);
+                _logger.LogError(e, $"刷新程序【{id}】关联角色的权限码缓存失败！");
+            }
+            return res;
+        }
+
         #endregion
 
         #region Section
@@ -239,6 +255,8 @@ namespace Hao.Authentication.Manager.Implements
                 entity.Id = entity.GetId(this.MachineCode);
                 entity.Category = category;
                 entity.CreatedById = CurrentUserId;
+
+                await RemoveRoleCache(entity.ProgramId);
 
                 await _dbContext.AddAsync(entity);
                 await _dbContext.SaveChangesAsync();
@@ -282,6 +300,8 @@ namespace Hao.Authentication.Manager.Implements
                 entity.Remark = model.Remark;
                 entity.LastModifiedAt = DateTime.Now;
                 entity.LastModifiedById = CurrentUserId;
+
+                await RemoveRoleCache(entity.ProgramId);
 
                 await _dbContext.SaveChangesAsync();
             }
@@ -334,6 +354,8 @@ namespace Hao.Authentication.Manager.Implements
                         x.DeletedById = CurrentUserId;
                     });
 
+                await RemoveRoleCache(entity.ProgramId);
+
                 await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)
@@ -364,6 +386,8 @@ namespace Hao.Authentication.Manager.Implements
                 var entity = _mapper.Map<ProgramFunction>(model);
                 entity.Id = entity.GetId(this.MachineCode);
                 entity.CreatedById = CurrentUserId;
+
+                await RemoveRoleCache(entity.ProgramId);
 
                 await _dbContext.AddAsync(entity);
                 await _dbContext.SaveChangesAsync();
@@ -425,6 +449,8 @@ namespace Hao.Authentication.Manager.Implements
                     await _dbContext.AddAsync(ctt);
                 }
 
+                await RemoveRoleCache(entity.ProgramId);
+
                 await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)
@@ -466,6 +492,8 @@ namespace Hao.Authentication.Manager.Implements
                 entity.Deleted = true;
                 entity.DeletedAt = DateTime.Now;
                 entity.DeletedById = CurrentUserId;
+
+                await RemoveRoleCache(entity.ProgramId);
 
                 await _dbContext.SaveChangesAsync();
             }
@@ -638,6 +666,30 @@ namespace Hao.Authentication.Manager.Implements
                     break;
             }
             return category;
+        }
+
+        private async Task<bool> RemoveRoleCache(string pgmId)
+        {
+            var rrs = await (from rr in _dbContext.SysRoleFuncRelation
+                              join p in _dbContext.Program on rr.ProgramId equals p.Id
+                              where !p.Deleted && rr.ProgramId == pgmId
+                              select new
+                              {
+                                  PgmCode = p.Code,
+                                  rr.RoleId
+                              }).ToListAsync();
+            if (rrs.Any())
+            {
+                rrs.ForEach(x =>
+                {
+                    string k1 = CacheConsts.ROLE_PROGRAM_FUNCTS(x.RoleId, x.PgmCode);
+                    string k2 = CacheConsts.ROLE_PROGRAM_SECTS(x.RoleId, x.PgmCode);
+                    _cache.Remove(k1);
+                    _cache.Remove(k2);
+                });
+            }
+
+            return true;
         }
     }
 }

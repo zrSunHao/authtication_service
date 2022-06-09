@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Hao.Authentication.Domain.Consts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -8,8 +9,8 @@ namespace Hao.Authentication.Web.Extentions
     {
         public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, ConfigurationManager configuration)
         {
-            var tokenKey = configuration["Platform:Key"];
-            var issuer = configuration["Platform:Issuer"];
+            var tokenKey = configuration[CfgConsts.PLATFORM_KEY];
+            var issuer = configuration[CfgConsts.PLATFORM_ISSUER];
             services
                 .AddAuthentication(op =>
                 {

@@ -14,5 +14,7 @@ namespace Hao.Authentication.Domain.Interfaces
         /// </summary>
         /// <returns></returns>
         public Task<ResponseResult<bool>> Add(CttAddM ctt,bool directlySave = false);
+
+        public void AutoUpdateCache(object? o);
     }
 }

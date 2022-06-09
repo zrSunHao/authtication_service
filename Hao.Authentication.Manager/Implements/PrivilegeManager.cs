@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Hao.Authentication.Domain.Consts;
 using Hao.Authentication.Domain.Interfaces;
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Manager.Basic;
@@ -49,25 +50,45 @@ namespace Hao.Authentication.Manager.Implements
             {
                 var entity = await _dbContext.UserLastLoginRecord.AsNoTracking()
                     .FirstOrDefaultAsync(x => x.LoginId == loginId);
-                if (entity == null) throw new Exception("登录信息为空");
+                if (entity == null) throw new Exception("登录信息为空！");
                 else
                 {
                     record = _mapper.Map<UserLastLoginRecordM>(entity);
                     _cache.Save(cacheKey, record);
                 }
             }
+            if (record.ExpiredAt <= DateTime.Now) throw new Exception("登录信息已过期！");
             return record;
         }
 
         public async Task<List<string>> GetFunctCodes(string roleId)
         {
-            string pgmCode = _configuration["Platform:ProgramCode"];
-            string cacheKey = $"{roleId}-{pgmCode}-functs";
+            string pgmCode = _configuration[CfgConsts.PLATFORM_PROGRAM_CODE];
+            return await this.GetPgmFunctCodes(roleId,pgmCode);
+        }
+
+        public async Task<List<string>> GetPgmFunctCodes(string roleId,string pgmCode)
+        {
+            string cacheKey = CacheConsts.ROLE_PROGRAM_FUNCTS(roleId, pgmCode);
             List<string> codes = _cache.TryGetValue<List<string>>(cacheKey);
             if (codes == null)
                 codes = await _dbContext.SysRoleFunctView.AsNoTracking()
-                    .Where(x => x.Id == roleId && x.PgmCode == pgmCode)
+                    .Where(x => x.Id == roleId && x.PgmCode == pgmCode && x.Limited != true)
                     .Select(x => x.FunctCode)
+                    .ToListAsync();
+            if (codes == null) codes = new List<string>();
+            else _cache.Save(cacheKey, codes);
+            return codes;
+        }
+
+        public async Task<List<string>> GetPgmSectCodes(string roleId, string pgmCode)
+        {
+            string cacheKey = CacheConsts.ROLE_PROGRAM_SECTS(roleId, pgmCode);
+            List<string> codes = _cache.TryGetValue<List<string>>(cacheKey);
+            if (codes == null)
+                codes = await _dbContext.SysRoleSectView.AsNoTracking()
+                    .Where(x => x.Id == roleId && x.PgmCode == pgmCode)
+                    .Select(x => x.SectCode)
                     .ToListAsync();
             if (codes == null) codes = new List<string>();
             else _cache.Save(cacheKey, codes);

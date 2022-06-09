@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Hao.Authentication.Domain.Consts;
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Manager.Providers;
 using Hao.Authentication.Persistence.Database;
@@ -21,7 +22,6 @@ namespace Hao.Authentication.Manager.Basic
         protected readonly PlatFormDbContext _dbContext;
         protected readonly IMapper _mapper;
         protected readonly IHttpContextAccessor _httpContextAccessor;
-        protected readonly IServiceProvider _serviceProvider;
         protected readonly IConfiguration _configuration;
         protected readonly ICacheProvider _cache;
 
@@ -35,7 +35,6 @@ namespace Hao.Authentication.Manager.Basic
             _mapper = mapper;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
-            _serviceProvider = _httpContextAccessor.HttpContext.RequestServices;
             _cache = cache;
         }
 
@@ -70,12 +69,12 @@ namespace Hao.Authentication.Manager.Basic
         /// <summary>
         /// 机器码
         /// </summary>
-        protected string MachineCode => GetConfiguration("Platform:ProgramCode");
+        protected string MachineCode => GetConfiguration(CfgConsts.PLATFORM_PROGRAM_CODE);
 
         /// <summary>
         /// 资源地址
         /// </summary>
-        protected string FileResourceUrl => GetConfiguration("FileResourceBaseUrl");
+        protected string FileResourceUrl => GetConfiguration(CfgConsts.FILE_RESOURCE_BASE_URL);
 
         /// <summary>
         /// 用户登录记录

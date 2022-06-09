@@ -1,4 +1,5 @@
-﻿using Hao.Authentication.Domain.Interfaces;
+﻿using Hao.Authentication.Domain.Consts;
+using Hao.Authentication.Domain.Interfaces;
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Manager.Providers;
 using Hao.Authentication.Web.Attributes;
@@ -11,6 +12,7 @@ namespace Hao.Authentication.Web.Middlewares
     {
         private readonly RequestDelegate _next;
         private ILogger<PrivilegeMiddleware> _logger;
+        private IConfiguration _configuration;
 
         public PrivilegeMiddleware(RequestDelegate next)
         {
@@ -18,9 +20,10 @@ namespace Hao.Authentication.Web.Middlewares
         }
 
         public async Task InvokeAsync(HttpContext context,
-            ILogger<PrivilegeMiddleware> logger)
+            ILogger<PrivilegeMiddleware> logger, IConfiguration configuration)
         {
             _logger = logger;
+            _configuration = configuration;
             try
             {
                 var result = await this.CheckPrivilege(context);
@@ -47,6 +50,13 @@ namespace Hao.Authentication.Web.Middlewares
             {
                 var allow = this.AllowAnonymous(context);
                 if (allow) return true;
+
+                var p = _configuration[CfgConsts.PLATFORM_PERMISSION];
+                if (!string.IsNullOrEmpty(p))
+                {
+                    var pa = _configuration[CfgConsts.PLATFORM_PERMISSION_ALLOW];
+                    if(p == pa) return true;
+                }
 
                 IPrivilegeManager? manager = context.RequestServices.GetService<IPrivilegeManager>();
                 if (manager == null) throw new Exception("privilege manager not instance!");

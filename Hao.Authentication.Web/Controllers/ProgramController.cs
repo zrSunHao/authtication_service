@@ -48,6 +48,12 @@ namespace Hao.Authentication.Web.Controllers
             return res;
         }
 
+        [HttpPatch("FlushCache")]
+        public async Task<ResponseResult<bool>> FlushCache(string id)
+        {
+            return await _manager.FlushCache(id);
+        }
+
 
 
         [HttpPost("AddSect")]

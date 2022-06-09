@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Hao.Authentication.Common.Enums;
+using Hao.Authentication.Domain.Consts;
 using Hao.Authentication.Domain.Interfaces;
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Domain.Paging;
@@ -484,6 +485,7 @@ namespace Hao.Authentication.Manager.Implements
                     entity.Code = model.Code;
                 }
 
+                entity.Rank = model.Rank;
                 entity.Intro = model.Intro;
                 entity.Remark = model.Remark;
                 entity.LastModifiedAt = DateTime.Now;
@@ -508,6 +510,8 @@ namespace Hao.Authentication.Manager.Implements
                     };
                     ctt.Id = ctt.GetId(this.MachineCode);
                     await _dbContext.AddAsync(ctt);
+
+                    await RemoveRoleCache(model.Id, true, false);
                 }
 
                 await _dbContext.SaveChangesAsync();
@@ -584,6 +588,8 @@ namespace Hao.Authentication.Manager.Implements
                     .Where(x => x.RoleId == id)
                     .ToListAsync();
                 if (srfs.Any()) _dbContext.RemoveRange(srfs);
+
+                await RemoveRoleCache(id,true, false);
 
                 await _dbContext.SaveChangesAsync();
             }
@@ -736,6 +742,8 @@ namespace Hao.Authentication.Manager.Implements
                 });
 
                 if(newEntities.Any()) await _dbContext.SysRoleFuncRelation.AddRangeAsync(newEntities);
+
+                await RemoveRoleCache(model.RoleId, false, false);
                 await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)
@@ -747,5 +755,40 @@ namespace Hao.Authentication.Manager.Implements
         }
 
         #endregion Role
+
+        private async Task<bool> RemoveRoleCache(string roleId,bool updateRecord,bool directSave = false)
+        {
+            _cache.Remove(roleId);
+            var pgms = await (from rr in _dbContext.SysRoleFuncRelation
+                              join p in _dbContext.Program on rr.ProgramId equals p.Id
+                              where !p.Deleted && rr.RoleId == roleId
+                              select p.Code).ToListAsync();
+            if (pgms.Any())
+            {
+                pgms.ForEach(x =>
+                {
+                    string k1 = CacheConsts.ROLE_PROGRAM_FUNCTS(roleId, x);
+                    string k2 = CacheConsts.ROLE_PROGRAM_SECTS(roleId, x);
+                    _cache.Remove(k1);
+                    _cache.Remove(k2);
+                });
+            }
+
+            if (updateRecord)
+            {
+                var records = await _dbContext.UserLastLoginRecord.Where(x => x.RoleId == roleId && x.ExpiredAt > DateTime.Now).ToListAsync();
+                if (records.Any())
+                {
+                    records.ForEach(x =>
+                    {
+                        x.ExpiredAt = DateTime.Now;
+                        _cache.Remove(x.LoginId.ToString());
+                    });
+                }
+                if (directSave) await _dbContext.SaveChangesAsync();
+            }
+
+            return true;
+        }
     }
 }

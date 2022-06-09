@@ -1,6 +1,7 @@
 ﻿using Hao.Authentication.Domain.Interfaces;
 using Hao.Authentication.Manager.Implements;
 using Hao.Authentication.Manager.Providers;
+using Hao.Authentication.Manager.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,14 +16,16 @@ namespace Hao.Authentication.Manager
             services.AddSingleton<ICacheProvider, MemoryCacheProvider>();
 
             services.AddTransient<IConstraintManager, ConstraintManager>();
-
             services.AddTransient<IPrivilegeManager, PrivilegeManager>();
+
             services.AddTransient<IProgramManager, ProgramManager>();
             services.AddTransient<IResourceManager, ResourceManager>();
             services.AddTransient<ISysManager, SysManager>();
             services.AddTransient<IUserManager, UserManager>();
             services.AddTransient<ICustomerManager, CustomerManager>();
             services.AddTransient<IReportManager, ReportManager>();
+
+            services.AddHostedService<ConstraintAutoService>();
 
             return services;
         }

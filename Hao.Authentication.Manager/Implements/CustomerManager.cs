@@ -294,6 +294,9 @@ namespace Hao.Authentication.Manager.Implements
                     CreatedById = CurrentUserId
                 };
                 await _dbContext.AddAsync(entity);
+
+                await CancelRecord(model.CtmId, model.RoleId);
+
                 await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)
@@ -317,6 +320,7 @@ namespace Hao.Authentication.Manager.Implements
                     _dbContext.RemoveRange(olds);
                     await _dbContext.SaveChangesAsync();
                 }
+                await CancelRecord(ctmId, roleId, true);
             }
             catch (Exception e)
             {
@@ -441,6 +445,21 @@ namespace Hao.Authentication.Manager.Implements
                 _logger.LogError(e, $"获取id为【{param.Filter?.CtmId}】的客户日志列表失败");
             }
             return res;
+        }
+
+        
+        private async Task<bool> CancelRecord(string ctmId, string roleId,bool directSave = false)
+        {
+            var records = await _dbContext.UserLastLoginRecord
+                .Where(x=>x.CustomerId == ctmId && x.RoleId == roleId && x.ExpiredAt > DateTime.Now)
+                .ToListAsync();
+            if (!records.Any()) return true;
+            records.ForEach(x => {
+                _cache.Remove(x.LoginId.ToString());
+                x.ExpiredAt = DateTime.Now;
+            });
+            if(directSave) await _dbContext.SaveChangesAsync();
+            return true;
         }
     }
 }
