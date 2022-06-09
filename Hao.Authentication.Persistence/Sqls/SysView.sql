@@ -1,7 +1,4 @@
-﻿USE [Test_AuthenticationPlatform]
-GO
-
-/****** Object:  View [dbo].[SysView]    Script Date: 2022/5/31 17:41:02 ******/
+﻿/****** Object:  View [dbo].[SysView]    Script Date: 2022/6/9 8:03:22 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -13,5 +10,3 @@ FROM Sys AS S
 LEFT JOIN (SELECT F1.* FROM FileResource AS F1 JOIN (SELECT OwnId, MAX(Id) AS Id FROM FileResource WHERE Category = 'sys' GROUP BY OwnId) AS F2 ON F2.Id = F1.Id) AS FR ON FR.OwnId = S.Id
 WHERE S.Deleted = 0
 GO
-
-

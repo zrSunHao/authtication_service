@@ -1,7 +1,4 @@
-USE [Test_AuthenticationPlatform]
-GO
-
-/****** Object:  View [dbo].[SysRoleView]    Script Date: 2022/5/30 17:19:36 ******/
+/****** Object:  View [dbo].[SysRoleView]    Script Date: 2022/6/9 8:03:03 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -14,4 +11,3 @@ JOIN Sys AS S ON S.Id = SR.SysId
 LEFT JOIN (SELECT * FROM [Constraint] WHERE Cancelled = 0 AND (Method = 1 OR ExpiredAt > GETDATE())) AS CTT ON CTT.TargetId = SR.Id
 WHERE SR.Deleted = 0 AND S.Deleted = 0
 GO
-

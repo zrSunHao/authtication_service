@@ -1,7 +1,4 @@
-USE [Test_AuthenticationPlatform]
-GO
-
-/****** Object:  View [dbo].[CtmRoleView]    Script Date: 2022/5/26 18:52:52 ******/
+/****** Object:  View [dbo].[CtmRoleView]    Script Date: 2022/6/9 7:52:10 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -15,4 +12,3 @@ JOIN Sys AS S ON S.Id = SR.SysId
 LEFT JOIN (SELECT F1.* FROM FileResource AS F1 JOIN (SELECT OwnId, MAX(Id) AS Id FROM FileResource WHERE Category = 'sys' GROUP BY OwnId) AS F2 ON F2.Id = F1.Id) AS FR ON FR.OwnId = S.Id
 WHERE S.Deleted = 0 AND SR.Deleted = 0
 GO
-
