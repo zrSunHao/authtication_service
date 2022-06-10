@@ -89,6 +89,23 @@ namespace Hao.Authentication.Manager.Basic
         /// 当前用户登录Id
         /// </summary>
         public Guid CurrentLoginId => LoginRecord.LoginId;
+
+        public async Task<SysRoleM> GetCurrentUserRole()
+        {
+            var record = this.LoginRecord;
+            var role = _cache.TryGetValue<SysRoleM>(record.RoleId);
+            if(role == null)
+            {
+                var entity = await _dbContext.SysRoleView.FirstOrDefaultAsync(x => x.Id == record.RoleId);
+                if(entity != null)
+                {
+                    role = _mapper.Map<SysRoleM>(entity);
+                    _cache.Save(role.Id, role);
+                }
+            }
+            if (role == null) throw new Exception("获取当前用户的角色信息失败！");
+            return role;
+        }
         
 
 

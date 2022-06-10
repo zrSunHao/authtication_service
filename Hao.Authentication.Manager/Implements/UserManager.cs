@@ -145,6 +145,28 @@ namespace Hao.Authentication.Manager.Implements
             return res;
         }
 
+        public async Task<ResponseResult<bool>> Logout()
+        {
+            var res = new ResponseResult<bool>();
+            try
+            {
+                var loginId = this.CurrentLoginId;
+                var entity = await _dbContext.UserLastLoginRecord.FirstOrDefaultAsync(x => x.LoginId == loginId);
+                if(entity!= null)
+                {
+                    entity.ExpiredAt = DateTime.Now;
+                    await _dbContext.SaveChangesAsync();
+                }
+                _cache.Remove(loginId.ToString());
+            }
+            catch(Exception e)
+            {
+                res.AddError(e);
+                _logger.LogError(e, $"用户登出失败");
+            }
+            return res;
+        }
+
 
         private async Task<bool> CtmCtts(string ctmId, string sysId)
         {

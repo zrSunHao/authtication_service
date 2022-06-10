@@ -107,6 +107,18 @@ namespace Hao.Authentication.Manager.Implements
             try
             {
                 var query = _dbContext.SysView.AsQueryable();
+                var role = await GetCurrentUserRole();
+                if (role.Rank < SysRoleRank.business) throw new Exception("没有权限！");
+                if (role.Rank == SysRoleRank.business || role.Rank == SysRoleRank.manager)
+                {
+                    var sysIds = await _dbContext.CustomerRoleRelation
+                        .Where(x => x.CustomerId == CurrentUserId)
+                        .Select(x => x.SysId)
+                        .ToListAsync();
+                    sysIds = sysIds.Distinct().ToList();
+                    if (sysIds.Any()) query = query.Where(x => sysIds.Contains(x.Id));
+                }
+
                 var filter = param.Filter;
                 if (filter != null)
                 {
@@ -158,6 +170,9 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponseResult<bool>();
             try
             {
+                var role = await GetCurrentUserRole();
+                if (role.Rank < SysRoleRank.manager) throw new Exception("没有权限！");
+
                 var entity = await _dbContext.Sys
                     .FirstOrDefaultAsync(x => !x.Deleted && x.Id == id);
                 if (entity == null) throw new MyCustomException($"未查询到Id为【{id}】的系统信息！");
@@ -340,11 +355,17 @@ namespace Hao.Authentication.Manager.Implements
             {
                 var filter = param.Filter;
                 if (filter == null) throw new MyCustomException("查询参数未添加必要的系统信息");
-
                 var query = _dbContext.SysCtmView.Where(x => x.SysId == filter.SysId);
+                var role = await GetCurrentUserRole();
+                if (role.Rank < SysRoleRank.business) throw new Exception("没有权限！");
+                if (role.Rank == SysRoleRank.manager || role.Rank == SysRoleRank.business)
+                {
+                    query = query.Where(x => x.RoleRank < role.Rank);
+                }
+
                 if (!string.IsNullOrEmpty(filter.NameOrNickname))
                     query = query.Where(x => x.Name.Contains(filter.NameOrNickname)
-                    ||  x.Nickname.Contains(filter.NameOrNickname));
+                    || x.Nickname.Contains(filter.NameOrNickname));
                 if (!string.IsNullOrEmpty(filter.RoleId))
                     query = query.Where(x => x.RoleId == filter.RoleId);
                 if (filter.Limited.HasValue)
@@ -529,6 +550,9 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponsePagingResult<SysRoleM>();
             try
             {
+                var role = await GetCurrentUserRole();
+                if (role.Rank < SysRoleRank.manager) throw new Exception("没有权限！");
+
                 var filter = param.Filter;
                 if (filter == null) throw new MyCustomException("查询参数未添加必要的系统信息");
                 var query = _dbContext.SysRoleView.Where(x => x.SysId == filter.SysId);
@@ -577,6 +601,9 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponseResult<bool>();
             try
             {
+                var role = await GetCurrentUserRole();
+                if (role.Rank < SysRoleRank.manager) throw new Exception("没有权限！");
+
                 var entity = await _dbContext.SysRole
                     .FirstOrDefaultAsync(x => x.Id == id);
                 if (entity == null) throw new MyCustomException("未查询到角色信息");
@@ -589,7 +616,7 @@ namespace Hao.Authentication.Manager.Implements
                     .ToListAsync();
                 if (srfs.Any()) _dbContext.RemoveRange(srfs);
 
-                await RemoveRoleCache(id,true, false);
+                await RemoveRoleCache(id, true, false);
 
                 await _dbContext.SaveChangesAsync();
             }
@@ -606,10 +633,20 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponsePagingResult<OptionItem<string>>();
             try
             {
-                var rank = SysRoleRank.super_manager;
-                res.Data = await _dbContext.SysRole
-                    .Where(x => !x.Deleted && x.SysId == sysId && x.Rank < rank)
-                    .OrderBy(x => x.Name)
+                var query = _dbContext.SysRole.Where(x => !x.Deleted && x.SysId == sysId);
+                var role = await GetCurrentUserRole();
+                if (role.SysId == LoginRecord.SysId && role.Rank != SysRoleRank.super_manager)
+                {
+                    query = query.Where(x => x.Rank < role.Rank);
+                }
+                else if (role.Rank != SysRoleRank.super_manager)
+                {
+                    var r = await _dbContext.SysCtmView.Where(x => x.Id == CurrentUserId && x.SysId == sysId).FirstOrDefaultAsync();
+                    if (r == null) throw new Exception("未能获取到您在该系统的角色信息！");
+                    query = query.Where(x => x.Rank < r.RoleRank);
+                }
+
+                res.Data = await query.OrderBy(x => x.Name)
                     .Select(y => new OptionItem<string>
                     {
                         Key = y.Id,
@@ -652,7 +689,7 @@ namespace Hao.Authentication.Manager.Implements
                         PgmId = y.ProgramId,
                         Checked = false
                     }).ToListAsync();
-                if (!sects.Any()){ res.Data = pgms;return res; }
+                if (!sects.Any()) { res.Data = pgms; return res; }
                 var sectIds = sects.Select(x => x.Id).ToList();
 
                 var functs = await _dbContext.ProgramFunction
@@ -668,7 +705,7 @@ namespace Hao.Authentication.Manager.Implements
                     }).ToListAsync();
 
                 var checkIds = await _dbContext.SysRoleFuncRelation
-                    .Where(x=>x.RoleId == id)
+                    .Where(x => x.RoleId == id)
                     .Select(x => x.TargetId)
                     .ToListAsync();
                 if (checkIds.Any())
@@ -683,11 +720,11 @@ namespace Hao.Authentication.Manager.Implements
                     });
                 }
 
-                if(functs.Any())
+                if (functs.Any())
                 {
                     sects.ForEach(x =>
                     {
-                        x.Functs = functs.Where(y=>y.SectId == x.Id).ToList();
+                        x.Functs = functs.Where(y => y.SectId == x.Id).ToList();
                     });
                 }
                 pgms.ForEach(x =>
@@ -714,9 +751,9 @@ namespace Hao.Authentication.Manager.Implements
                 if (string.IsNullOrEmpty(model.PgmId) || string.IsNullOrEmpty(model.RoleId))
                     throw new MyCustomException("程序Id或RoleId为空！");
                 var oldEntities = await _dbContext.SysRoleFuncRelation
-                    .Where(x=>x.ProgramId == model.PgmId && x.RoleId == model.RoleId)
+                    .Where(x => x.ProgramId == model.PgmId && x.RoleId == model.RoleId)
                     .ToListAsync();
-                if(oldEntities.Any()) _dbContext.RemoveRange(oldEntities);
+                if (oldEntities.Any()) _dbContext.RemoveRange(oldEntities);
 
                 var newEntities = new List<SysRoleFuncRelation>();
                 if (model.SectIds != null)
@@ -741,7 +778,7 @@ namespace Hao.Authentication.Manager.Implements
                     x.CreatedById = CurrentUserId;
                 });
 
-                if(newEntities.Any()) await _dbContext.SysRoleFuncRelation.AddRangeAsync(newEntities);
+                if (newEntities.Any()) await _dbContext.SysRoleFuncRelation.AddRangeAsync(newEntities);
 
                 await RemoveRoleCache(model.RoleId, false, false);
                 await _dbContext.SaveChangesAsync();
@@ -756,7 +793,7 @@ namespace Hao.Authentication.Manager.Implements
 
         #endregion Role
 
-        private async Task<bool> RemoveRoleCache(string roleId,bool updateRecord,bool directSave = false)
+        private async Task<bool> RemoveRoleCache(string roleId, bool updateRecord, bool directSave = false)
         {
             _cache.Remove(roleId);
             var pgms = await (from rr in _dbContext.SysRoleFuncRelation

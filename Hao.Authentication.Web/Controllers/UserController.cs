@@ -29,17 +29,19 @@ namespace Hao.Authentication.Web.Controllers
         [HttpPost("Register")]
         public async Task<ResponseResult<bool>> Register(RegisterM model)
         {
-            {
-                return await _manager.Register(model);
-            }
+            return await _manager.Register(model);
         }
 
         [HttpPatch("ResetPsd")]
         public async Task<ResponseResult<bool>> ResetPsd(string oldPsd, string newPsd)
         {
-            {
-                return await _manager.ResetPsd(oldPsd, newPsd);
-            }
+            return await _manager.ResetPsd(oldPsd, newPsd);
+        }
+
+        [HttpDelete("Logout")]
+        public async Task<ResponseResult<bool>> Logout()
+        {
+            return await _manager.Logout();
         }
     }
 }

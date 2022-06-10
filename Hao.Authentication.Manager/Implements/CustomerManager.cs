@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Hao.Authentication.Common.Enums;
 using Hao.Authentication.Domain.Interfaces;
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Domain.Paging;
@@ -250,6 +251,15 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponseResult<bool>();
             try
             {
+                var role = await GetCurrentUserRole();
+                if (role.Rank < SysRoleRank.business) throw new Exception("没有权限！");
+                if(model.SysId == role.SysId && role.Rank < SysRoleRank.super_manager)
+                {
+                    var cr = await _dbContext.SysRole.FirstOrDefaultAsync(x => x.Id == model.RoleId && !x.Deleted);
+                    if (cr == null) throw new Exception("未查询到角色信息！");
+                    if(cr.Rank >= role.Rank) throw new Exception("您的角色级别小于或等于该角色的级别，无权操作！");
+                } 
+
                 var exist = await _dbContext.CustomerRoleRelation
                     .AnyAsync(x => x.SysId == model.SysId && x.CustomerId == model.CtmId);
                 if (exist) throw new MyCustomException("客户在该系统下已赋予角色！");
@@ -279,6 +289,22 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponseResult<bool>();
             try
             {
+                var role = await GetCurrentUserRole();
+                if (role.Rank < SysRoleRank.business) throw new Exception("没有权限！");
+                if (model.SysId == role.SysId && role.Rank < SysRoleRank.super_manager)
+                {
+                    var oldcr = await (from rr in _dbContext.CustomerRoleRelation
+                                       join r in _dbContext.SysRole on rr.RoleId equals r.Id
+                                       where !r.Deleted && r.SysId == model.SysId && rr.CustomerId == model.CtmId
+                                       select r).FirstOrDefaultAsync();
+                    if (oldcr == null) throw new Exception("未查询到原有角色信息！");
+                    if (oldcr.Rank >= role.Rank) throw new Exception("您的角色级别小于或等于原有角色的级别，无权操作！");
+
+                    var newcr = await _dbContext.SysRole.FirstOrDefaultAsync(x => x.Id == model.RoleId && !x.Deleted);
+                    if (newcr == null) throw new Exception("未查询到角色信息！");
+                    if (newcr.Rank >= role.Rank) throw new Exception("您的角色级别小于或等于该角色的级别，无权操作！");
+                }
+
                 var olds = await _dbContext.CustomerRoleRelation
                     .Where(x => x.SysId == model.SysId && x.CustomerId == model.CtmId)
                     .ToListAsync();

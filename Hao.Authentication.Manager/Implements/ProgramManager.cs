@@ -114,6 +114,18 @@ namespace Hao.Authentication.Manager.Implements
             try
             {
                 var query = _dbContext.Program.Where(x => !x.Deleted);
+
+                var role = await GetCurrentUserRole();
+                if (role.Rank < SysRoleRank.business) throw new Exception("没有权限！");
+                if(role.Rank == SysRoleRank.business)
+                {
+                    var pgmIds = await _dbContext.ProgramCustomerRelation
+                        .Where(x => !x.Deleted && x.CustomerId == CurrentUserId)
+                        .Select(x => x.ProgramId)
+                        .ToListAsync();
+                    if (pgmIds.Any()) query = query.Where(x => pgmIds.Contains(x.Id));
+                }
+
                 var filter = param.Filter;
                 if (filter != null)
                 {
@@ -161,6 +173,9 @@ namespace Hao.Authentication.Manager.Implements
             var res = new ResponseResult<bool>();
             try
             {
+                var role = await GetCurrentUserRole();
+                if (role.Rank < SysRoleRank.manager) throw new Exception("没有权限！");
+
                 var sysNames = await (from SPR in _dbContext.SysProgramRelation
                                       join S in _dbContext.Sys on SPR.SysId equals S.Id
                                       where SPR.ProgramId == id && S.Deleted == false
