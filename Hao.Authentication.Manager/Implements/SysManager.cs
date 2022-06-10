@@ -22,11 +22,12 @@ namespace Hao.Authentication.Manager.Implements
         public SysManager(PlatFormDbContext dbContext,
             IMapper mapper,
             ICacheProvider cache,
+            IMyLogProvider myLog,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
             ILogger<SysManager> logger,
             IConstraintManager ctt)
-            : base(dbContext, mapper, configuration, httpContextAccessor, cache)
+            : base(dbContext, mapper, configuration, httpContextAccessor, cache, myLog)
         {
             _logger = logger;
             _ctt = ctt;

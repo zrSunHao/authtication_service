@@ -17,5 +17,7 @@ namespace Hao.Authentication.Domain.Interfaces
         public Task<ResponseResult<bool>> ResetPsd(string oldPsd,string newPsd);
 
         public Task<ResponseResult<bool>> Logout();
+
+        public void AddLog(string operate, string remark = "");
     }
 }

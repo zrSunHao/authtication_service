@@ -24,11 +24,12 @@ namespace Hao.Authentication.Manager.Implements
         public UserManager(PlatFormDbContext dbContext,
             IMapper mapper,
             ICacheProvider cache,
+            IMyLogProvider myLog,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
             IPrivilegeManager privilege,
             ILogger<UserManager> logger)
-            : base(dbContext, mapper, configuration, httpContextAccessor, cache)
+            : base(dbContext, mapper, configuration, httpContextAccessor, cache, myLog)
         {
             _logger = logger;
             _privilege = privilege;
@@ -165,6 +166,11 @@ namespace Hao.Authentication.Manager.Implements
                 _logger.LogError(e, $"用户登出失败");
             }
             return res;
+        }
+
+        public void AddLog(string operate, string remark = "")
+        {
+            _myLog.Add(LoginRecord, operate, remark, RemoteIpAddress);
         }
 
 

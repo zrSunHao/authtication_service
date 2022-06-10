@@ -43,5 +43,11 @@ namespace Hao.Authentication.Web.Controllers
         {
             return await _manager.Logout();
         }
+
+        [HttpPost("AddLog")]
+        public void AddLog(string operate, string remark = "")
+        {
+            _manager.AddLog(operate, remark);
+        }
     }
 }

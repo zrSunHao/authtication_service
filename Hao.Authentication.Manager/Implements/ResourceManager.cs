@@ -29,10 +29,11 @@ namespace Hao.Authentication.Manager.Implements
         public ResourceManager(PlatFormDbContext dbContext,
             IMapper mapper,
             ICacheProvider cache,
+            IMyLogProvider myLog,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
             ILogger<ResourceManager> logger)
-            : base(dbContext, mapper, configuration, httpContextAccessor, cache)
+            : base(dbContext, mapper, configuration, httpContextAccessor, cache, myLog)
         {
             _logger = logger;
         }

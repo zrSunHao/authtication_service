@@ -1,7 +1,6 @@
 using Hao.Authentication.Manager;
 using Hao.Authentication.Web.Extentions;
 using Hao.Authentication.Web.Middlewares;
-using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext(builder.Configuration);
 builder.Services.AddMyCors(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddRabbitMq(builder.Configuration);    
 builder.Services.DomainConfigureServices();
 builder.Services.AddControllers();
 builder.Services.AddSwagger();

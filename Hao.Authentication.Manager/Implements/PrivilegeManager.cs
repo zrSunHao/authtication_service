@@ -27,10 +27,11 @@ namespace Hao.Authentication.Manager.Implements
         public PrivilegeManager(PlatFormDbContext dbContext,
             IMapper mapper,
             ICacheProvider cache,
+            IMyLogProvider myLog,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
             ILogger<PrivilegeManager> logger)
-            : base(dbContext, mapper, configuration, httpContextAccessor, cache)
+            : base(dbContext, mapper, configuration, httpContextAccessor, cache, myLog)
         {
             _logger = logger;
         }

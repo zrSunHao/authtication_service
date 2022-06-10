@@ -19,7 +19,7 @@ namespace Hao.Authentication.Manager.Services
         public ConstraintAutoService(ILogger<ConstraintAutoService> logger, IServiceScopeFactory factory)
         {
             _logger = logger;
-            _ctt = factory.CreateScope().ServiceProvider.GetRequiredService<IConstraintManager>(); ;
+            _ctt = factory.CreateScope().ServiceProvider.GetRequiredService<IConstraintManager>(); 
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)

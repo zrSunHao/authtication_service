@@ -23,10 +23,11 @@ namespace Hao.Authentication.Manager.Implements
         public ReportManager(PlatFormDbContext dbContext,
             IMapper mapper,
             ICacheProvider cache,
+            IMyLogProvider myLog,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
             ILogger<ReportManager> logger)
-            : base(dbContext, mapper, configuration, httpContextAccessor, cache)
+            : base(dbContext, mapper, configuration, httpContextAccessor, cache, myLog)
         {
             _logger = logger;
         }
@@ -46,6 +47,8 @@ namespace Hao.Authentication.Manager.Implements
                 list.Add(new WidgetM() { Msg = $"{pgmCount}个程序", Icon = "program.png" });
                 list.Add(new WidgetM() { Msg = $"{cttCount}个约束", Icon = "constraint.png" });
                 res.Data = list;
+
+                _myLog.Add(LoginRecord, "查看模块总量数据", "", RemoteIpAddress);
             }
             catch (Exception e)
             {

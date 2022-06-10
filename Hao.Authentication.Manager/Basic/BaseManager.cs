@@ -24,18 +24,20 @@ namespace Hao.Authentication.Manager.Basic
         protected readonly IHttpContextAccessor _httpContextAccessor;
         protected readonly IConfiguration _configuration;
         protected readonly ICacheProvider _cache;
+        protected readonly IMyLogProvider _myLog;
 
         public BaseManager(PlatFormDbContext dbContext,
             IMapper mapper,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
-            ICacheProvider cache)
+            ICacheProvider cache, IMyLogProvider myLog)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
             _cache = cache;
+            _myLog = myLog;
         }
 
         /// <summary>
@@ -75,6 +77,8 @@ namespace Hao.Authentication.Manager.Basic
         /// 资源地址
         /// </summary>
         protected string FileResourceUrl => GetConfiguration(CfgConsts.FILE_RESOURCE_BASE_URL);
+
+        protected string? RemoteIpAddress => _httpContextAccessor?.HttpContext?.Connection?.RemoteIpAddress?.ToString();
 
         /// <summary>
         /// 用户登录记录

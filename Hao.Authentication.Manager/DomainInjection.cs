@@ -1,6 +1,7 @@
 ﻿using Hao.Authentication.Domain.Interfaces;
 using Hao.Authentication.Manager.Implements;
 using Hao.Authentication.Manager.Providers;
+using Hao.Authentication.Manager.RabbitMq;
 using Hao.Authentication.Manager.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +15,9 @@ namespace Hao.Authentication.Manager
             services.AddAutoMapper(typeof(DomainInjection).Assembly);
             services.AddMemoryCache();
             services.AddSingleton<ICacheProvider, MemoryCacheProvider>();
+            services.AddSingleton<IRabbitMqDirectSender, RabbitMqDirectSender>();
+
+            services.AddTransient<IMyLogProvider, MyLogProvider>();
 
             services.AddTransient<IConstraintManager, ConstraintManager>();
             services.AddTransient<IPrivilegeManager, PrivilegeManager>();
@@ -26,6 +30,7 @@ namespace Hao.Authentication.Manager
             services.AddTransient<IReportManager, ReportManager>();
 
             services.AddHostedService<ConstraintAutoService>();
+            services.AddHostedService<RabbitMqDirectReceiver>();
 
             return services;
         }
