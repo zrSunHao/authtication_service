@@ -211,8 +211,7 @@ namespace Hao.Authentication.Manager.Implements
                     if (sr == null || sr.RoleRank < SysRoleRank.business)
                         query = query.Where(x => x.CtmId == CurrentUserId && x.SysId == filter.SysId);
                     else query = query.Where(x => x.RoleRank != null && x.RoleRank < sr.RoleRank && x.SysId == filter.SysId);
-                }
-                if (role.Rank > SysRoleRank.manager)
+                }else if(role.Rank > SysRoleRank.manager)
                     query = query.Where(x => x.SysId == filter.SysId);
 
                 if (filter != null)

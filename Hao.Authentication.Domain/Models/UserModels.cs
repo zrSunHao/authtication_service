@@ -109,17 +109,11 @@ namespace Hao.Authentication.Domain.Models
 
         public string Operate { get; set; }
 
-        public string? SysCode { get; set; }
-
         public string? SysName { get; set; }
 
         public string? PgmName { get; set; }
 
-        public string? PgmCode { get; set; }
-
         public string? RoleName { get; set; }
-
-        public string? RoleCode { get; set; }
 
         public SysRoleRank? RoleRank { get; set; }
 

@@ -58,11 +58,12 @@ namespace Hao.Authentication.Manager.Providers
         {
             try
             {
-                //var exist = await _dbContext.CustomerLog
-                //    .AnyAsync(x => x.CustomerId == log.CustomerId && x.Operate == log.Operate
-                //    && x.SystemId == log.SystemId && x.ProgramId == log.ProgramId
-                //    && x.RoleId == log.RoleId && x.Remark == log.Remark
-                //    && x.CreatedAt > DateTime.Now.AddMinutes(-5));
+                var exist = await _dbContext.CustomerLog
+                    .AnyAsync(x => x.CustomerId == log.CustomerId && x.Operate == log.Operate
+                    && x.SystemId == log.SystemId && x.ProgramId == log.ProgramId
+                    && x.RoleId == log.RoleId && x.Remark == log.Remark
+                    && x.CreatedAt > DateTime.Now.AddMinutes(-5));
+                if (exist) return 0;
 
                 var entity = _mapper.Map<CustomerLog>(log);
                 _dbContext.Add(entity);
