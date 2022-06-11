@@ -25,6 +25,10 @@ namespace Hao.Authentication.Manager.DataMaps
 
             CreateMap<UserLastLoginRecord, UserLastLoginRecordM>();
             CreateMap<CustomerLogView, UserLogM>();
+
+            CreateMap<UserLastLoginRecordM, UserCheckResult>()
+                .ForMember(x => x.RoleRank, y => y.Ignore())
+                .ForMember(x => x.RoleName, y => y.Ignore());
         }
     }
 }

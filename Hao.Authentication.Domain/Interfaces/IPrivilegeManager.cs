@@ -11,5 +11,7 @@ namespace Hao.Authentication.Domain.Interfaces
         public Task<List<string>> GetPgmFunctCodes(string roleId, string pgmCode);
 
         public Task<List<string>> GetPgmSectCodes(string roleId, string pgmCode);
+
+        public Task<SysRoleM> GetRoleById(string id);
     }
 }

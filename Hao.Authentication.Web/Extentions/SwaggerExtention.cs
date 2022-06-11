@@ -10,6 +10,7 @@ namespace Hao.Authentication.Web.Extentions
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(option =>
             {
+                option.SwaggerDoc("v1", new OpenApiInfo { Title = "认证中心", Version = "v1" });
                 option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                 {
                     Description = "Please enter into field the word 'Bearer ' followed by a space and the JWT value",

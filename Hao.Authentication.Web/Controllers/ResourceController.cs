@@ -3,6 +3,7 @@ using Hao.Authentication.Domain.Interfaces;
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Domain.Paging;
 using Hao.Authentication.Manager.Basic;
+using Hao.Authentication.Web.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
@@ -28,6 +29,7 @@ namespace Hao.Authentication.Web.Controllers
             _privilege = privilege;
         }
 
+        [Function(ResourceFunct.Save)]
         [HttpPost("Save")]
         public async Task<ResponseResult<string>> Save(string ownerId, string category)
         {
@@ -79,6 +81,7 @@ namespace Hao.Authentication.Web.Controllers
             return res;
         }
 
+        [Function(ResourceFunct.GetByCode)]
         [HttpGet("GetByCode")]
         public async Task<ResponseResult<ResourceM>> GetByCode(string code)
         {

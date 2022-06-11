@@ -1,4 +1,5 @@
-﻿using Hao.Authentication.Domain.Interfaces;
+﻿using Hao.Authentication.Domain.Consts;
+using Hao.Authentication.Domain.Interfaces;
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Domain.Paging;
 using Hao.Authentication.Web.Attributes;
@@ -19,25 +20,28 @@ namespace Hao.Authentication.Web.Controllers
             _manager = manager;
         }
 
-        [Function("Report_GetWidgetList")]
+        [Function(ReportFunct.GetWidgetList)]
         [HttpGet("GetWidgetList")]
         public async Task<ResponsePagingResult<WidgetM>> GetWidgetList()
         {
             return await _manager.GetWidgetList();
         }
 
+        [Function(ReportFunct.GetRecentLoginCtmList)]
         [HttpGet("GetRecentLoginCtmList")]
         public async Task<ResponsePagingResult<RecentLoginCtmM>> GetRecentLoginCtmList()
         {
             return await _manager.GetRecentLoginCtmList();
         }
 
+        [Function(ReportFunct.GetRecentLogList)]
         [HttpGet("GetRecentLogList")]
         public async Task<ResponsePagingResult<RecentLogM>> GetRecentLogList()
         {
             return await _manager.GetRecentLogList();
         }
 
+        [Function(ReportFunct.GetCtts)]
         [HttpGet("GetCtts")]
         public async Task<ResponsePagingResult<CttM>> GetCtts()
         {

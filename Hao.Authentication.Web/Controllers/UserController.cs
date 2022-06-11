@@ -1,6 +1,8 @@
-﻿using Hao.Authentication.Domain.Interfaces;
+﻿using Hao.Authentication.Domain.Consts;
+using Hao.Authentication.Domain.Interfaces;
 using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Domain.Paging;
+using Hao.Authentication.Web.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -50,10 +52,18 @@ namespace Hao.Authentication.Web.Controllers
             _manager.AddLog(operate, remark);
         }
 
+        [Function(UserFunct.GetLogList)]
         [HttpPost("GetLogList")]
         public async Task<ResponsePagingResult<UserLogM>> GetLogList(PagingParameter<UserLogFilter> param)
         {
             return await _manager.GetLogList(param);
+        }
+
+        [Function(UserFunct.CheckPrivilege)]
+        [HttpPost("CheckPrivilege")]
+        public async Task<ResponseResult<UserCheckResult>> CheckPrivilege(UserCheckM model)
+        {
+            return await _manager.CheckPrivilege(model);
         }
     }
 }

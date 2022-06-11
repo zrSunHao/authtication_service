@@ -136,4 +136,20 @@ namespace Hao.Authentication.Domain.Models
 
         public DateTime? EndAt { get; set; }
     }
+
+    public class UserCheckM
+    {
+        public Guid LoginId { get; set; }
+
+        public string PgmCode { get; set; }
+
+        public string? FunctCode { get; set; }
+    }
+
+    public class UserCheckResult : UserLastLoginRecordM
+    {
+        public string RoleName { get; set; }
+
+        public SysRoleRank RoleRank { get; set; }
+    }
 }

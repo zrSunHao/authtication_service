@@ -21,5 +21,7 @@ namespace Hao.Authentication.Domain.Interfaces
         public void AddLog(string operate, string remark = "");
 
         public Task<ResponsePagingResult<UserLogM>> GetLogList(PagingParameter<UserLogFilter> param);
+
+        public Task<ResponseResult<UserCheckResult>> CheckPrivilege(UserCheckM model);
     }
 }

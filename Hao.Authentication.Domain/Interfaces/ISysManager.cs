@@ -46,5 +46,7 @@ namespace Hao.Authentication.Domain.Interfaces
         public Task<ResponsePagingResult<SysRolePgmM>> GetRolePgmList(string id);
 
         public Task<ResponseResult<bool>> UpdateRolePgmFuncts(SysRoleRelationM model);
+
+        public Task<ResponseResult<bool>> Initial();
     }
 }

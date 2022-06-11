@@ -85,7 +85,7 @@ namespace Hao.Authentication.Manager.Implements
         }
 
         private static object _lock = new object();
-        public async Task<ResponseResult<bool>> Register(RegisterM model)
+        public async Task<ResponseResult<bool>> Register(RegisterM model) 
         {
             var res = new ResponseResult<bool>();
             try
@@ -245,7 +245,52 @@ namespace Hao.Authentication.Manager.Implements
             return res;
         }
 
+        public async Task<ResponseResult<UserCheckResult>> CheckPrivilege(UserCheckM model)
+        {
+            var res = new ResponseResult<UserCheckResult>();
+            try
+            {
+                if (model.LoginId == Guid.Empty)
+                {
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    res.AddMessage("登录Id为空！");
+                    res.Success = false;
+                    return res;
+                }
+                if (string.IsNullOrEmpty(model.PgmCode))
+                {
+                    res.AddError(new Exception("程序码为空！"));
+                    return res;
+                }
 
+                var record = await _privilege.GetLoginRecord(model.LoginId.ToString());
+                var role = await _privilege.GetRoleById(record.RoleId);
+                var data = _mapper.Map<UserCheckResult>(record);
+                data.RoleName = role.Name;
+                data.RoleRank = role.Rank;
+                res.Data = data;
+                if (string.IsNullOrEmpty(model.FunctCode))
+                {
+                    res.AddMessage("校验通过！");
+                    res.Success = true;
+                    return res;
+                }
+                var functs = await _privilege.GetPgmFunctCodes(record.RoleId, model.PgmCode);
+                if (!functs.Any(x => x == model.FunctCode))
+                {
+                    res.StatusCode = StatusCodes.Status403Forbidden;
+                    res.AddMessage("校验未通过！");
+                    res.Success = false;
+                    return res;
+                }
+            }
+            catch (Exception e)
+            {
+
+                throw;
+            }
+            return res;
+        }
 
         private async Task<bool> CtmCtts(string ctmId, string sysId)
         {

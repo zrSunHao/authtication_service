@@ -8,6 +8,7 @@ using Hao.Authentication.Manager.Basic;
 using Hao.Authentication.Manager.Providers;
 using Hao.Authentication.Persistence.Database;
 using Hao.Authentication.Persistence.Entities;
+using Hao.Authentication.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -810,6 +811,82 @@ namespace Hao.Authentication.Manager.Implements
             {
                 res.AddError(e);
                 _logger.LogError(e, $"更新角色【{model.RoleId}】关联程序【{model.PgmId}】的功能失败！");
+            }
+            return res;
+        }
+
+        public async Task<ResponseResult<bool>> Initial()
+        {
+            var res = new ResponseResult<bool>();
+            try
+            {
+                var flag = await _dbContext.Sys.AnyAsync();
+                if (flag) throw new Exception("数据库中存在数据，不能初始化！");
+
+                var key = GetConfiguration("SUPER_MANAGER_KEY");
+                HashHandler.CreateHash(key, out var hash, out var salt);
+                var ctm = new Customer()
+                {
+                    Name = "superman",
+                    Nickname = "超级管理员",
+                    Password = hash,
+                    PasswordSalt = salt,
+                    CreatedAt = DateTime.Now,
+                    Remark = "系统初始化自动创建！"
+                };
+                ctm.Id = ctm.GetId(MachineCode);
+                ctm.CreatedById = ctm.Id;
+                var sys = new Sys()
+                {
+                    Name = "认证中心",
+                    Code = "authentication_paltform",
+                    Intro = "平台认证中心，提供客户、权限、日志管理服务！",
+                    Remark = "系统自动创建！",
+                    CreatedById = ctm.Id,
+                    CreatedAt = DateTime.Now,
+                };
+                sys.Id = sys.GetId(MachineCode);
+                var role = new SysRole()
+                {
+                    Name = "超级管理员",
+                    Code = "super_manager",
+                    Rank = SysRoleRank.super_manager,
+                    Intro = "拥有本系统所有的操作权限，数据权限！",
+                    Remark = "系统自动创建！",
+                    CreatedById = ctm.Id,
+                    CreatedAt = DateTime.Now,
+                };
+                role.Id = role.GetId(MachineCode);
+                var ctmInfo = new CustomerInformation()
+                {
+                    CustomerId = ctm.Id,
+                    FullName = "",
+                    Gender = CustomerGender.male,
+                    Birthday = DateTime.Now,
+                    Education = CustomerEducation.master,
+                    Profession = "计算机技术",
+                    Intro = "我是超级管理员，拥有本系统的一切权限",
+                    LastModifiedAt = DateTime.Now,
+                };
+                var cr = new CustomerRoleRelation()
+                {
+                    RoleId = role.Id,
+                    CustomerId = ctm.Id,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = ctm.Id,
+                };
+
+                await _dbContext.AddAsync(sys);
+                await _dbContext.AddAsync(role);
+                await _dbContext.AddAsync(ctm);
+                await _dbContext.AddAsync(ctmInfo);
+                await _dbContext.AddAsync(cr);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                res.AddError(e);
+                _logger.LogError(e, "初始化系统数据失败");
             }
             return res;
         }
