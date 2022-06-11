@@ -46,6 +46,8 @@ namespace Hao.Authentication.Manager.Implements
                 var entity = _mapper.Map<FileResource>(model);
                 await _dbContext.AddAsync(entity);
                 await _dbContext.SaveChangesAsync();
+
+                _myLog.Add(LoginRecord, "上传文件", $"文件标识{model.Code}，来源类别{model.Category}！", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -72,6 +74,7 @@ namespace Hao.Authentication.Manager.Implements
             }
             return res;
         }
+
 
         public string GetNewCode()
         {

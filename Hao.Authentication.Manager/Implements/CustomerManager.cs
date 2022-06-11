@@ -105,6 +105,8 @@ namespace Hao.Authentication.Manager.Implements
                 entity.LastModifiedAt = DateTime.Now;
                 entity.LastModifiedById = CurrentUserId;
                 await _dbContext.SaveChangesAsync();
+
+                _myLog.Add(LoginRecord, "添加客户备注", $"备注客户标识{ctmId}！内容{remark}", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -128,6 +130,8 @@ namespace Hao.Authentication.Manager.Implements
                 entity.LastModifiedAt = DateTime.Now;
                 entity.LastModifiedById = CurrentUserId;
                 await _dbContext.SaveChangesAsync();
+
+                _myLog.Add(LoginRecord, "重置客户密码", $"备注客户标识{ctmId}！", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -190,6 +194,9 @@ namespace Hao.Authentication.Manager.Implements
                 entity.Intro = model.Intro;
                 entity.LastModifiedAt = DateTime.Now;
                 await _dbContext.SaveChangesAsync();
+
+                if(model.CtmId == LoginRecord.CustomerId) _myLog.Add(LoginRecord, "修改个人信息", $"无", RemoteIpAddress);
+                else _myLog.Add(LoginRecord, "修改客户个人信息", $"客户标识{model.CtmId}！", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -276,6 +283,8 @@ namespace Hao.Authentication.Manager.Implements
                 };
                 await _dbContext.AddAsync(entity);
                 await _dbContext.SaveChangesAsync();
+
+                _myLog.Add(LoginRecord, "赋予客户角色", $"客户标识{model.CtmId}，角色标识{model.RoleId}！", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -325,6 +334,7 @@ namespace Hao.Authentication.Manager.Implements
                 await CancelRecord(model.CtmId, model.RoleId);
 
                 await _dbContext.SaveChangesAsync();
+                _myLog.Add(LoginRecord, "更新客户角色", $"客户标识{model.CtmId}，新角色标识{model.RoleId}！", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -348,6 +358,8 @@ namespace Hao.Authentication.Manager.Implements
                     await _dbContext.SaveChangesAsync();
                 }
                 await CancelRecord(ctmId, roleId, true);
+
+                _myLog.Add(LoginRecord, "取消客户角色", $"客户标识{ctmId}，角色标识{roleId}！", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -408,6 +420,8 @@ namespace Hao.Authentication.Manager.Implements
                 var m = _mapper.Map<CttAddM>(model);
                 var result = await _ctt.Add(m, false);
                 await _dbContext.SaveChangesAsync();
+
+                _myLog.Add(LoginRecord, "添加客户约束", $"约束类别{model.Category}，客户标识{model.CtmId}！", RemoteIpAddress);
             }
             catch (Exception e)
             {

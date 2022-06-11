@@ -24,9 +24,8 @@ namespace Hao.Authentication.Persistence.Entities
         public string? SystemId { get; set; }
 
         [MaxLength(32)]
-        public string ProgramId { get; set; }
+        public string? ProgramId { get; set; }
 
-        [Required]
         [MaxLength(32)]
         public string? RoleId { get; set; }
 

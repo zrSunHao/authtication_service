@@ -213,7 +213,6 @@ namespace Hao.Authentication.Persistence.Migrations
                         .HasColumnType("nvarchar(64)");
 
                     b.Property<string>("ProgramId")
-                        .IsRequired()
                         .HasMaxLength(32)
                         .HasColumnType("nvarchar(32)");
 
@@ -227,7 +226,6 @@ namespace Hao.Authentication.Persistence.Migrations
                         .HasColumnType("nvarchar(64)");
 
                     b.Property<string>("RoleId")
-                        .IsRequired()
                         .HasMaxLength(32)
                         .HasColumnType("nvarchar(32)");
 

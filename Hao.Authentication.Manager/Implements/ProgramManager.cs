@@ -60,6 +60,8 @@ namespace Hao.Authentication.Manager.Implements
                 };
                 await _dbContext.AddAsync(relation);
                 await _dbContext.SaveChangesAsync();
+
+                _myLog.Add(LoginRecord, "添加程序信息", $"标识{model.Id}，标识码{model.Code}！", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -100,6 +102,8 @@ namespace Hao.Authentication.Manager.Implements
                 entity.LastModifiedById = CurrentUserId;
 
                 await _dbContext.SaveChangesAsync();
+
+                _myLog.Add(LoginRecord, "修改程序信息", $"标识{model.Id}，标识码{model.Code}！", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -223,6 +227,8 @@ namespace Hao.Authentication.Manager.Implements
                     });
 
                 await _dbContext.SaveChangesAsync();
+
+                _myLog.Add(LoginRecord, "删除程序信息", $"标识{entity.Id}，标识码{entity.Code}！", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -276,6 +282,8 @@ namespace Hao.Authentication.Manager.Implements
 
                 await _dbContext.AddAsync(entity);
                 await _dbContext.SaveChangesAsync();
+
+                _myLog.Add(LoginRecord, "添加页面/模块信息", $"标识{entity.Id}，标识码{entity.Code}！", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -320,6 +328,8 @@ namespace Hao.Authentication.Manager.Implements
                 await RemoveRoleCache(entity.ProgramId);
 
                 await _dbContext.SaveChangesAsync();
+
+                _myLog.Add(LoginRecord, "更新页面/模块信息", $"标识{entity.Id}，标识码{entity.Code}！", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -373,6 +383,8 @@ namespace Hao.Authentication.Manager.Implements
                 await RemoveRoleCache(entity.ProgramId);
 
                 await _dbContext.SaveChangesAsync();
+
+                _myLog.Add(LoginRecord, "删除页面/模块信息", $"标识{entity.Id}，标识码{entity.Code}！", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -407,6 +419,8 @@ namespace Hao.Authentication.Manager.Implements
 
                 await _dbContext.AddAsync(entity);
                 await _dbContext.SaveChangesAsync();
+
+                _myLog.Add(LoginRecord, "添加功能信息", $"标识{entity.Id}，标识码{entity.Code}！", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -468,6 +482,8 @@ namespace Hao.Authentication.Manager.Implements
                 await RemoveRoleCache(entity.ProgramId);
 
                 await _dbContext.SaveChangesAsync();
+
+                _myLog.Add(LoginRecord, "更新功能信息", $"标识{entity.Id}，标识码{entity.Code}！", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -512,6 +528,8 @@ namespace Hao.Authentication.Manager.Implements
                 await RemoveRoleCache(entity.ProgramId);
 
                 await _dbContext.SaveChangesAsync();
+
+                _myLog.Add(LoginRecord, "删除功能信息", $"标识{entity.Id}，标识码{entity.Code}！", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -620,6 +638,8 @@ namespace Hao.Authentication.Manager.Implements
 
                 await _dbContext.AddAsync(entity);
                 await _dbContext.SaveChangesAsync();
+
+                _myLog.Add(LoginRecord, "添加程序关联用户", $"程序标识{pgmId}，用户{ctmId}！", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -646,6 +666,8 @@ namespace Hao.Authentication.Manager.Implements
                 entity.DeletedAt = DateTime.Now;
                 entity.DeletedById = CurrentUserId;
                 await _dbContext.SaveChangesAsync();
+
+                _myLog.Add(LoginRecord, "撤消程序关联用户", $"程序标识{pgmId}，用户{ctmId}！", RemoteIpAddress);
             }
             catch (Exception e)
             {

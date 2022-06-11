@@ -62,6 +62,8 @@ namespace Hao.Authentication.Manager.Implements
                     await this.CancelRecord(entity.TargetId, entity.SysId);
 
                 if(directlySave) await _dbContext.SaveChangesAsync();
+
+                //_myLog.Add(LoginRecord, "添加约束", $"第[{entity.Category.ToString()}]类约束，主体标识：[{entity.TargetId}]", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -88,6 +90,8 @@ namespace Hao.Authentication.Manager.Implements
                 else if(entity.Category == ConstraintCategory.system_role) _cache.Remove(entity.TargetId);
 
                 await _dbContext.SaveChangesAsync();
+
+                _myLog.Add(LoginRecord, "取消约束", $"第[{entity.Category.ToString()}]类约束，主体标识：[{entity.TargetId}]", RemoteIpAddress);
             }
             catch (Exception e)
             {

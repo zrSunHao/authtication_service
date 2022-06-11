@@ -72,6 +72,9 @@ namespace Hao.Authentication.Manager.Implements
                 result.LoginId = record.LoginId.ToString();
                 result.Token = this.BuilderToken(record.LoginId.ToString(), sysCode, role.Code, entity.Name, record.ExpiredAt);
                 res.Data = result;
+
+                var r = _mapper.Map<UserLastLoginRecordM>(record);
+                _myLog.Add(r, "登录", $"无", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -109,8 +112,20 @@ namespace Hao.Authentication.Manager.Implements
                 var info = _mapper.Map<CustomerInformation>(model);
                 info.CustomerId = ctm.Id;
                 await _dbContext.AddAsync(info);
-
                 await _dbContext.SaveChangesAsync();
+
+                var r = new UserLastLoginRecordM()
+                {
+                    Id = 0,
+                    LoginId = Guid.Empty,
+                    CustomerId = ctm.Id,
+                    SysId = "",
+                    PgmId = "",
+                    RoleId = "",
+                    CreatedAt = DateTime.Now,
+                    ExpiredAt = DateTime.Now
+                };
+                _myLog.Add(r, "注册", $"无", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -137,6 +152,8 @@ namespace Hao.Authentication.Manager.Implements
                 entity.LastModifiedAt = DateTime.Now;
                 entity.LastModifiedById = CurrentUserId;
                 await _dbContext.SaveChangesAsync();
+
+                _myLog.Add(LoginRecord, "重置密码", $"自己操作！", RemoteIpAddress);
             }
             catch (Exception e)
             {
@@ -158,6 +175,7 @@ namespace Hao.Authentication.Manager.Implements
                     entity.ExpiredAt = DateTime.Now;
                     await _dbContext.SaveChangesAsync();
                 }
+                _myLog.Add(LoginRecord, "登出", $"无", RemoteIpAddress);
                 _cache.Remove(loginId.ToString());
             }
             catch(Exception e)
@@ -256,18 +274,6 @@ namespace Hao.Authentication.Manager.Implements
                 };
             }
             _cache.Save(record.LoginId.ToString(), record);
-            var log = new CustomerLog()
-            {
-                CustomerId = ctmId,
-                ProgramId = pgmId,
-                Operate = "登录",
-                RoleId = roleId,
-                SystemId = sysId,
-                RemoteAddress = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString(),
-                CreatedAt = DateTime.Now,
-                Remark = "无"
-            };
-            await _dbContext.AddAsync(log);
             await _dbContext.SaveChangesAsync();
             return record;
         }

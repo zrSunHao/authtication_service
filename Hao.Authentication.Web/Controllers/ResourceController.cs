@@ -17,16 +17,19 @@ namespace Hao.Authentication.Web.Controllers
     {
         private readonly IResourceManager _manager;
         protected readonly IConfiguration _configuration;
+        protected readonly IPrivilegeManager _privilege;
 
         public ResourceController(IResourceManager manager,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IPrivilegeManager privilege)
         {
             _manager = manager;
             _configuration = configuration;
+            _privilege = privilege;
         }
 
         [HttpPost("Save")]
-        public async Task<ResponseResult<string>> Save(string ownerId,string category)
+        public async Task<ResponseResult<string>> Save(string ownerId, string category)
         {
             var res = new ResponseResult<string>();
             try
@@ -84,10 +87,13 @@ namespace Hao.Authentication.Web.Controllers
 
         [AllowAnonymous]
         [HttpGet("GetFileByName")]
-        public IActionResult GetFileByName(string name,string key)
+        public async Task<IActionResult> GetFileByName(string name, string key)
         {
             try
             {
+                try { await _privilege.GetLoginRecord(key); }
+                catch (Exception e) { return Forbid(e.Message); }
+
                 string rootPath = _configuration[CfgConsts.FILE_RESOURCE_DIRECTORY];
                 string path = @$"{rootPath}\{name}";
                 var file = new FileInfo(path);
