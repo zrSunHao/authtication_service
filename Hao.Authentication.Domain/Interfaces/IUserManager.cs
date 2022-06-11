@@ -19,5 +19,7 @@ namespace Hao.Authentication.Domain.Interfaces
         public Task<ResponseResult<bool>> Logout();
 
         public void AddLog(string operate, string remark = "");
+
+        public Task<ResponsePagingResult<UserLogM>> GetLogList(PagingParameter<UserLogFilter> param);
     }
 }

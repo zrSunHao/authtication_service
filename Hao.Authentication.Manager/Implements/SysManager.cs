@@ -395,7 +395,7 @@ namespace Hao.Authentication.Manager.Implements
                 else
                 {
                     if (param.SortColumn?.ToLower() == "LastLoginAt".ToLower())
-                        query = query.OrderBy(x => x.CreatedAt);
+                        query = query.OrderBy(x => x.LastLoginAt);
                     if (param.SortColumn?.ToLower() == "Name".ToLower())
                         query = query.OrderBy(x => x.Name);
                 }

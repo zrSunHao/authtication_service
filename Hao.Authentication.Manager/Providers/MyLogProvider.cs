@@ -3,6 +3,7 @@ using Hao.Authentication.Domain.Models;
 using Hao.Authentication.Manager.RabbitMq;
 using Hao.Authentication.Persistence.Database;
 using Hao.Authentication.Persistence.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Hao.Authentication.Manager.Providers
@@ -57,6 +58,12 @@ namespace Hao.Authentication.Manager.Providers
         {
             try
             {
+                //var exist = await _dbContext.CustomerLog
+                //    .AnyAsync(x => x.CustomerId == log.CustomerId && x.Operate == log.Operate
+                //    && x.SystemId == log.SystemId && x.ProgramId == log.ProgramId
+                //    && x.RoleId == log.RoleId && x.Remark == log.Remark
+                //    && x.CreatedAt > DateTime.Now.AddMinutes(-5));
+
                 var entity = _mapper.Map<CustomerLog>(log);
                 _dbContext.Add(entity);
                 var count = await _dbContext.SaveChangesAsync();

@@ -47,8 +47,6 @@ namespace Hao.Authentication.Manager.Implements
                 list.Add(new WidgetM() { Msg = $"{pgmCount}个程序", Icon = "program.png" });
                 list.Add(new WidgetM() { Msg = $"{cttCount}个约束", Icon = "constraint.png" });
                 res.Data = list;
-
-                _myLog.Add(LoginRecord, "查看模块总量数据", "", RemoteIpAddress);
             }
             catch (Exception e)
             {

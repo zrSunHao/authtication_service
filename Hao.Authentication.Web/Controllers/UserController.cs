@@ -49,5 +49,11 @@ namespace Hao.Authentication.Web.Controllers
         {
             _manager.AddLog(operate, remark);
         }
+
+        [HttpPost("GetLogList")]
+        public async Task<ResponsePagingResult<UserLogM>> GetLogList(PagingParameter<UserLogFilter> param)
+        {
+            return await _manager.GetLogList(param);
+        }
     }
 }

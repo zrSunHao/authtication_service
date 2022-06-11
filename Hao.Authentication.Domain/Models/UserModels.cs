@@ -98,4 +98,48 @@ namespace Hao.Authentication.Domain.Models
 
         public DateTime ExpiredAt { get; set; }
     }
+
+    public class UserLogM
+    {
+        public string CtmId { get; set; }
+
+        public string CtmName { get; set; }
+
+        public string CtmNickname { get; set; }
+
+        public string Operate { get; set; }
+
+        public string? SysCode { get; set; }
+
+        public string? SysName { get; set; }
+
+        public string? PgmName { get; set; }
+
+        public string? PgmCode { get; set; }
+
+        public string? RoleName { get; set; }
+
+        public string? RoleCode { get; set; }
+
+        public SysRoleRank? RoleRank { get; set; }
+
+        public string? RemoteAddress { get; set; }
+
+        public string Remark { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+    }
+
+    public class UserLogFilter
+    {
+        public string? SysId { get; set; }
+
+        public string? OperateOrRemark { get; set; }
+
+        public string? Name { get; set; }
+
+        public DateTime? StartAt { get; set; }
+
+        public DateTime? EndAt { get; set; }
+    }
 }

@@ -61,7 +61,7 @@ namespace Hao.Authentication.Manager.Implements
                 var role = await this.GetCtmRole(entity.Id, sysId);
                 var record = await this.UpdateRecord(entity.Id, sysId, pgmId, role.Id);
                 var sects = await _privilege.GetPgmSectCodes(role.Id, pgmCode);
-                var functs = await _privilege.GetPgmFunctCodes(role.Id,pgmCode);
+                var functs = await _privilege.GetPgmFunctCodes(role.Id, pgmCode);
 
                 ctm.Avatar = this.BuilderFileUrl(ctm.Avatar, record.LoginId.ToString());
                 var result = new AuthResultM();
@@ -170,7 +170,7 @@ namespace Hao.Authentication.Manager.Implements
             {
                 var loginId = this.CurrentLoginId;
                 var entity = await _dbContext.UserLastLoginRecord.FirstOrDefaultAsync(x => x.LoginId == loginId);
-                if(entity!= null)
+                if (entity != null)
                 {
                     entity.ExpiredAt = DateTime.Now;
                     await _dbContext.SaveChangesAsync();
@@ -178,7 +178,7 @@ namespace Hao.Authentication.Manager.Implements
                 _myLog.Add(LoginRecord, "登出", $"无", RemoteIpAddress);
                 _cache.Remove(loginId.ToString());
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 res.AddError(e);
                 _logger.LogError(e, $"用户登出失败");
@@ -190,6 +190,62 @@ namespace Hao.Authentication.Manager.Implements
         {
             _myLog.Add(LoginRecord, operate, remark, RemoteIpAddress);
         }
+
+        public async Task<ResponsePagingResult<UserLogM>> GetLogList(PagingParameter<UserLogFilter> param)
+        {
+            var res = new ResponsePagingResult<UserLogM>();
+            try
+            {
+                var filter = param.Filter;
+                var query = _dbContext.CustomerLogView.AsNoTracking().AsQueryable();
+                var role = await GetCurrentUserRole();
+                if (string.IsNullOrEmpty(filter?.SysId))
+                {
+                    query = query.Where(x => x.CtmId == CurrentUserId);
+                }
+                else if (role.Rank == SysRoleRank.manager || role.Rank == SysRoleRank.business)
+                {
+                    var sr = await _dbContext.SysCtmView.AsNoTracking()
+                        .Where(x => x.Id == CurrentUserId && x.SysId == filter.SysId)
+                        .FirstOrDefaultAsync();
+                    if (sr == null || sr.RoleRank < SysRoleRank.business)
+                        query = query.Where(x => x.CtmId == CurrentUserId && x.SysId == filter.SysId);
+                    else query = query.Where(x => x.RoleRank != null && x.RoleRank < sr.RoleRank && x.SysId == filter.SysId);
+                }
+                if (role.Rank > SysRoleRank.manager)
+                    query = query.Where(x => x.SysId == filter.SysId);
+
+                if (filter != null)
+                {
+                    if (!string.IsNullOrEmpty(filter.Name))
+                        query = query.Where(x => x.CtmName.Contains(filter.Name)
+                        || x.CtmNickname.Contains(filter.Name));
+                    if (!string.IsNullOrEmpty(filter.OperateOrRemark))
+                        query = query.Where(x => x.Operate.Contains(filter.OperateOrRemark)
+                        || x.Remark.Contains(filter.OperateOrRemark));
+                    if (filter.StartAt.HasValue)
+                        query = query.Where(x => x.CreatedAt >= filter.StartAt.Value);
+                    if (filter.EndAt.HasValue)
+                        query = query.Where(x => x.CreatedAt <= filter.EndAt.Value.AddDays(1).AddSeconds(-1));
+                }
+
+                query = query.OrderByDescending(x => x.CreatedAt);
+                if (param.Sort != null && param.Sort.ToLower() == "asc")
+                    query = query.OrderBy(x => x.CreatedAt);
+
+                res.RowsCount = await query.CountAsync();
+                query = query.AsPaging(param.PageIndex, param.PageSize);
+                var data = await query.ToListAsync();
+                res.Data = _mapper.Map<List<UserLogM>>(data);
+            }
+            catch (Exception e)
+            {
+                res.AddError(e);
+                _logger.LogError(e, $"获取日志列表失败");
+            }
+            return res;
+        }
+
 
 
         private async Task<bool> CtmCtts(string ctmId, string sysId)
@@ -288,7 +344,7 @@ namespace Hao.Authentication.Manager.Implements
             return sysId;
         }
 
-        private async Task<string> GetCurrentPgmId(string sysId,string code)
+        private async Task<string> GetCurrentPgmId(string sysId, string code)
         {
             string? pgmId = await (from sp in _dbContext.SysProgramRelation
                                    join p in _dbContext.Program on sp.ProgramId equals p.Id
@@ -299,7 +355,7 @@ namespace Hao.Authentication.Manager.Implements
             return pgmId;
         }
 
-        private string BuilderToken(string recordId, string sysCode, string roleCode, string userName,DateTime expiredAt)
+        private string BuilderToken(string recordId, string sysCode, string roleCode, string userName, DateTime expiredAt)
         {
             var key = GetConfiguration(CfgConsts.PLATFORM_KEY);
             var issuer = GetConfiguration(CfgConsts.PLATFORM_ISSUER);
