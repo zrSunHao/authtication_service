@@ -40,7 +40,7 @@
 
         public const string Delete = "pgm_delete";               // 删除程序
 
-        public const string GetSectList = "pgm_sect_get_list";   // 获取模块/页面数据
+        public const string GetSectList = "pgm_sect_get_list";   // 获取模块/页面的数据列表
 
         public const string AddSect = "pgm_sect_add";            // 添加模块/页面
 
@@ -97,9 +97,9 @@
 
         public const string DeletePgm = "sys_pgm_delete";        // 删除关联程序
 
-        public const string GetNotOwnedPgmList = "sys_pgm_get_notowned_list";   // 添加关联程序
+        public const string GetNotOwnedPgmList = "sys_pgm_get_notowned_list";   // 获取未关联程序列表
 
-        public const string GetOwnedPgmList = "sys_pgm_get_owned_list";         // 添加关联程序
+        public const string GetOwnedPgmList = "sys_pgm_get_owned_list";         // 获取关联程序列表
 
         public const string GetCtms = "sys_ctm_get_list";        // 获取客户列表数据
 

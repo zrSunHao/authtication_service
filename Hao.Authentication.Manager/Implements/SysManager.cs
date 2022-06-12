@@ -114,13 +114,13 @@ namespace Hao.Authentication.Manager.Implements
             {
                 var query = _dbContext.SysView.AsQueryable();
                 var role = await GetCurrentUserRole();
-                if (role.Rank < SysRoleRank.business) throw new Exception("没有权限！");
-                if (role.Rank == SysRoleRank.business || role.Rank == SysRoleRank.manager)
+                if (role.Rank < SysRoleRank.manager) throw new Exception("没有权限！");
+                if (role.Rank == SysRoleRank.manager)
                 {
-                    var sysIds = await _dbContext.CustomerRoleRelation
-                        .Where(x => x.CustomerId == CurrentUserId)
-                        .Select(x => x.SysId)
-                        .ToListAsync();
+                    var sysIds = await (from crr in _dbContext.CustomerRoleRelation
+                                        join r in _dbContext.SysRole on crr.RoleId equals r.Id
+                                        where !r.Deleted && crr.CustomerId == CurrentUserId
+                                        select crr.SysId).ToListAsync();
                     sysIds = sysIds.Distinct().ToList();
                     if (sysIds.Any()) query = query.Where(x => sysIds.Contains(x.Id));
                 }
@@ -902,7 +902,7 @@ namespace Hao.Authentication.Manager.Implements
                 {
                     Name = "认证中心web应用",
                     Code = "auth_web",
-                    Category = ProgramCategory.service,
+                    Category = ProgramCategory.web,
                     Intro = "认证中心web应用",
                     CreatedAt = DateTime.Now,
                     CreatedById = ctm.Id,

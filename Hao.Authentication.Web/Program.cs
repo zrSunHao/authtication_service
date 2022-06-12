@@ -42,13 +42,14 @@ try
     }
 
     app.UseSerilogRequestLogging();
-    //app.UseMiddleware<MonitorMiddleware>();
+    
     app.UseHttpsRedirection();
     app.UseAuthentication();
     app.UseRouting();
     app.UseMyCors();
     app.UseAuthorization();
     app.UseMiddleware<PrivilegeMiddleware>();
+    app.UseMiddleware<MonitorMiddleware>();
     app.MapControllers();
     #endregion
 

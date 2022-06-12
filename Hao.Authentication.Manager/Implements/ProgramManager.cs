@@ -121,8 +121,8 @@ namespace Hao.Authentication.Manager.Implements
                 var query = _dbContext.Program.Where(x => !x.Deleted);
 
                 var role = await GetCurrentUserRole();
-                if (role.Rank < SysRoleRank.business) throw new Exception("没有权限！");
-                if(role.Rank == SysRoleRank.business)
+                if (role.Rank < SysRoleRank.manager) throw new Exception("没有权限！");
+                if(role.Rank == SysRoleRank.manager)
                 {
                     var pgmIds = await _dbContext.ProgramCustomerRelation
                         .Where(x => !x.Deleted && x.CustomerId == CurrentUserId)
