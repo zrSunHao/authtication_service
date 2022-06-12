@@ -47,6 +47,6 @@ namespace Hao.Authentication.Domain.Interfaces
 
         public Task<ResponseResult<bool>> UpdateRolePgmFuncts(SysRoleRelationM model);
 
-        public Task<ResponseResult<bool>> Initial();
+        public Task<ResponseResult<bool>> Initial(string psd);
     }
 }

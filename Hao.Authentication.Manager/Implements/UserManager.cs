@@ -269,6 +269,9 @@ namespace Hao.Authentication.Manager.Implements
                 data.RoleName = role.Name;
                 data.RoleRank = role.Rank;
                 res.Data = data;
+
+                if(role.Rank >= SysRoleRank.sys_manager) return res;
+
                 if (string.IsNullOrEmpty(model.FunctCode))
                 {
                     res.AddMessage("校验通过！");
@@ -284,10 +287,16 @@ namespace Hao.Authentication.Manager.Implements
                     return res;
                 }
             }
+            catch(MyUnauthorizedException e)
+            {
+                res.StatusCode = StatusCodes.Status401Unauthorized;
+                res.AddMessage(e.Message);
+                res.Success = false;
+            }
             catch (Exception e)
             {
-
-                throw;
+                res.AddError(e);
+                _logger.LogError(e, $"第三方程序校验权限失败！LoginId[{model.LoginId}] PgmCode[{model.PgmCode}] FunctCode{model.FunctCode}");
             }
             return res;
         }
@@ -372,6 +381,7 @@ namespace Hao.Authentication.Manager.Implements
                     CreatedAt = DateTime.Now,
                     ExpiredAt = DateTime.Now.AddDays(2),
                 };
+                await _dbContext.AddAsync(record);
             }
             _cache.Save(record.LoginId.ToString(), record);
             await _dbContext.SaveChangesAsync();

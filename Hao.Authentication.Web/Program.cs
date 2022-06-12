@@ -42,7 +42,7 @@ try
     }
 
     app.UseSerilogRequestLogging();
-    app.UseMiddleware<MonitorMiddleware>();
+    //app.UseMiddleware<MonitorMiddleware>();
     app.UseHttpsRedirection();
     app.UseAuthentication();
     app.UseRouting();

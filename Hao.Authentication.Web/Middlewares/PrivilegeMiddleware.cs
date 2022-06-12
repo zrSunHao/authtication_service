@@ -1,6 +1,8 @@
-﻿using Hao.Authentication.Domain.Consts;
+﻿using Hao.Authentication.Common.Enums;
+using Hao.Authentication.Domain.Consts;
 using Hao.Authentication.Domain.Interfaces;
 using Hao.Authentication.Domain.Models;
+using Hao.Authentication.Manager.Basic;
 using Hao.Authentication.Manager.Providers;
 using Hao.Authentication.Web.Attributes;
 using Microsoft.AspNetCore.Authorization;
@@ -35,6 +37,12 @@ namespace Hao.Authentication.Web.Middlewares
                     await context.Response.WriteAsync("You do not have permission to access the requested data or object!");
                 }
             }
+            catch(MyUnauthorizedException e)
+            {
+                context.Response.Clear();
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                await context.Response.WriteAsync(e.Message);
+            }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
@@ -51,22 +59,29 @@ namespace Hao.Authentication.Web.Middlewares
                 var allow = this.AllowAnonymous(context);
                 if (allow) return true;
 
-                var p = _configuration[CfgConsts.PLATFORM_PERMISSION];
-                if (!string.IsNullOrEmpty(p))
-                {
-                    var pa = _configuration[CfgConsts.PLATFORM_PERMISSION_ALLOW];
-                    if(p == pa) return true;
-                }
-
                 IPrivilegeManager? manager = context.RequestServices.GetService<IPrivilegeManager>();
                 if (manager == null) throw new Exception("privilege manager not instance!");
                 UserLastLoginRecordM record = await this.GetLoginRecord(context, manager);
                 context.Items.Add(nameof(UserLastLoginRecordM), record);
 
+                var p = _configuration[CfgConsts.PLATFORM_PERMISSION];
+                if (!string.IsNullOrEmpty(p))
+                {
+                    var pa = CfgConsts.PLATFORM_PERMISSION_ALLOW;
+                    if (p == pa) return true;
+                }
+
+                var role = await manager.GetRoleById(record.RoleId);
+                if(role.Rank >= SysRoleRank.sys_manager) return true;
+
                 var code = GetFunctionCode(context);
                 if (string.IsNullOrEmpty(code)) return true;
                 List<string> codes = await manager.GetFunctCodes(record.RoleId);
                 return codes.Any(x => x == code);
+            }
+            catch(MyUnauthorizedException e)
+            {
+                throw e;
             }
             catch (Exception e)
             {

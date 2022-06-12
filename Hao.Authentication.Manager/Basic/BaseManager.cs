@@ -71,7 +71,7 @@ namespace Hao.Authentication.Manager.Basic
         /// <summary>
         /// 机器码
         /// </summary>
-        protected string MachineCode => GetConfiguration(CfgConsts.PLATFORM_PROGRAM_CODE);
+        protected string MachineCode => GetConfiguration(CfgConsts.PLATFORM_MACHINE_CODE);
 
         /// <summary>
         /// 资源地址

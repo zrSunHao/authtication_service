@@ -14,6 +14,8 @@
 
         public const string PLATFORM_PROGRAM_CODE = "Platform:ProgramCode";
 
+        public const string PLATFORM_MACHINE_CODE = "Platform:MachineCode";
+
 
         public const string FILE_RESOURCE_BASE_URL = "FileResourceBaseUrl";
 

@@ -44,14 +44,14 @@ namespace Hao.Authentication.Manager.Implements
             {
                 var entity = await _dbContext.UserLastLoginRecord.AsNoTracking()
                     .FirstOrDefaultAsync(x => x.LoginId == loginId);
-                if (entity == null) throw new Exception("登录信息为空！");
+                if (entity == null) throw new MyUnauthorizedException("登录信息为空！");
                 else
                 {
                     record = _mapper.Map<UserLastLoginRecordM>(entity);
                     _cache.Save(cacheKey, record);
                 }
             }
-            if (record.ExpiredAt <= DateTime.Now) throw new Exception("登录信息已过期！");
+            if (record.ExpiredAt <= DateTime.Now) throw new MyUnauthorizedException("登录信息已过期！");
             return record;
         }
 

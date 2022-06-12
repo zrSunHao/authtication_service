@@ -153,10 +153,11 @@ namespace Hao.Authentication.Web.Controllers
             return await _manager.UpdateRolePgmFuncts(model);
         }
 
+        [AllowAnonymous]
         [HttpPut("Initial")]
-        public async Task<ResponseResult<bool>> Initial()
+        public async Task<ResponseResult<bool>> Initial(string psd)
         {
-            return await _manager.Initial();
+            return await _manager.Initial(psd);
         }
     }
 }

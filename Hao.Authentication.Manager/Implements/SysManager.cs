@@ -815,15 +815,17 @@ namespace Hao.Authentication.Manager.Implements
             return res;
         }
 
-        public async Task<ResponseResult<bool>> Initial()
+        public async Task<ResponseResult<bool>> Initial(string psd)
         {
             var res = new ResponseResult<bool>();
             try
             {
+                var key = GetConfiguration(CfgConsts.SUPER_MANAGER_KEY);
+                if (psd != key) throw new Exception("密钥不正确！");
+
                 var flag = await _dbContext.Sys.AnyAsync();
                 if (flag) throw new Exception("数据库中存在数据，不能初始化！");
 
-                var key = GetConfiguration("SUPER_MANAGER_KEY");
                 HashHandler.CreateHash(key, out var hash, out var salt);
                 var ctm = new Customer()
                 {
@@ -839,7 +841,7 @@ namespace Hao.Authentication.Manager.Implements
                 var sys = new Sys()
                 {
                     Name = "认证中心",
-                    Code = "authentication_paltform",
+                    Code = "authentication_platform",
                     Intro = "平台认证中心，提供客户、权限、日志管理服务！",
                     Remark = "系统自动创建！",
                     CreatedById = ctm.Id,
@@ -850,6 +852,7 @@ namespace Hao.Authentication.Manager.Implements
                 {
                     Name = "超级管理员",
                     Code = "super_manager",
+                    SysId = sys.Id,
                     Rank = SysRoleRank.super_manager,
                     Intro = "拥有本系统所有的操作权限，数据权限！",
                     Remark = "系统自动创建！",
@@ -871,16 +874,59 @@ namespace Hao.Authentication.Manager.Implements
                 var cr = new CustomerRoleRelation()
                 {
                     RoleId = role.Id,
+                    SysId = sys.Id,
                     CustomerId = ctm.Id,
                     CreatedAt = DateTime.Now,
                     CreatedById = ctm.Id,
+                    Remark = "系统初始化自动生成！",
                 };
+                var pgm_s = new Program()
+                {
+                    Name = "认证中心后台服务",
+                    Code = "auth_service",
+                    Category = ProgramCategory.service,
+                    Intro = "认证中心后台服务!",
+                    CreatedAt = DateTime.Now,
+                    CreatedById = ctm.Id,
+                    Remark = "系统初始化自动生成！",
+                };
+                pgm_s.Id = pgm_s.GetId(MachineCode);
+                var sps = new SysProgramRelation()
+                {
+                    SysId = sys.Id,
+                    ProgramId = pgm_s.Id,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = ctm.Id,
+                };
+                var pgm_c = new Program()
+                {
+                    Name = "认证中心web应用",
+                    Code = "auth_web",
+                    Category = ProgramCategory.service,
+                    Intro = "认证中心web应用",
+                    CreatedAt = DateTime.Now,
+                    CreatedById = ctm.Id,
+                    Remark = "系统初始化自动生成！",
+                };
+                pgm_c.Id = pgm_c.GetId(MachineCode);
+                var spc = new SysProgramRelation()
+                {
+                    SysId = sys.Id,
+                    ProgramId = pgm_c.Id,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = ctm.Id,
+                };
+
 
                 await _dbContext.AddAsync(sys);
                 await _dbContext.AddAsync(role);
                 await _dbContext.AddAsync(ctm);
                 await _dbContext.AddAsync(ctmInfo);
                 await _dbContext.AddAsync(cr);
+                await _dbContext.AddAsync(pgm_s);
+                await _dbContext.AddAsync(sps);
+                await _dbContext.AddAsync(pgm_c);
+                await _dbContext.AddAsync(spc);
                 await _dbContext.SaveChangesAsync();
             }
             catch (Exception e)
