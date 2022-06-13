@@ -24,7 +24,7 @@ try
 
     #region Add services to the container.
     builder.Services.AddDbContext(builder.Configuration);
-    builder.Services.AddMyCors(builder.Configuration);
+    //builder.Services.AddMyCors(builder.Configuration);
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddRabbitMq(builder.Configuration);
     builder.Services.DomainConfigureServices();
@@ -48,7 +48,11 @@ try
     app.UseHttpsRedirection();
     app.UseAuthentication();
     app.UseRouting();
-    app.UseMyCors();
+    app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true) // allow any origin
+                .AllowCredentials()); // allow credentials
     app.UseAuthorization();
     app.UseMiddleware<PrivilegeMiddleware>();
     app.UseMiddleware<MonitorMiddleware>();
