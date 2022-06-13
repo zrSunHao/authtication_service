@@ -24,8 +24,4 @@
     <ProjectReference Include="..\Hao.Authentication.Manager\Hao.Authentication.Manager.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="logs\" />
-  </ItemGroup>
-
 </Project>
